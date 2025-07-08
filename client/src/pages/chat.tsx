@@ -7,6 +7,7 @@ import ChatContainer from "@/components/chat-container";
 import MessageInput from "@/components/message-input";
 import GuardianPanel from "@/components/guardian-panel";
 import HumanVerification from "@/components/human-verification";
+import Walkthrough from "@/components/walkthrough";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette, LogIn, LogOut, Users, Plus, Box } from "lucide-react";
 import {
@@ -26,12 +27,33 @@ export default function Chat() {
   const [profanityFilter, setProfanityFilter] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isHumanVerified, setIsHumanVerified] = useState(false);
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
 
   // Fetch rooms for dropdown
   const { data: rooms = [], isLoading: roomsLoading } = useQuery({
     queryKey: ['/api/rooms'],
     enabled: true,
   });
+
+  // Check if user is new (for walkthrough)
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const hasSeenWalkthrough = localStorage.getItem('voidchat-walkthrough-seen');
+      if (!hasSeenWalkthrough) {
+        setShowWalkthrough(true);
+      }
+    }
+  }, [isAuthenticated]);
+
+  const handleWalkthroughComplete = () => {
+    setShowWalkthrough(false);
+    localStorage.setItem('voidchat-walkthrough-seen', 'true');
+  };
+
+  const handleWalkthroughSkip = () => {
+    setShowWalkthrough(false);
+    localStorage.setItem('voidchat-walkthrough-seen', 'true');
+  };
 
   const RoomsList = () => {
     if (roomsLoading) {
@@ -115,6 +137,7 @@ export default function Chat() {
                   size="sm"
                   className="text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/20"
                   title="Browse rooms"
+                  data-walkthrough="rooms-button"
                 >
                   <Box className="w-4 h-4 mr-1" />
                   <span className="hidden sm:inline">Rooms</span>
@@ -139,6 +162,7 @@ export default function Chat() {
               onClick={toggleTheme}
               className="p-2"
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+              data-walkthrough="theme-toggle"
             >
               {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </Button>
@@ -148,31 +172,20 @@ export default function Chat() {
           
           <div className="flex items-center space-x-2 min-w-[120px] justify-end">
             {/* Profanity Filter Toggle */}
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="profanity-filter"
-                checked={profanityFilter}
-                onChange={(e) => setProfanityFilter(e.target.checked)}
-                className="sr-only"
-              />
-              <label
-                htmlFor="profanity-filter"
-                className={`p-2 rounded-lg cursor-pointer transition-colors ${
-                  profanityFilter 
-                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' 
-                    : 'hover:bg-void-200 dark:hover:bg-void-700 text-void-700 dark:text-void-300'
-                }`}
-                title="Hide profanity"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
-                  <circle cx="9" cy="9" r="0.5" fill="currentColor"/>
-                  <circle cx="15" cy="9" r="0.5" fill="currentColor"/>
-                </svg>
-              </label>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setProfanityFilter(!profanityFilter)}
+              className={`p-2 transition-colors ${
+                profanityFilter 
+                  ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' 
+                  : 'hover:bg-void-200 dark:hover:bg-void-700 text-void-700 dark:text-void-300'
+              }`}
+              title="Hide profanity"
+              data-walkthrough="profanity-filter"
+            >
+              🤬
+            </Button>
 
 
             {/* Guardian Status */}
@@ -231,6 +244,7 @@ export default function Chat() {
                   variant="ghost" 
                   size="sm"
                   className="p-2 rounded-lg hover:bg-void-200 dark:hover:bg-void-700 transition-colors text-void-700 dark:text-void-300"
+                  data-walkthrough="menu-button"
                 >
                   <MoreVertical className="w-3 h-3 md:w-4 md:h-4 text-void-700 dark:text-void-300" />
                 </Button>
@@ -310,10 +324,19 @@ export default function Chat() {
       </main>
 
       {/* Message Input */}
-      <MessageInput 
-        onSendMessage={sendMessage}
-        rateLimitTime={rateLimitTime}
-        error={error}
+      <div data-walkthrough="message-input">
+        <MessageInput 
+          onSendMessage={sendMessage}
+          rateLimitTime={rateLimitTime}
+          error={error}
+        />
+      </div>
+
+      {/* Walkthrough */}
+      <Walkthrough
+        isVisible={showWalkthrough}
+        onComplete={handleWalkthroughComplete}
+        onSkip={handleWalkthroughSkip}
       />
     </div>
   );

@@ -147,3 +147,21 @@ html {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Walkthrough highlight effect */
+.walkthrough-highlight {
+  position: relative;
+  z-index: 60;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  animation: walkthrough-pulse 2s infinite;
+}
+
+@keyframes walkthrough-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.5);
+  }
+}
