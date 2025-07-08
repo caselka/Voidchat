@@ -14,6 +14,10 @@ import GuardianCheckout from "@/pages/guardian-checkout";
 import Sponsor from "@/pages/sponsor";
 import Handle from "@/pages/handle";
 import Themes from "@/pages/themes";
+import Careers from "@/pages/careers";
+import Contact from "@/pages/contact";
+import Privacy from "@/pages/privacy";
+import Terms from "@/pages/terms";
 import NotFound from "@/pages/not-found";
 
 function Navigation() {
@@ -69,6 +73,10 @@ function Router() {
         <Route path="/sponsor" component={Sponsor} />
         <Route path="/handle" component={Handle} />
         <Route path="/themes" component={Themes} />
+        <Route path="/careers" component={Careers} />
+        <Route path="/contact" component={Contact} />
+        <Route path="/privacy" component={Privacy} />
+        <Route path="/terms" component={Terms} />
         <Route component={NotFound} />
       </Switch>
     </>

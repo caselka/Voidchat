@@ -19,12 +19,12 @@ export default function Landing() {
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 font-light">
             Anonymous real-time conversations that fade into the void
           </p>
-          <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground mb-16 max-w-2xl mx-auto">
             Join ephemeral discussions where messages disappear after 15 minutes. 
             Chat freely without accounts, or unlock premium features with a reserved username.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Link href="/chat">
               <Button size="lg" className="text-lg px-8 py-6">
                 <MessageCircle className="mr-2 h-5 w-5" />
@@ -201,10 +201,47 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="border-t bg-muted/30 py-12">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-muted-foreground">
-            voidchat - where conversations fade into the beautiful void
-          </p>
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-4 gap-8 mb-8">
+              <div>
+                <h3 className="font-medium mb-4">Product</h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li><Link href="/chat">Anonymous Chat</Link></li>
+                  <li><Link href="/handle">Custom Handles</Link></li>
+                  <li><Link href="/themes">Theme Customization</Link></li>
+                  <li><Link href="/guardian">Guardian Program</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-medium mb-4">Company</h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li><Link href="/careers">Careers</Link></li>
+                  <li><Link href="/contact">Contact Us</Link></li>
+                  <li><Link href="/sponsor">Sponsor</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-medium mb-4">Legal</h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li><Link href="/privacy">Privacy Policy</Link></li>
+                  <li><Link href="/terms">Terms of Service</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-medium mb-4">Support</h3>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li><a href="mailto:help@voidchat.com">Help Center</a></li>
+                  <li><a href="mailto:safety@voidchat.com">Safety</a></li>
+                </ul>
+              </div>
+            </div>
+            <div className="text-center pt-8 border-t border-border">
+              <p className="text-muted-foreground">
+                voidchat - where conversations fade into the beautiful void
+              </p>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

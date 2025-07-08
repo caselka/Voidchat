@@ -129,3 +129,6 @@ Preferred communication style: Simple, everyday language.
 - **Landing page created**: Professional homepage with premium feature overview and pricing
 - **Theme system improved**: Better dark/light mode with proper background color changes
 - **UI cleanup**: Simplified navigation and improved visual consistency across all pages
+- **Additional pages added**: Careers, Contact, Privacy Policy, and Terms of Service pages
+- **Enhanced username protection**: Any handle containing "caselka" (case-insensitive) is now blocked
+- **Improved spacing**: Better visual hierarchy and spacing in hero section and throughout UI
