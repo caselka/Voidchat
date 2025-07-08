@@ -452,6 +452,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/guardian-eligibility", isAuthenticated, async (req, res) => {
     try {
       const ipAddress = getClientIp(req);
+      const userId = req.user?.id;
+      
+      // Check if user is super user (caselka)
+      if (userId && await storage.isSuperUser(userId)) {
+        return res.json({
+          eligible: true,
+          superUser: true,
+          requirements: {
+            paidAccount: true,
+            messageCount: true,
+          },
+          stats: {
+            accountDays: 999,
+            messagesLast7Days: 9999,
+          }
+        });
+      }
+
       const eligibilityResult = await checkGuardianEligibility(ipAddress);
       
       if (eligibilityResult.eligible) {

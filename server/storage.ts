@@ -427,6 +427,11 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async isSuperUser(userId: string): Promise<boolean> {
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    return user?.username === 'caselka';
+  }
+
   async createUser(userData: UpsertUser): Promise<User> {
     const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const [user] = await db

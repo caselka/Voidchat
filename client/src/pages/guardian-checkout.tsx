@@ -13,6 +13,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
 
 interface GuardianEligibility {
   eligible: boolean;
+  superUser?: boolean;
   requirements: {
     paidAccount: boolean;
     messageCount: boolean;
@@ -76,16 +77,21 @@ export default function GuardianCheckout() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Link href="/login">
-              <Button className="w-full">
-                Login
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button variant="outline" className="w-full">
-                Sign Up
-              </Button>
-            </Link>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground text-center">
+                Premium features require a paid account with reserved username
+              </p>
+              <Link href="/login">
+                <Button className="w-full">
+                  Login
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button variant="outline" className="w-full">
+                  Sign Up
+                </Button>
+              </Link>
+            </div>
             <Link href="/chat">
               <Button variant="ghost" className="w-full">
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -115,6 +121,7 @@ export default function GuardianCheckout() {
   };
 
   const isEligible = eligibility?.eligible;
+  const isSuperUser = eligibility?.superUser;
   const requirements = eligibility?.requirements || { paidAccount: false, messageCount: false };
   const stats = eligibility?.stats || { accountDays: 0, messagesLast7Days: 0 };
 
@@ -255,7 +262,7 @@ export default function GuardianCheckout() {
         </Card>
 
         {/* Payment Section */}
-        {isEligible && (
+        {isEligible && !isSuperUser && (
           <Card>
             <CardHeader>
               <CardTitle>Guardian Subscription</CardTitle>
@@ -314,6 +321,27 @@ export default function GuardianCheckout() {
                   </>
                 )}
               </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Super User Message */}
+        {isSuperUser && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center text-green-600">
+                <Check className="w-5 h-5 mr-2" />
+                Founder Access
+              </CardTitle>
+              <CardDescription>
+                You have permanent Guardian privileges as the founder
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Your Guardian status is permanent and includes all premium features.
+                Thank you for creating this space for the community.
+              </p>
             </CardContent>
           </Card>
         )}
