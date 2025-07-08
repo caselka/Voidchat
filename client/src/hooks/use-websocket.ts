@@ -14,6 +14,7 @@ export interface WebSocketHook {
   isConnected: boolean;
   isGuardian: boolean;
   currentUser: string;
+  onlineCount: number;
   sendMessage: (content: string) => void;
   muteUser: (messageId: string | number) => void;
   deleteMessage: (messageId: string | number) => void;
@@ -29,6 +30,7 @@ export function useWebSocket(): WebSocketHook {
   const [isConnected, setIsConnected] = useState(false);
   const [isGuardian, setIsGuardian] = useState(false);
   const [currentUser, setCurrentUser] = useState<string>('');
+  const [onlineCount, setOnlineCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [rateLimitTime, setRateLimitTime] = useState(0);
 
@@ -69,6 +71,10 @@ export function useWebSocket(): WebSocketHook {
               
             case 'current_user':
               setCurrentUser(message.data.username);
+              break;
+              
+            case 'online_count':
+              setOnlineCount(message.data.count);
               break;
               
             case 'message_deleted':
@@ -195,6 +201,7 @@ export function useWebSocket(): WebSocketHook {
     isConnected,
     isGuardian,
     currentUser,
+    onlineCount,
     sendMessage,
     muteUser,
     deleteMessage,

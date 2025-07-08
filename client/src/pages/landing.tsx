@@ -21,7 +21,8 @@ export default function Landing() {
           </p>
           <p className="text-lg text-muted-foreground mb-16 max-w-2xl mx-auto">
             Join ephemeral discussions where messages disappear after 15 minutes. 
-            Chat freely without accounts, or unlock premium features with a reserved username.
+            Chat freely without accounts, or unlock premium features including custom themes, 
+            reserved usernames, and moderation powers.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -38,13 +39,13 @@ export default function Landing() {
                   variant="outline" 
                   size="lg" 
                   className="text-lg px-8 py-6"
-                  onClick={() => window.location.href = "/api/login"}
+                  onClick={() => window.location.href = "/login"}
                 >
                   <Star className="mr-2 h-5 w-5" />
                   Sign Up / Login for Premium
                 </Button>
                 <p className="text-sm text-muted-foreground max-w-md text-center">
-                  <strong>New users:</strong> Create your account instantly with Replit<br/>
+                  <strong>New users:</strong> Create your account instantly<br/>
                   <strong>Returning users:</strong> Sign in to access your premium features
                 </p>
               </div>

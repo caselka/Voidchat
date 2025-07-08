@@ -17,8 +17,7 @@ import {
 
 export default function Chat() {
   const { theme, toggleTheme } = useTheme();
-  const { messages, isConnected, isGuardian, currentUser, sendMessage, muteUser, deleteMessage, enableSlowMode, error, rateLimitTime } = useWebSocket();
-  const [onlineCount] = useState(Math.floor(Math.random() * 50) + 20);
+  const { messages, isConnected, isGuardian, currentUser, onlineCount, sendMessage, muteUser, deleteMessage, enableSlowMode, error, rateLimitTime } = useWebSocket();
 
   useEffect(() => {
     // Auto-scroll to bottom when new messages arrive

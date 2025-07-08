@@ -22,6 +22,21 @@ interface WebSocketClient extends WebSocket {
 const clients = new Set<WebSocketClient>();
 let messageCountSinceLastAd = 0;
 
+// Broadcast online count to all clients
+function broadcastOnlineCount() {
+  const onlineCount = clients.size;
+  const message = JSON.stringify({
+    type: 'online_count',
+    data: { count: onlineCount }
+  });
+  
+  clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+}
+
 function generateUsername(): string {
   return `anon${Math.floor(Math.random() * 9999)}`;
 }
@@ -172,6 +187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const ipAddress = getClientIp(req);
     ws.ipAddress = ipAddress;
     clients.add(ws);
+    broadcastOnlineCount();
     
     console.log(`WebSocket connected from ${ipAddress}`, {
       headers: req.headers,
@@ -384,6 +400,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     ws.on('close', (code, reason) => {
       clients.delete(ws);
+      broadcastOnlineCount();
       console.log(`WebSocket disconnected from ${ipAddress}`, { code, reason: reason.toString() });
     });
     

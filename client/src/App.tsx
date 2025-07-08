@@ -10,6 +10,8 @@ import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Chat from "@/pages/chat";
+import Login from "@/pages/login";
+import Register from "@/pages/register";
 import GuardianCheckout from "@/pages/guardian-checkout";
 import Sponsor from "@/pages/sponsor";
 import Handle from "@/pages/handle";
@@ -52,7 +54,7 @@ function Navigation() {
           variant="outline"
           size="sm"
           className="bg-background/80 backdrop-blur-sm"
-          onClick={() => window.location.href = "/api/login"}
+          onClick={() => window.location.href = "/login"}
         >
           <User className="h-4 w-4 mr-1" />
           Login
@@ -69,6 +71,8 @@ function Router() {
       <Switch>
         <Route path="/" component={Landing} />
         <Route path="/chat" component={Chat} />
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
         <Route path="/guardian" component={GuardianCheckout} />
         <Route path="/sponsor" component={Sponsor} />
         <Route path="/handle" component={Handle} />

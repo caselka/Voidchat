@@ -5,6 +5,9 @@ import { promisify } from "util";
 import { storage } from "./storage";
 import { z } from "zod";
 import connectPg from "connect-pg-simple";
+import bcrypt from "bcrypt";
+
+
 
 declare global {
   namespace Express {
@@ -157,7 +160,7 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Login endpoint
+  // Login endpoint  
   app.post("/api/login", async (req, res) => {
     try {
       const { email, password } = req.body;
