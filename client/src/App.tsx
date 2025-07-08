@@ -45,7 +45,15 @@ function Navigation() {
             variant="outline"
             size="sm"
             className="bg-background/80"
-            onClick={() => window.location.href = "/api/logout"}
+            onClick={async () => {
+              try {
+                await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+                window.location.href = '/';
+              } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/';
+              }
+            }}
           >
             <LogOut className="h-4 w-4 mr-1" />
             Logout
