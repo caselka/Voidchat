@@ -14,10 +14,12 @@ export default function HumanVerification({ onVerified }: HumanVerificationProps
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState("");
 
-  // Simple math captcha
-  const num1 = Math.floor(Math.random() * 10) + 1;
-  const num2 = Math.floor(Math.random() * 10) + 1;
-  const correctAnswer = num1 + num2;
+  // Simple math captcha - use useState to prevent re-generation on re-render
+  const [mathProblem] = useState(() => {
+    const num1 = Math.floor(Math.random() * 10) + 1;
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    return { num1, num2, correctAnswer: num1 + num2 };
+  });
 
   const handleVerify = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +27,7 @@ export default function HumanVerification({ onVerified }: HumanVerificationProps
     setError("");
 
     setTimeout(() => {
-      if (parseInt(answer) === correctAnswer) {
+      if (parseInt(answer) === mathProblem.correctAnswer) {
         onVerified();
       } else {
         setError("Incorrect answer. Please try again.");
@@ -51,7 +53,7 @@ export default function HumanVerification({ onVerified }: HumanVerificationProps
           <form onSubmit={handleVerify} className="space-y-4">
             <div className="text-center">
               <div className="text-2xl font-bold bg-muted p-4 rounded-lg">
-                {num1} + {num2} = ?
+                {mathProblem.num1} + {mathProblem.num2} = ?
               </div>
             </div>
             
