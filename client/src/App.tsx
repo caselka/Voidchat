@@ -32,7 +32,7 @@ function Navigation() {
         variant="outline"
         size="icon"
         onClick={toggleTheme}
-        className="bg-background/80 backdrop-blur-sm"
+        className="bg-background/80"
       >
         {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </Button>
@@ -42,7 +42,7 @@ function Navigation() {
           <Button
             variant="outline"
             size="sm"
-            className="bg-background/80 backdrop-blur-sm"
+            className="bg-background/80"
             onClick={() => window.location.href = "/api/logout"}
           >
             <LogOut className="h-4 w-4 mr-1" />
@@ -53,7 +53,7 @@ function Navigation() {
         <Button
           variant="outline"
           size="sm"
-          className="bg-background/80 backdrop-blur-sm"
+          className="bg-background/80"
           onClick={() => window.location.href = "/login"}
         >
           <User className="h-4 w-4 mr-1" />
