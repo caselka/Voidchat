@@ -151,19 +151,49 @@ export default function MessageInput({
                   }
                 }}
                 onFocus={() => {
-                  // Prevent scroll when focusing on mobile
+                  // Enhanced mobile keyboard handling
                   if (window.innerWidth <= 768) {
-                    setTimeout(() => {
-                      window.scrollTo(0, document.body.scrollHeight);
-                    }, 100);
+                    const scrollY = window.scrollY;
+                    document.body.classList.add('input-locked');
+                    document.body.style.position = 'fixed';
+                    document.body.style.top = `-${scrollY}px`;
+                    document.body.style.width = '100%';
+                    document.body.style.height = '100vh';
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Mark container as keyboard active
+                    if (containerRef.current) {
+                      containerRef.current.classList.add('keyboard-active');
+                    }
                   }
                 }}
                 onBlur={() => {
-                  // Reset keyboard state when unfocused
+                  // Restore scroll position with delay for keyboard animation
+                  if (window.innerWidth <= 768) {
+                    setTimeout(() => {
+                      const scrollY = document.body.style.top;
+                      document.body.classList.remove('input-locked');
+                      document.body.style.position = '';
+                      document.body.style.top = '';
+                      document.body.style.width = '';
+                      document.body.style.height = '';
+                      document.body.style.overflow = '';
+                      
+                      if (containerRef.current) {
+                        containerRef.current.classList.remove('keyboard-active');
+                      }
+                      
+                      // Restore scroll position
+                      const targetScrollY = parseInt(scrollY || '0') * -1;
+                      window.scrollTo(0, targetScrollY);
+                    }, 150); // Delay for keyboard animation
+                  }
+                  
+                  // Reset keyboard state
                   setTimeout(() => {
                     setIsKeyboardOpen(false);
                     document.body.classList.remove('ios-keyboard-open');
-                  }, 100);
+                  }, 200);
                 }}
                 placeholder="Type a message..."
                 className="message-input w-full resize-none border-none outline-none bg-transparent text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 text-[16px] leading-6 px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"

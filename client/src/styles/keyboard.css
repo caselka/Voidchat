@@ -94,4 +94,34 @@ body.ios-keyboard-open {
   width: 100%;
   top: 0;
   left: 0;
+  overflow: hidden;
+}
+
+/* Enhanced mobile input locking */
+@media (max-width: 768px) {
+  .message-input-container {
+    /* Use environment variables for safe keyboard handling */
+    bottom: env(keyboard-inset-height, 0px);
+    padding-bottom: max(env(safe-area-inset-bottom), env(keyboard-inset-height, 0px));
+  }
+  
+  /* Lock scroll when input is focused */
+  body.input-locked {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Ensure input container stays above keyboard */
+  .message-input-container.keyboard-active {
+    transform: translateZ(0);
+    will-change: transform;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2000;
+  }
 }

@@ -110,12 +110,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 8, 2025)
 
-### Chat Interface Improvements (Latest)
-- **Fixed keyboard positioning**: Changed from oval text input back to original design to prevent screen scrolling away
-- **Improved dark theme readability**: Enhanced text contrast and visibility in dark mode
-- **Keyboard persistence**: Removed aggressive scroll behavior that was causing input to scroll away from view
-- **Clean message display**: Removed broken reply UI containers and outline boxes for cleaner interface
-- **Better mobile experience**: Fixed iOS keyboard handling without auto-scroll that disrupts message viewing
+### Chat Interface Improvements & Registration Fix (Latest)
+- **Fixed keyboard positioning**: Enhanced mobile keyboard handling with proper scroll locking and position restoration
+- **Replit AI-style input**: Implemented auto-resizing textarea with proper focus states and rounded design
+- **Enhanced mobile optimization**: Added visual viewport detection and dynamic keyboard adjustment for all devices
+- **Scroll locking**: Input stays locked in place when keyboard appears, prevents scrolling away on mobile
+- **Fixed sign up payment**: Added missing registration payment endpoints for $3 username reservation system
+- **Payment integration working**: Complete Stripe payment flow for account creation now functional
+- **Better iOS support**: Enhanced CSS for safe area handling and keyboard environment variables
 
 ### Account Creation System with $3 Username Reservation
 - **Paid account creation**: Users pay $3 to reserve a unique username during registration
