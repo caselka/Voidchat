@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Volume, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,62 +41,6 @@ export default function ChatContainer({
   onReplyToMessage,
   profanityFilter = false 
 }: ChatContainerProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isNearBottom, setIsNearBottom] = useState(true);
-  const [showScrollButton, setShowScrollButton] = useState(false);
-
-  // Smart scroll to bottom with user awareness
-  const scrollToBottom = useCallback((force = false) => {
-    if (force || isNearBottom) {
-      messagesEndRef.current?.scrollIntoView({ 
-        behavior: "smooth",
-        block: "end"
-      });
-    }
-  }, [isNearBottom]);
-
-  // Throttled scroll handler for performance
-  const handleScroll = useCallback(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = container;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-    const nearBottom = distanceFromBottom < 150;
-    
-    setIsNearBottom(nearBottom);
-    setShowScrollButton(distanceFromBottom > 300);
-  }, []);
-
-  // Debounced scroll listener
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    let timeoutId: NodeJS.Timeout;
-    const debouncedHandler = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(handleScroll, 16); // ~60fps
-    };
-
-    container.addEventListener('scroll', debouncedHandler, { passive: true });
-    return () => {
-      container.removeEventListener('scroll', debouncedHandler);
-      clearTimeout(timeoutId);
-    };
-  }, [handleScroll]);
-
-  // Auto-scroll for new messages when user is at bottom
-  useEffect(() => {
-    if (messages.length > 0) {
-      // Small delay to allow DOM updates
-      const timeoutId = setTimeout(() => {
-        scrollToBottom();
-      }, 50);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [messages, scrollToBottom]);
   const formatTime = (timestamp: string) => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
@@ -200,22 +144,6 @@ export default function ChatContainer({
           )}
         </div>
       ))}
-      
-      {/* Scroll anchor for auto-scroll */}
-      <div ref={messagesEndRef} className="h-1" />
-      
-      {/* Scroll to bottom button */}
-      {showScrollButton && (
-        <div className="fixed bottom-24 right-4 z-10">
-          <Button
-            onClick={() => scrollToBottom(true)}
-            className="h-10 w-10 p-0 rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg border-0"
-            size="sm"
-          >
-            ↓
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
