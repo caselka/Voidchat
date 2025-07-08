@@ -134,6 +134,8 @@ Preferred communication style: Simple, everyday language.
 - **Super user privileges**: Caselka can create rooms for free as founder account
 - **Human verification**: Anonymous users must solve simple math captcha before accessing chat
 - **Individual room pages**: Each room has dedicated page at /room/name with owner information
+- **Rooms button in header**: Purple cube icon button on left side for all users to access room features
+- **Fixed human verification**: Math equations no longer change while typing answers
 
 ### Sponsor Ads Enhancement and Content Moderation
 - **Removed impression estimates**: Eliminated misleading impression counts from sponsor ad pricing display

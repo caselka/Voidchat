@@ -8,7 +8,7 @@ import MessageInput from "@/components/message-input";
 import GuardianPanel from "@/components/guardian-panel";
 import HumanVerification from "@/components/human-verification";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette, LogIn, LogOut, Users, Plus } from "lucide-react";
+import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette, LogIn, LogOut, Users, Plus, Box } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,6 +75,21 @@ export default function Chat() {
             <span className="text-xs px-2 py-1 bg-muted rounded text-muted-foreground hidden sm:inline">
               {isConnected ? `${onlineCount} online` : 'Connecting...'}
             </span>
+
+            {/* Rooms Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/20"
+              title="Browse rooms"
+            >
+              <Link href="/create-room">
+                <Box className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Rooms</span>
+              </Link>
+            </Button>
+
             {/* Theme Toggle */}
             <Button
               variant="ghost"
@@ -116,21 +131,7 @@ export default function Chat() {
                 </svg>
               </label>
             </div>
-            {/* Create Room Button */}
-            {isAuthenticated && (
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-                className="text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/20"
-                title="Create private room"
-              >
-                <Link href="/create-room">
-                  <Plus className="w-4 h-4 mr-1" />
-                  <span className="hidden sm:inline">Room</span>
-                </Link>
-              </Button>
-            )}
+
 
             {/* Guardian Status */}
             {isGuardian && (
