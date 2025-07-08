@@ -6,6 +6,7 @@ import { storage } from "./storage";
 import { insertMessageSchema, insertAmbientAdSchema } from "@shared/schema";
 import { setupAuth, isAuthenticated } from "./emailAuth";
 import { sanitizeMessageContent, sanitizeUsername, blockBackendInteraction, checkValidationRateLimit } from "./security";
+import { checkProfanity, validateSponsorContent } from "./profanity-filter";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -773,6 +774,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { productName, description, url, duration, paymentIntentId } = req.body;
       
+      // First validate content for spam/illegal advertising
+      const contentValidation = validateSponsorContent(productName, description, url);
+      if (!contentValidation.isValid) {
+        return res.status(400).json({ 
+          message: contentValidation.reason,
+          blockedTerms: contentValidation.blockedTerms
+        });
+      }
+      
       const validation = insertAmbientAdSchema.safeParse({
         productName,
         description,
@@ -781,7 +791,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       if (!validation.success) {
-        return res.status(400).json({ message: 'Invalid ad data' });
+        return res.status(400).json({ message: 'Invalid ad data format' });
       }
       
       const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);

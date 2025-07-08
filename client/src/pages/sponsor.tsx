@@ -55,7 +55,7 @@ const CheckoutForm = ({ adData, duration }: { adData: SponsorForm; duration: str
           variant: "destructive",
         });
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        await apiRequest("POST", "/api/submit-sponsor-ad", {
+        const response = await apiRequest("POST", "/api/submit-sponsor-ad", {
           ...adData,
           duration,
           paymentIntentId: paymentIntent.id
@@ -71,9 +71,20 @@ const CheckoutForm = ({ adData, duration }: { adData: SponsorForm; duration: str
         }, 2000);
       }
     } catch (error: any) {
+      let errorMessage = "An error occurred during payment";
+      
+      // Handle content validation errors
+      if (error.message && error.message.includes("inappropriate content")) {
+        errorMessage = "Ad content was rejected due to inappropriate material";
+      } else if (error.message && error.message.includes("not permitted")) {
+        errorMessage = "Ad content violates advertising policies";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "An error occurred during payment",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -155,7 +166,7 @@ export default function Sponsor() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-void-600 dark:text-void-400 mb-4">
-                  Your ambient ad will appear every 20 messages as a subtle, poetic insertion in the chat flow.
+                  Your ambient ad will appear every 20 messages as a subtle, poetic insertion in the chat flow. Content is reviewed for appropriateness.
                 </p>
 
                 <Form {...form}>
@@ -239,7 +250,7 @@ export default function Sponsor() {
                         onClick={() => setSelectedDuration('day')}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-sm">24 hours (≈100 impressions)</span>
+                          <span className="text-sm">24 hours</span>
                           <span className="font-medium">$15</span>
                         </div>
                       </div>
@@ -253,7 +264,7 @@ export default function Sponsor() {
                         onClick={() => setSelectedDuration('week')}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-sm">7 days (≈700 impressions)</span>
+                          <span className="text-sm">7 days</span>
                           <span className="font-medium">$75</span>
                         </div>
                       </div>

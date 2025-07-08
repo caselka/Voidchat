@@ -110,6 +110,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 8, 2025)
 
+### Sponsor Ads Enhancement and Content Moderation
+- **Removed impression estimates**: Eliminated misleading impression counts from sponsor ad pricing display
+- **Enhanced content screening**: Comprehensive validation for sponsor ads including:
+  - Profanity and inappropriate content filtering
+  - Prohibited category detection (gambling, drugs, weapons, adult content, crypto, etc.)
+  - Suspicious URL screening (URL shorteners, free TLDs, phishing patterns)
+  - Real-time content validation with detailed error messages
+- **Improved error handling**: Clear feedback for rejected ads with specific reasons
+- **Content review notice**: Added transparency about content review process
+
+## Recent Updates (July 8, 2025)
+
 ### Comprehensive Username Protection System
 - **Multi-layered filtering**: System reserved terms, founder protection, profanity filtering, format validation
 - **Detailed error messages**: Specific feedback for each rejection reason (reserved terms, inappropriate content, format issues)

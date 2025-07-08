@@ -126,3 +126,87 @@ export function validateUsernameFormat(username: string): { isValid: boolean; re
   
   return { isValid: true };
 }
+
+// Enhanced sponsor ad content validation
+export function validateSponsorContent(productName: string, description: string, url?: string): {
+  isValid: boolean;
+  reason?: string;
+  blockedTerms?: string[];
+} {
+  // Check for profanity in product name and description
+  const productCheck = checkProfanity(productName);
+  const descriptionCheck = checkProfanity(description);
+  
+  if (!productCheck.isClean) {
+    return {
+      isValid: false,
+      reason: "Product name contains inappropriate content",
+      blockedTerms: productCheck.blockedTerms
+    };
+  }
+  
+  if (!descriptionCheck.isClean) {
+    return {
+      isValid: false,
+      reason: "Description contains inappropriate content",
+      blockedTerms: descriptionCheck.blockedTerms
+    };
+  }
+  
+  // Check for illegal/prohibited advertising categories
+  const combinedText = `${productName} ${description}`.toLowerCase();
+  
+  // Prohibited categories
+  const prohibitedCategories = [
+    'gambling', 'casino', 'poker', 'betting', 'lottery', 'slots',
+    'drugs', 'weed', 'cannabis', 'marijuana', 'cocaine', 'heroin', 'pills',
+    'weapons', 'guns', 'firearms', 'ammunition', 'explosives', 'knife',
+    'cryptocurrency', 'crypto', 'bitcoin', 'ethereum', 'investment', 'trading',
+    'adult', 'escort', 'dating', 'hookup', 'onlyfans', 'cam', 'webcam',
+    'fake', 'counterfeit', 'replica', 'pirated', 'illegal', 'stolen',
+    'pyramid', 'mlm', 'get rich quick', 'make money fast', 'work from home',
+    'miracle cure', 'weight loss', 'diet pills', 'supplements',
+    'hacking', 'ddos', 'botnet', 'spam', 'phishing'
+  ];
+  
+  for (const category of prohibitedCategories) {
+    if (combinedText.includes(category)) {
+      return {
+        isValid: false,
+        reason: `Advertising for ${category} is not permitted`,
+        blockedTerms: [category]
+      };
+    }
+  }
+  
+  // URL validation if provided
+  if (url) {
+    const urlCheck = checkProfanity(url);
+    if (!urlCheck.isClean) {
+      return {
+        isValid: false,
+        reason: "URL contains inappropriate content",
+        blockedTerms: urlCheck.blockedTerms
+      };
+    }
+    
+    // Check for suspicious domains
+    const suspiciousDomains = [
+      'bit.ly', 'tinyurl.com', 'goo.gl', 't.co', // URL shorteners
+      '.tk', '.ml', '.ga', '.cf', // Free suspicious TLDs
+      'phishing', 'scam', 'fake'
+    ];
+    
+    for (const domain of suspiciousDomains) {
+      if (url.toLowerCase().includes(domain)) {
+        return {
+          isValid: false,
+          reason: "Suspicious or prohibited URL detected",
+          blockedTerms: [domain]
+        };
+      }
+    }
+  }
+  
+  return { isValid: true };
+}
