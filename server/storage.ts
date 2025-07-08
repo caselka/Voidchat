@@ -101,6 +101,7 @@ export interface IStorage {
   getRoom(name: string): Promise<Room | undefined>;
   getRoomById(id: number): Promise<Room | undefined>;
   getUserRooms(userId: string): Promise<Room[]>;
+  getAllRooms(): Promise<Room[]>;
   isRoomNameAvailable(name: string): Promise<boolean>;
   
   // Room messages
@@ -589,6 +590,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(rooms)
       .where(and(eq(rooms.creatorId, userId), eq(rooms.isActive, true)))
+      .orderBy(desc(rooms.createdAt));
+  }
+
+  async getAllRooms(): Promise<Room[]> {
+    return await db
+      .select()
+      .from(rooms)
+      .where(eq(rooms.isActive, true))
       .orderBy(desc(rooms.createdAt));
   }
 

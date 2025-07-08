@@ -16,6 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useQuery } from "@tanstack/react-query";
+import type { Room } from "@shared/schema";
 
 export default function Chat() {
   const { theme, toggleTheme } = useTheme();
@@ -24,6 +26,35 @@ export default function Chat() {
   const [profanityFilter, setProfanityFilter] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isHumanVerified, setIsHumanVerified] = useState(false);
+
+  // Fetch rooms for dropdown
+  const { data: rooms = [], isLoading: roomsLoading } = useQuery({
+    queryKey: ['/api/rooms'],
+    enabled: true,
+  });
+
+  const RoomsList = () => {
+    if (roomsLoading) {
+      return <DropdownMenuItem disabled>Loading rooms...</DropdownMenuItem>;
+    }
+    
+    if (rooms.length === 0) {
+      return <DropdownMenuItem disabled>No rooms available</DropdownMenuItem>;
+    }
+    
+    return (
+      <>
+        {rooms.map((room: Room) => (
+          <DropdownMenuItem key={room.id} asChild>
+            <Link href={`/room/${room.name}`} className="flex items-center">
+              <Box className="w-4 h-4 mr-2" />
+              {room.name}
+            </Link>
+          </DropdownMenuItem>
+        ))}
+      </>
+    );
+  };
 
   // Check if user needs human verification (anonymous users only)
   const needsVerification = !isAuthenticated && !isHumanVerified;
@@ -76,19 +107,30 @@ export default function Chat() {
               {isConnected ? `${onlineCount} online` : 'Connecting...'}
             </span>
 
-            {/* Rooms Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              className="text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/20"
-              title="Browse rooms"
-            >
-              <Link href="/create-room">
-                <Box className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">Rooms</span>
-              </Link>
-            </Button>
+            {/* Rooms Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/20"
+                  title="Browse rooms"
+                >
+                  <Box className="w-4 h-4 mr-1" />
+                  <span className="hidden sm:inline">Rooms</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link href="/create-room" className="flex items-center">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Room
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <RoomsList />
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Theme Toggle */}
             <Button

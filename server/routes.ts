@@ -212,6 +212,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
   // Room management routes
+  app.get('/api/rooms', async (req, res) => {
+    try {
+      const rooms = await storage.getAllRooms();
+      res.json(rooms);
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+      res.status(500).json({ message: 'Failed to fetch rooms' });
+    }
+  });
+
   app.post('/api/rooms', isAuthenticated, async (req, res) => {
     try {
       const { name } = req.body;
