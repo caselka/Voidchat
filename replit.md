@@ -110,6 +110,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 8, 2025)
 
+### Authentication System Fixed and Guardian Requirements Updated
+- **Authentication system working**: Fixed session management for login/logout functionality
+- **Guardian pricing increased**: Updated from $2/day, $10/week to $20/day, $100/week to reduce abuse
+- **Guardian eligibility requirements**: Users must have either:
+  - 30+ days of paid account history OR
+  - 500+ messages in the last 7 days
+- **UI cleanup on chat page**: Removed login button and theme toggle as requested
+- **Complete payment flow working**: Guardian payment initialization now functional with authentication
+
 ### Sponsor Ads Enhancement and Content Moderation
 - **Removed impression estimates**: Eliminated misleading impression counts from sponsor ad pricing display
 - **Enhanced content screening**: Comprehensive validation for sponsor ads including:
@@ -119,8 +128,6 @@ Preferred communication style: Simple, everyday language.
   - Real-time content validation with detailed error messages
 - **Improved error handling**: Clear feedback for rejected ads with specific reasons
 - **Content review notice**: Added transparency about content review process
-
-## Recent Updates (July 8, 2025)
 
 ### Comprehensive Username Protection System
 - **Multi-layered filtering**: System reserved terms, founder protection, profanity filtering, format validation

@@ -187,13 +187,14 @@ export async function setupAuth(app: Express) {
         return res.status(401).json({ message: "Please verify your email first" });
       }
 
-      // Login user
-      (req as any).user = {
+      // Login user - store in session
+      (req.session as any).user = {
         id: user.id,
         username: user.username,
         email: user.email,
         isVerified: true
       };
+      (req as any).user = (req.session as any).user;
 
       res.json({ message: "Login successful", user: (req as any).user });
     } catch (error) {
@@ -218,16 +219,18 @@ export async function setupAuth(app: Express) {
 
   // Get current user
   app.get("/api/auth/user", (req, res) => {
-    if (!(req as any).user) {
+    if (!(req.session as any).user) {
       return res.status(401).json({ message: "Not authenticated" });
     }
+    (req as any).user = (req.session as any).user;
     res.json((req as any).user);
   });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  if (!(req as any).user) {
+  if (!(req.session as any).user) {
     return res.status(401).json({ message: "Authentication required" });
   }
+  (req as any).user = (req.session as any).user;
   next();
 };

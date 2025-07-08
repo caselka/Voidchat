@@ -164,7 +164,7 @@ export default function GuardianCheckout() {
               >
                 <div className="flex items-center justify-between">
                   <span className="font-medium">24 hours</span>
-                  <span className="text-lg font-bold text-green-600">$2</span>
+                  <span className="text-lg font-bold text-green-600">$20</span>
                 </div>
               </div>
               
@@ -181,7 +181,7 @@ export default function GuardianCheckout() {
                     <span className="font-medium">7 days</span>
                     <span className="text-xs text-blue-600 dark:text-blue-400 ml-2">(50% off)</span>
                   </div>
-                  <span className="text-lg font-bold text-blue-600">$10</span>
+                  <span className="text-lg font-bold text-blue-600">$100</span>
                 </div>
               </div>
             </div>

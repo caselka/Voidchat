@@ -86,6 +86,9 @@ export interface IStorage {
   getUserByUsernameOrEmail(usernameOrEmail: string): Promise<User | undefined>;
   createUser(user: UpsertUser): Promise<User>;
   verifyUser(id: string): Promise<void>;
+  
+  // User stats for Guardian eligibility
+  getUserStats?(ipAddress: string): Promise<{ messagesLast7Days: number; paidAccountSince?: Date } | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -503,6 +506,34 @@ export class DatabaseStorage implements IStorage {
       .update(anonUsernames)
       .set({ lastUsedAt: new Date() })
       .where(eq(anonUsernames.ipAddress, ipAddress));
+  }
+
+  async getUserStats(ipAddress: string): Promise<{ messagesLast7Days: number; paidAccountSince?: Date } | undefined> {
+    try {
+      // Count messages from last 7 days for this IP
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const messageCount = await db.select({ count: sql<number>`count(*)` })
+        .from(messages)
+        .where(and(
+          eq(messages.ipAddress, ipAddress),
+          gte(messages.createdAt, sevenDaysAgo)
+        ));
+
+      // Check if user has paid account (Guardian or custom handle purchases)
+      const paidAccount = await db.select({ createdAt: guardians.createdAt })
+        .from(guardians)
+        .where(eq(guardians.ipAddress, ipAddress))
+        .orderBy(desc(guardians.createdAt))
+        .limit(1);
+
+      return {
+        messagesLast7Days: messageCount[0]?.count || 0,
+        paidAccountSince: paidAccount[0]?.createdAt
+      };
+    } catch (error) {
+      console.error('getUserStats error:', error);
+      return undefined;
+    }
   }
 }
 

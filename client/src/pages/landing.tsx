@@ -218,7 +218,7 @@ export default function Landing() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="text-3xl font-light">$2-10</div>
+                <div className="text-3xl font-light">$20-100</div>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li>• Moderation powers</li>
                   <li>• Delete inappropriate messages</li>

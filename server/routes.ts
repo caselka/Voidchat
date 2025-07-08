@@ -42,6 +42,31 @@ function generateUsername(): string {
   return `anon${Math.floor(Math.random() * 9999)}`;
 }
 
+async function checkGuardianEligibility(ipAddress: string): Promise<{ eligible: boolean; reason?: string }> {
+  try {
+    // Check if user has paid account for 30+ days or 500+ messages in last 7 days
+    const userStats = await storage.getUserStats?.(ipAddress);
+    
+    if (userStats?.paidAccountSince) {
+      const daysPaid = Math.floor((Date.now() - userStats.paidAccountSince.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysPaid >= 30) {
+        return { eligible: true };
+      }
+    }
+    
+    if (userStats?.messagesLast7Days >= 500) {
+      return { eligible: true };
+    }
+    
+    return { 
+      eligible: false, 
+      reason: "Guardian access requires either 30+ days of paid account or 500+ messages in the last 7 days" 
+    };
+  } catch (error) {
+    return { eligible: true }; // Default to allow if check fails
+  }
+}
+
 function getClientIp(req: any): string {
   return req.headers['x-forwarded-for']?.split(',')[0] || 
          req.connection.remoteAddress || 
@@ -424,7 +449,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/create-guardian-payment', isAuthenticated, async (req, res) => {
     try {
       const { duration } = req.body; // 'day' or 'week'
-      const amount = duration === 'week' ? 1000 : 200; // $10 or $2 in cents
+      const ipAddress = getClientIp(req);
+      
+      // Check Guardian eligibility
+      const eligibilityCheck = await checkGuardianEligibility(ipAddress);
+      if (!eligibilityCheck.eligible) {
+        return res.status(403).json({ 
+          message: eligibilityCheck.reason 
+        });
+      }
+      
+      const amount = duration === 'week' ? 10000 : 2000; // $100 or $20 in cents
       
       const paymentIntent = await stripe.paymentIntents.create({
         amount,
@@ -432,7 +467,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         metadata: {
           type: 'guardian',
           duration,
-          ip: getClientIp(req),
+          ip: ipAddress,
         },
       });
       

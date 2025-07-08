@@ -46,9 +46,7 @@ export default function Chat() {
       <header className="fixed top-0 left-0 right-0 z-40 bg-background/95 border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-2 md:space-x-3">
-            <Link href="/">
-              <h1 className="text-lg md:text-xl font-light tracking-wider text-foreground hover:text-muted-foreground transition-colors cursor-pointer">voidchat</h1>
-            </Link>
+            <h1 className="text-lg md:text-xl font-light tracking-wider text-foreground">voidchat</h1>
             <span className="text-xs px-2 py-1 bg-muted rounded text-muted-foreground hidden sm:inline">
               {isConnected ? `${onlineCount} online` : 'Connecting...'}
             </span>
@@ -70,15 +68,7 @@ export default function Chat() {
               </div>
             )}
             
-            {/* Dark Mode Toggle */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-void-200 dark:hover:bg-void-700 transition-colors"
-            >
-              {theme === "dark" ? <Sun className="w-3 h-3 md:w-4 md:h-4" /> : <Moon className="w-3 h-3 md:w-4 md:h-4" />}
-            </Button>
+
             
             {/* Menu */}
             <DropdownMenu>
@@ -95,7 +85,7 @@ export default function Chat() {
                 <DropdownMenuItem asChild>
                   <Link href="/guardian" className="flex items-center text-void-700 dark:text-void-300 hover:text-void-900 dark:hover:text-void-100">
                     <Shield className="w-4 h-4 mr-2 text-green-500" />
-                    Become Guardian ($2/day)
+                    Become Guardian ($20/day)
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
