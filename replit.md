@@ -110,14 +110,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 8, 2025)
 
-### Message Layout Polish (Latest)
-- **Clean bubble design**: Message bubbles with dark gray background (#1a1a1a), 12px rounded borders, and proper spacing
-- **Structured message header**: Username (bold neon green), timestamp (gray, right-aligned), expiry notice below username
-- **Visual message grouping**: Clear hierarchy with username/timestamp header, expiry notice, then message content
-- **Auto-scroll functionality**: Chat automatically scrolls to bottom on new messages with smooth behavior
-- **Mobile optimized**: Responsive layout with proper spacing, no overflow, keyboard-aware positioning
-- **Enhanced animations**: Smooth slide-in animations for new messages with proper hardware acceleration
-- **Improved readability**: Light white text (#f0f0f0) on dark backgrounds with optimized font rendering
+### Minimalist Frontend Layout Optimization (Latest)
+- **Ghost message filtering**: Only render messages with valid content (non-null, non-empty text)
+- **Reduced font sizing**: Base 14px font, tighter line-height 1.4, smaller padding (8px 12px)
+- **Mobile-optimized input**: Fixed bottom positioning, 40px height, compact spacing (6px 10px)
+- **Full-height scrollable container**: 100vh with overflow-y auto, proper keyboard handling
+- **CSS variables theming**: Clean light/dark theme variables for consistent color management
+- **Compact message bubbles**: 10px border-radius, 90% max-width, responsive mobile scaling
+- **Performance optimizations**: Hardware acceleration, smooth scrolling, efficient rendering
 
 ### Account Creation System with $3 Username Reservation
 - **Paid account creation**: Users pay $3 to reserve a unique username during registration

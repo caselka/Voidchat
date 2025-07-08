@@ -4,6 +4,43 @@
 @tailwind components;
 @tailwind utilities;
 
+/* CSS Variables for theming */
+:root {
+  /* Light theme colors */
+  --message-bg: #f5f5f5;
+  --message-border: #e0e0e0;
+  --message-text: #333;
+  --username-color: #00aa66;
+  --timestamp-color: #888;
+  --expiry-color: #999;
+  --system-color: #4ade80;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-text: #374151;
+  --counter-color: #9ca3af;
+  --send-button: #3b82f6;
+  --send-button-disabled: #d1d5db;
+  --welcome-text: #6b7280;
+}
+
+/* Dark theme colors */
+.dark {
+  --message-bg: #1a1a1a;
+  --message-border: #333;
+  --message-text: #f0f0f0;
+  --username-color: #00ff88;
+  --timestamp-color: #888;
+  --expiry-color: #666;
+  --system-color: #4ade80;
+  --input-bg: #2a2a2a;
+  --input-border: #404040;
+  --input-text: #f0f0f0;
+  --counter-color: #888;
+  --send-button: #3b82f6;
+  --send-button-disabled: #555;
+  --welcome-text: #888;
+}
+
 /* Message bubble animations and mobile optimizations */
 .message-bubble {
   /* Smooth enter animation */
@@ -57,27 +94,34 @@
   background-color: #555;
 }
 
-/* Mobile optimizations */
+/* Mobile optimizations - minimal and fast */
 @media (max-width: 768px) {
   .message-bubble {
-    /* Reduce padding on mobile */
-    padding: 8px 12px !important;
-    margin-bottom: 8px !important;
-    /* Ensure readable text size */
-    font-size: 14px;
+    /* Tighter spacing on mobile */
+    padding: 6px 10px !important;
+    margin-bottom: 6px !important;
+    font-size: 13px !important;
+    max-width: 95% !important;
   }
   
-  .chat-messages-container {
+  .chat-main-container {
     /* Better mobile scrolling */
     -webkit-overflow-scrolling: touch;
     /* Prevent horizontal scroll */
     overflow-x: hidden;
+    /* Adjust for mobile keyboard */
+    padding-bottom: 60px !important;
+  }
+  
+  .message-input-container {
+    /* Tighter mobile input */
+    padding: 8px !important;
   }
   
   /* Improve touch targets */
   .message-bubble .group button {
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 40px;
+    min-width: 40px;
   }
 }
 

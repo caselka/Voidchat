@@ -128,11 +128,18 @@ export default function MessageInput({
         zIndex: 1000
       }}
     >
-      <div className="max-w-4xl mx-auto px-3 md:px-4 py-3 md:py-4">
+      <div className="max-w-4xl mx-auto px-3 md:px-4" style={{ padding: '8px 12px' }}>
 
         <form onSubmit={handleSubmit} className="w-full">
-          <div className="relative flex items-end bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm hover:border-gray-400 dark:hover:border-gray-500 focus-within:border-blue-500 dark:focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-500 dark:focus-within:ring-blue-400 transition-all duration-200">
-            <div className="flex-1 min-h-[44px] max-h-[120px] overflow-hidden">
+          <div 
+            className="relative flex items-center border rounded-lg transition-all duration-200"
+            style={{
+              backgroundColor: 'var(--input-bg)',
+              borderColor: 'var(--input-border)',
+              height: '40px'
+            }}
+          >
+            <div className="flex-1 overflow-hidden">
               <textarea
                 ref={textareaRef}
                 value={messageText}
@@ -166,7 +173,14 @@ export default function MessageInput({
                   }, 100);
                 }}
                 placeholder="Type a message..."
-                className="message-input w-full resize-none border-none outline-none bg-transparent text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 text-[16px] leading-6 px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="message-input w-full resize-none border-none outline-none bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  color: 'var(--input-text)',
+                  fontSize: '14px',
+                  lineHeight: '1.4',
+                  padding: '6px 10px',
+                  height: '28px'
+                }}
                 maxLength={maxLength}
                 disabled={isRateLimited}
                 autoComplete="off"
@@ -181,17 +195,27 @@ export default function MessageInput({
               />
             </div>
             
-            <div className="flex items-center gap-2 pr-2 pb-2">
-              <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
+            <div className="flex items-center gap-1 px-2">
+              <span 
+                className="font-mono"
+                style={{
+                  color: 'var(--counter-color)',
+                  fontSize: '10px'
+                }}
+              >
                 {messageText.length}/{maxLength}
               </span>
               <Button
                 type="submit"
                 disabled={!canSend}
                 size="sm"
-                className="h-8 w-8 p-0 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-200 dark:disabled:bg-gray-700 text-white disabled:text-gray-400 dark:disabled:text-gray-500 rounded-lg shrink-0 transition-colors duration-200"
+                className="h-6 w-6 p-0 rounded shrink-0 transition-colors duration-200"
+                style={{
+                  backgroundColor: canSend ? 'var(--send-button)' : 'var(--send-button-disabled)',
+                  color: 'white'
+                }}
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-3 h-3" />
               </Button>
             </div>
           </div>

@@ -92,17 +92,24 @@ export default function ChatContainer({
   }, [messages]);
 
   return (
-    <div className="space-y-3 pb-4">
-      {messages.map((message, index) => (
+    <div className="space-y-2 pb-4">
+      {messages.filter(message => 
+        message.content && 
+        typeof message.content === 'string' && 
+        message.content.trim().length > 0
+      ).map((message, index) => (
         <div 
           key={message.id || `message-${index}-${Date.now()}`} 
           className="message-bubble group"
           style={{
-            backgroundColor: '#1a1a1a',
-            borderRadius: '12px',
-            padding: '12px 16px',
-            marginBottom: '12px',
-            border: '1px solid #333'
+            backgroundColor: 'var(--message-bg)',
+            borderRadius: '10px',
+            padding: '8px 12px',
+            marginBottom: '8px',
+            border: '1px solid var(--message-border)',
+            maxWidth: '90%',
+            fontSize: '14px',
+            lineHeight: '1.4'
           }}
           onTouchStart={() => handleLongPressStart(message)}
           onTouchEnd={handleLongPressEnd}
@@ -115,8 +122,11 @@ export default function ChatContainer({
             <div className="flex items-center gap-2">
               {/* Username - Bold Green */}
               <span 
-                className="font-bold font-mono text-sm"
-                style={{ color: '#00ff88' }}
+                className="font-bold font-mono"
+                style={{ 
+                  color: 'var(--username-color)',
+                  fontSize: '13px'
+                }}
               >
                 {message.username}
               </span>
@@ -148,8 +158,11 @@ export default function ChatContainer({
             
             {/* Timestamp - Right Aligned Gray */}
             <span 
-              className="text-xs font-mono"
-              style={{ color: '#888' }}
+              className="font-mono"
+              style={{ 
+                color: 'var(--timestamp-color)',
+                fontSize: '11px'
+              }}
             >
               {formatTime(message.createdAt || message.timestamp)}
             </span>
@@ -158,8 +171,11 @@ export default function ChatContainer({
           {/* Expiry Notice - Below Username */}
           {message.expiresAt && (
             <div 
-              className="text-xs font-mono mb-3"
-              style={{ color: '#666' }}
+              className="font-mono mb-2"
+              style={{ 
+                color: 'var(--expiry-color)',
+                fontSize: '11px'
+              }}
             >
               [{getTimeUntilDelete(message.expiresAt)}]
             </div>
@@ -167,7 +183,7 @@ export default function ChatContainer({
           
           {/* Message Content - Light White Text */}
           <div 
-            className={`font-mono text-sm leading-relaxed break-words ${
+            className={`font-mono break-words ${
               message.isAd 
                 ? 'italic opacity-60' 
                 : message.username === 'system'
@@ -175,7 +191,9 @@ export default function ChatContainer({
                 : ''
             }`}
             style={{ 
-              color: message.username === 'system' ? '#4ade80' : '#f0f0f0'
+              color: message.username === 'system' ? 'var(--system-color)' : 'var(--message-text)',
+              fontSize: '14px',
+              lineHeight: '1.4'
             }}
           >
             {profanityFilter ? filterProfanity(message.content) : message.content}

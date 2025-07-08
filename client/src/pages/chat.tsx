@@ -97,14 +97,17 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    // Auto-scroll to bottom only when user is at bottom and new messages arrive
-    if (isConnected && messages.length > 0 && isAtBottom) {
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: 'smooth'
-      });
+    // Auto-scroll to bottom when new messages arrive
+    if (isConnected && messages.length > 0) {
+      const mainContainer = document.querySelector('.chat-main-container');
+      if (mainContainer) {
+        mainContainer.scrollTo({
+          top: mainContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
     }
-  }, [messages, isConnected, isAtBottom]);
+  }, [messages, isConnected]);
 
   // Show connection status
   if (!isConnected) {
@@ -312,32 +315,38 @@ export default function Chat() {
         <GuardianPanel onEnableSlowMode={enableSlowMode} />
       )}
 
-      {/* Main Content */}
-      <main className="pt-20 pb-24 max-w-4xl mx-auto px-3 md:px-4 relative z-10">
-        <div className="min-h-screen">
-          {/* Welcome Message */}
-          <div className="text-center py-6 md:py-8 text-void-500 dark:text-void-400 text-xs md:text-sm font-mono">
-            <p>Welcome to the void. Messages vanish after 15 minutes.</p>
-            {currentUser && (
-              <p className="mt-1">You are <span className="text-void-700 dark:text-void-300">{currentUser}</span></p>
-            )}
-            {/* Online count for mobile */}
-            <p className="mt-1 sm:hidden text-xs">
-              {isConnected ? `${onlineCount} online` : 'Connecting...'}
-            </p>
-          </div>
+      {/* Main Content - Full Height Scrollable */}
+      <main 
+        className="max-w-4xl mx-auto px-3 md:px-4 relative z-10 chat-main-container"
+        style={{
+          height: '100vh',
+          overflowY: 'auto',
+          paddingTop: '80px',
+          paddingBottom: '60px'
+        }}
+      >
+        {/* Welcome Message */}
+        <div className="text-center py-4 font-mono" style={{ color: 'var(--welcome-text)', fontSize: '12px' }}>
+          <p>Welcome to the void. Messages vanish after 15 minutes.</p>
+          {currentUser && (
+            <p className="mt-1">You are <span style={{ color: 'var(--username-color)' }}>{currentUser}</span></p>
+          )}
+          {/* Online count for mobile */}
+          <p className="mt-1 sm:hidden" style={{ fontSize: '11px' }}>
+            {isConnected ? `${onlineCount} online` : 'Connecting...'}
+          </p>
+        </div>
 
-          {/* Chat Container */}
-          <div className="chat-container chat-messages-container">
-            <ChatContainer 
-              messages={messages}
-              isGuardian={isGuardian}
-              onMuteUser={muteUser}
-              onDeleteMessage={deleteMessage}
-              onReplyToMessage={() => {}}
-              profanityFilter={profanityFilter}
-            />
-          </div>
+        {/* Chat Container */}
+        <div className="chat-container">
+          <ChatContainer 
+            messages={messages}
+            isGuardian={isGuardian}
+            onMuteUser={muteUser}
+            onDeleteMessage={deleteMessage}
+            onReplyToMessage={() => {}}
+            profanityFilter={profanityFilter}
+          />
         </div>
       </main>
 

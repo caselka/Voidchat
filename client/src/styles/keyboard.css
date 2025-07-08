@@ -30,17 +30,16 @@
   }
 }
 
-/* Replit AI-style fixed positioning with keyboard awareness */
+/* Fixed input positioning - minimal and clean */
 .message-input-container {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
+  width: 100%;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
+  background: var(--input-bg);
+  border-top: 1px solid var(--input-border);
   /* Lock input above keyboard on mobile */
   transform: translateZ(0);
   will-change: transform;
@@ -68,11 +67,15 @@
   display: none;
 }
 
-/* Chat container spacing with dynamic viewport */
+/* Chat container spacing - minimal */
+.chat-main-container {
+  /* Ensure proper spacing for fixed input */
+  padding-bottom: 50px !important;
+}
+
 .chat-container {
-  padding-bottom: var(--chat-input-height);
-  min-height: calc(100vh - 160px);
-  min-height: calc(100dvh - 160px);
+  /* Auto-scroll behavior */
+  scroll-behavior: smooth;
 }
 
 /* Prevent document scroll when input is focused on mobile */
