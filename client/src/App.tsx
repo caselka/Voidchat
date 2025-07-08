@@ -16,6 +16,7 @@ import GuardianCheckout from "@/pages/guardian-checkout";
 import Sponsor from "@/pages/sponsor";
 import Handle from "@/pages/handle";
 import Themes from "@/pages/themes";
+import CreateRoom from "@/pages/create-room";
 import Careers from "@/pages/careers";
 import Contact from "@/pages/contact";
 import Privacy from "@/pages/privacy";
@@ -77,6 +78,7 @@ function Router() {
         <Route path="/sponsor" component={Sponsor} />
         <Route path="/handle" component={Handle} />
         <Route path="/themes" component={Themes} />
+        <Route path="/create-room" component={CreateRoom} />
         <Route path="/careers" component={Careers} />
         <Route path="/contact" component={Contact} />
         <Route path="/privacy" component={Privacy} />

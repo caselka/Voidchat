@@ -7,7 +7,7 @@ import ChatContainer from "@/components/chat-container";
 import MessageInput from "@/components/message-input";
 import GuardianPanel from "@/components/guardian-panel";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette, LogIn, LogOut } from "lucide-react";
+import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette, LogIn, LogOut, Users } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -125,7 +125,7 @@ export default function Chat() {
 
             
             {/* Login/Logout Button */}
-            {isAuthenticated ? (
+            {!isLoading && (isAuthenticated ? (
               <Button
                 variant="ghost"
                 size="sm"
@@ -148,7 +148,7 @@ export default function Chat() {
                   <span className="hidden sm:inline">Login</span>
                 </Button>
               </Link>
-            )}
+            ))}
             
             {/* Menu */}
             <DropdownMenu>
@@ -172,6 +172,12 @@ export default function Chat() {
                   <Link href="/sponsor" className="flex items-center text-void-700 dark:text-void-300 hover:text-void-900 dark:hover:text-void-100">
                     <Megaphone className="w-4 h-4 mr-2 text-blue-500" />
                     Sponsor the Room
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/create-room" className="flex items-center text-void-700 dark:text-void-300 hover:text-void-900 dark:hover:text-void-100">
+                    <Users className="w-4 h-4 mr-2 text-purple-500" />
+                    Create Room ($49)
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="border-void-300 dark:border-void-600" />

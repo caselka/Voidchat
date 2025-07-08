@@ -168,3 +168,40 @@ export type AnonUsername = typeof anonUsernames.$inferSelect;
 export type InsertAnonUsername = typeof anonUsernames.$inferInsert;
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+
+// Room storage table
+export const rooms = pgTable("rooms", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 20 }).unique().notNull(),
+  creatorId: varchar("creator_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+});
+
+export const roomMessages = pgTable("room_messages", {
+  id: serial("id").primaryKey(),
+  roomId: integer("room_id").references(() => rooms.id).notNull(),
+  content: text("content").notNull(),
+  username: varchar("username", { length: 50 }).notNull(),
+  ipAddress: varchar("ip_address", { length: 45 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
+export const insertRoomSchema = createInsertSchema(rooms).pick({
+  name: true,
+  creatorId: true,
+});
+
+export const insertRoomMessageSchema = createInsertSchema(roomMessages).pick({
+  roomId: true,
+  content: true,
+  username: true,
+  ipAddress: true,
+  expiresAt: true,
+});
+
+export type Room = typeof rooms.$inferSelect;
+export type InsertRoom = z.infer<typeof insertRoomSchema>;
+export type RoomMessage = typeof roomMessages.$inferSelect;
+export type InsertRoomMessage = z.infer<typeof insertRoomMessageSchema>;

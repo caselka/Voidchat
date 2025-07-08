@@ -10,6 +10,8 @@ import {
   themeCustomizations,
   users,
   anonUsernames,
+  rooms,
+  roomMessages,
   type Message, 
   type InsertMessage,
   type Guardian,
@@ -26,7 +28,11 @@ import {
   type User,
   type UpsertUser,
   type AnonUsername,
-  type InsertAnonUsername
+  type InsertAnonUsername,
+  type Room,
+  type InsertRoom,
+  type RoomMessage,
+  type InsertRoomMessage
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, lt, desc, asc, sql, or } from "drizzle-orm";
@@ -89,6 +95,18 @@ export interface IStorage {
   
   // User stats for Guardian eligibility
   getUserStats?(ipAddress: string): Promise<{ messagesLast7Days: number; paidAccountSince?: Date } | undefined>;
+  
+  // Room management
+  createRoom(room: InsertRoom): Promise<Room>;
+  getRoom(name: string): Promise<Room | undefined>;
+  getRoomById(id: number): Promise<Room | undefined>;
+  getUserRooms(userId: string): Promise<Room[]>;
+  isRoomNameAvailable(name: string): Promise<boolean>;
+  
+  // Room messages
+  createRoomMessage(message: InsertRoomMessage & { username: string; ipAddress: string }): Promise<RoomMessage>;
+  getRoomMessages(roomId: number, limit?: number): Promise<RoomMessage[]>;
+  deleteExpiredRoomMessages(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -539,6 +557,72 @@ export class DatabaseStorage implements IStorage {
       console.error('getUserStats error:', error);
       return undefined;
     }
+  }
+
+  // Room management methods
+  async createRoom(roomData: InsertRoom): Promise<Room> {
+    const [room] = await db
+      .insert(rooms)
+      .values(roomData)
+      .returning();
+    return room;
+  }
+
+  async getRoom(name: string): Promise<Room | undefined> {
+    const [room] = await db
+      .select()
+      .from(rooms)
+      .where(and(eq(rooms.name, name), eq(rooms.isActive, true)));
+    return room;
+  }
+
+  async getRoomById(id: number): Promise<Room | undefined> {
+    const [room] = await db
+      .select()
+      .from(rooms)
+      .where(and(eq(rooms.id, id), eq(rooms.isActive, true)));
+    return room;
+  }
+
+  async getUserRooms(userId: string): Promise<Room[]> {
+    return await db
+      .select()
+      .from(rooms)
+      .where(and(eq(rooms.creatorId, userId), eq(rooms.isActive, true)))
+      .orderBy(desc(rooms.createdAt));
+  }
+
+  async isRoomNameAvailable(name: string): Promise<boolean> {
+    const [existing] = await db
+      .select()
+      .from(rooms)
+      .where(eq(rooms.name, name))
+      .limit(1);
+    return !existing;
+  }
+
+  // Room messages methods
+  async createRoomMessage(messageData: InsertRoomMessage & { username: string; ipAddress: string }): Promise<RoomMessage> {
+    const [message] = await db
+      .insert(roomMessages)
+      .values(messageData)
+      .returning();
+    return message;
+  }
+
+  async getRoomMessages(roomId: number, limit = 50): Promise<RoomMessage[]> {
+    return await db
+      .select()
+      .from(roomMessages)
+      .where(eq(roomMessages.roomId, roomId))
+      .orderBy(desc(roomMessages.createdAt))
+      .limit(limit);
+  }
+
+  async deleteExpiredRoomMessages(): Promise<void> {
+    await db
+      .delete(roomMessages)
+      .where(lt(roomMessages.expiresAt, new Date()));
   }
 }
 

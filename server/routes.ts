@@ -211,6 +211,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // WebSocket server
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
+  // Room management routes
+  app.post('/api/rooms', isAuthenticated, async (req, res) => {
+    try {
+      const { name } = req.body;
+      const userId = (req as any).user.id;
+
+      // Validate room name
+      if (!name || typeof name !== 'string') {
+        return res.status(400).json({ message: 'Room name is required' });
+      }
+
+      const normalizedName = name.toLowerCase().trim();
+
+      // Validate name format
+      if (!/^[a-z0-9_-]{3,20}$/.test(normalizedName)) {
+        return res.status(400).json({ 
+          message: 'Room name must be 3-20 characters, lowercase letters, numbers, dashes or underscores only' 
+        });
+      }
+
+      // Check banned names
+      const bannedNames = ['admin', 'voidchat', 'caselka', 'support', 'mod'];
+      if (bannedNames.includes(normalizedName)) {
+        return res.status(400).json({ message: 'This room name is reserved' });
+      }
+
+      // Check profanity
+      const profanityCheck = checkProfanity(normalizedName);
+      if (!profanityCheck.isClean) {
+        return res.status(400).json({ message: 'Room name contains inappropriate content' });
+      }
+
+      // Check availability
+      const isAvailable = await storage.isRoomNameAvailable(normalizedName);
+      if (!isAvailable) {
+        return res.status(400).json({ message: 'Room name already taken' });
+      }
+
+      // Create room (simulate payment for now)
+      const room = await storage.createRoom({
+        name: normalizedName,
+        creatorId: userId,
+      });
+
+      res.json({ room, message: 'Room created successfully! Payment of $49 processed.' });
+    } catch (error) {
+      console.error('Room creation error:', error);
+      res.status(500).json({ message: 'Failed to create room' });
+    }
+  });
+
+  app.get('/api/rooms/:name', async (req, res) => {
+    try {
+      const { name } = req.params;
+      const room = await storage.getRoom(name);
+      
+      if (!room) {
+        return res.status(404).json({ message: 'Room not found' });
+      }
+
+      res.json({ room });
+    } catch (error) {
+      console.error('Room fetch error:', error);
+      res.status(500).json({ message: 'Failed to fetch room' });
+    }
+  });
+
+  app.get('/api/my-rooms', isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req as any).user.id;
+      const rooms = await storage.getUserRooms(userId);
+      res.json({ rooms });
+    } catch (error) {
+      console.error('User rooms fetch error:', error);
+      res.status(500).json({ message: 'Failed to fetch rooms' });
+    }
+  });
+
   wss.on('connection', (ws: WebSocketClient, req) => {
     const ipAddress = getClientIp(req);
     ws.ipAddress = ipAddress;
