@@ -4,6 +4,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { insertMessageSchema, insertAmbientAdSchema } from "@shared/schema";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -112,6 +113,21 @@ async function maybeInjectAd() {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication
+  await setupAuth(app);
+  
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // WebSocket server
@@ -295,7 +311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.post('/api/create-guardian-payment', async (req, res) => {
+  app.post('/api/create-guardian-payment', isAuthenticated, async (req, res) => {
     try {
       const { duration } = req.body; // 'day' or 'week'
       const amount = duration === 'week' ? 1000 : 200; // $10 or $2 in cents
@@ -317,7 +333,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.post('/api/create-sponsor-payment', async (req, res) => {
+  app.post('/api/create-sponsor-payment', isAuthenticated, async (req, res) => {
     try {
       const { duration } = req.body; // 'day' or 'week'
       const amount = duration === 'week' ? 7500 : 1500; // $75 or $15 in cents
@@ -338,8 +354,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Custom handle routes
-  app.post('/api/create-handle-payment', async (req, res) => {
+  // Custom handle routes (auth required)
+  app.post('/api/create-handle-payment', isAuthenticated, async (req, res) => {
     try {
       const { handle, duration } = req.body;
       const ipAddress = getClientIp(req);
@@ -379,8 +395,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Theme customization routes
-  app.post('/api/create-theme-payment', async (req, res) => {
+  // Theme customization routes (auth required)
+  app.post('/api/create-theme-payment', isAuthenticated, async (req, res) => {
     try {
       const { background, font, accentColor, messageFadeTime, backgroundFx, bundle } = req.body;
       const ipAddress = getClientIp(req);
@@ -458,6 +474,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe webhook handler
   app.post('/api/stripe-webhook', async (req, res) => {
     const sig = req.headers['stripe-signature'];
+    if (!sig) {
+      return res.status(400).send('Missing stripe-signature header');
+    }
     let event;
 
     try {
@@ -482,7 +501,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.createGuardian({
             ipAddress,
             expiresAt,
-            stripePaymentIntentId: paymentIntent.id
+            stripePaymentId: paymentIntent.id
           });
 
           console.log('Guardian access granted to', ipAddress);
@@ -513,7 +532,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             await storage.createGuardian({
               ipAddress,
               expiresAt,
-              stripePaymentIntentId: paymentIntent.id
+              stripePaymentId: paymentIntent.id
             });
           }
 

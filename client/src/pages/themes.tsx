@@ -12,6 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { ArrowLeft, Palette, Type, Clock, Sparkles } from 'lucide-react';
 import { Link } from 'wouter';
+import { useAuth } from '@/hooks/useAuth';
+import { isUnauthorizedError } from '@/lib/authUtils';
 
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
   throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
@@ -62,6 +64,8 @@ const CheckoutForm = ({ themeData, bundle }: { themeData: any; bundle: string })
 };
 
 export default function Themes() {
+  const { toast } = useToast();
+  const { isAuthenticated, isLoading } = useAuth();
   const [background, setBackground] = useState('dark');
   const [font, setFont] = useState('monospace');
   const [accentColor, setAccentColor] = useState('default');
@@ -71,7 +75,21 @@ export default function Themes() {
   const [clientSecret, setClientSecret] = useState('');
   const [currentTheme, setCurrentTheme] = useState<any>(null);
   const [step, setStep] = useState<'form' | 'payment'>('form');
-  const { toast } = useToast();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "You need to log in to purchase theme customizations. Redirecting...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
+  }, [isAuthenticated, isLoading, toast]);
 
   useEffect(() => {
     // Check if user already has theme customization

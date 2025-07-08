@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { ArrowLeft, Check, X } from 'lucide-react';
 import { Link } from 'wouter';
+import { useAuth } from '@/hooks/useAuth';
+import { isUnauthorizedError } from '@/lib/authUtils';
 
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
   throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
@@ -61,13 +63,29 @@ const CheckoutForm = ({ handle, duration }: { handle: string; duration: string }
 };
 
 export default function Handle() {
+  const { toast } = useToast();
+  const { isAuthenticated, isLoading } = useAuth();
   const [handle, setHandle] = useState('');
   const [duration, setDuration] = useState('permanent');
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [clientSecret, setClientSecret] = useState('');
   const [currentHandle, setCurrentHandle] = useState<string | null>(null);
   const [step, setStep] = useState<'form' | 'payment'>('form');
-  const { toast } = useToast();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "You need to log in to purchase custom handles. Redirecting...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+      return;
+    }
+  }, [isAuthenticated, isLoading, toast]);
 
   useEffect(() => {
     // Check if user already has a handle

@@ -15,7 +15,7 @@ export const guardians = pgTable("guardians", {
   id: serial("id").primaryKey(),
   ipAddress: text("ip_address").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
-  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  stripePaymentId: text("stripe_payment_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -25,7 +25,7 @@ export const ambientAds = pgTable("ambient_ads", {
   description: text("description").notNull(),
   url: text("url"),
   expiresAt: timestamp("expires_at").notNull(),
-  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  stripePaymentId: text("stripe_payment_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -88,16 +88,14 @@ export const insertMessageSchema = createInsertSchema(messages).pick({
   content: true,
 });
 
-export const insertGuardianSchema = createInsertSchema(guardians).pick({
-  ipAddress: true,
-  expiresAt: true,
+export const insertGuardianSchema = createInsertSchema(guardians).omit({
+  id: true,
+  createdAt: true,
 });
 
-export const insertAmbientAdSchema = createInsertSchema(ambientAds).pick({
-  productName: true,
-  description: true,
-  url: true,
-  expiresAt: true,
+export const insertAmbientAdSchema = createInsertSchema(ambientAds).omit({
+  id: true,
+  createdAt: true,
 });
 
 export const insertCustomHandleSchema = createInsertSchema(customHandles).pick({
@@ -129,5 +127,28 @@ export type MutedIp = typeof mutedIps.$inferSelect;
 export type GuardianAction = typeof guardianActions.$inferSelect;
 export type CustomHandle = typeof customHandles.$inferSelect;
 export type InsertCustomHandle = z.infer<typeof insertCustomHandleSchema>;
+// Session storage table for Replit Auth
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: text("sid").primaryKey(),
+    sess: json("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  }
+);
+
+// User storage table for Replit Auth
+export const users = pgTable("users", {
+  id: text("id").primaryKey().notNull(),
+  email: text("email").unique(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  profileImageUrl: text("profile_image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export type ThemeCustomization = typeof themeCustomizations.$inferSelect;
 export type InsertThemeCustomization = z.infer<typeof insertThemeCustomizationSchema>;
+export type UpsertUser = typeof users.$inferInsert;
+export type User = typeof users.$inferSelect;

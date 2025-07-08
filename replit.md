@@ -116,3 +116,11 @@ Preferred communication style: Simple, everyday language.
 - Touch-friendly interface for mobile devices
 - Safe area support for notched devices
 - Responsive text sizes and spacing across all screen sizes
+
+### Authentication System Integration
+- **Replit Auth implemented**: All payment features now require user accounts
+- **Account requirement**: Custom handles, themes, and Guardian subscriptions need login
+- **Dark/light theme toggle fixed**: Theme provider updated for server-side rendering compatibility
+- **Payment protection**: All payment endpoints secured with authentication middleware
+- **User session management**: PostgreSQL-based session storage for persistence
+- **Auth navigation**: Login/logout buttons added with proper authentication state management

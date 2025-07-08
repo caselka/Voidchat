@@ -6,6 +6,9 @@ import {
   mutedIps, 
   guardianActions,
   systemSettings,
+  customHandles,
+  themeCustomizations,
+  users,
   type Message, 
   type InsertMessage,
   type Guardian,
@@ -15,12 +18,12 @@ import {
   type RateLimit,
   type MutedIp,
   type GuardianAction,
-  customHandles,
-  themeCustomizations,
   type CustomHandle,
   type InsertCustomHandle,
   type ThemeCustomization,
-  type InsertThemeCustomization
+  type InsertThemeCustomization,
+  type User,
+  type UpsertUser
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc, asc, sql } from "drizzle-orm";
@@ -65,6 +68,10 @@ export interface IStorage {
   createThemeCustomization(theme: InsertThemeCustomization): Promise<ThemeCustomization>;
   getThemeCustomization(ipAddress: string): Promise<ThemeCustomization | undefined>;
   deleteExpiredThemes(): Promise<void>;
+
+  // Auth (Replit Auth)
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -304,6 +311,27 @@ export class DatabaseStorage implements IStorage {
   async deleteExpiredThemes(): Promise<void> {
     await db.delete(themeCustomizations)
       .where(lte(themeCustomizations.expiresAt, new Date()));
+  }
+
+  // Auth methods for Replit Auth
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
   }
 }
 
