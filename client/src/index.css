@@ -4,29 +4,35 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Override Tailwind with mobile-first dark theme */
-:root {
-  --bg-primary: #0e0e0e;
-  --bg-secondary: #1c1c1c;
-  --text-primary: #e0e0e0;
-  --text-secondary: #a0a0a0;
-  --accent-blue: #5f5fff;
-  --border-color: #333;
-}
-
-/* Force override any existing Tailwind styling */
+/* Voidchat custom base styles - override Tailwind */
 * {
   box-sizing: border-box;
 }
 
-body {
-  background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  background-color: #0a0a0a !important;
+  color: #ffffff !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  overflow-x: hidden !important;
 }
 
-.dark {
-  background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
+#root {
+  height: 100vh !important;
+  background-color: #0a0a0a !important;
+}
+
+/* Override any existing theme classes */
+.dark, .light {
+  background-color: #0a0a0a !important;
+  color: #ffffff !important;
+}
+
+/* Hide default navigation when using voidchat layout */
+.voidchat-container ~ * {
+  display: none;
 }
 
 :root {
