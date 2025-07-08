@@ -53,6 +53,7 @@ export interface IStorage {
   // Moderation
   muteIp(ipAddress: string, mutedBy: string, duration: number): Promise<void>;
   isMuted(ipAddress: string): Promise<boolean>;
+  cleanExpiredMutes(): Promise<void>;
   logGuardianAction(guardianIp: string, action: string, targetIp?: string, messageId?: number, details?: any): Promise<void>;
   
   // System settings
@@ -217,6 +218,11 @@ export class DatabaseStorage implements IStorage {
         gte(mutedIps.expiresAt, now)
       ));
     return !!muted;
+  }
+
+  async cleanExpiredMutes(): Promise<void> {
+    const now = new Date();
+    await db.delete(mutedIps).where(lt(mutedIps.expiresAt, now));
   }
 
   async logGuardianAction(guardianIp: string, action: string, targetIp?: string, messageId?: number, details?: any): Promise<void> {

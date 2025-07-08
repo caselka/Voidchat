@@ -108,6 +108,29 @@ async function maybeInjectAd() {
       };
       
       await broadcastMessage(adMessage);
+    } else {
+      // Fallback to default ambient ads
+      const defaultAds = [
+        { business: "void.coffee", content: "Premium coffee for late-night coding sessions ☕" },
+        { business: "quantum.dev", content: "Build the future with quantum computing tools ⚡" },
+        { business: "midnight.tools", content: "Developer tools that work in the dark 🌙" },
+        { business: "echo.space", content: "Collaborate in beautiful virtual workspaces ✨" },
+        { business: "flux.design", content: "UI components that adapt to your workflow 🎨" }
+      ];
+      
+      const randomDefault = defaultAds[Math.floor(Math.random() * defaultAds.length)];
+      const defaultAdMessage = {
+        type: 'message',
+        data: {
+          id: `default-ad-${Date.now()}`,
+          content: `✦ ${randomDefault.content}`,
+          username: randomDefault.business,
+          timestamp: new Date().toISOString(),
+          isAd: true,
+        }
+      };
+      
+      await broadcastMessage(defaultAdMessage);
     }
   }
 }
@@ -125,6 +148,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Recent messages API route
+  app.get('/api/recent-messages', async (req, res) => {
+    try {
+      const messages = await storage.getRecentMessages(50);
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching recent messages:', error);
+      res.status(500).json({ message: 'Error fetching messages' });
     }
   });
 
@@ -703,6 +737,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       await storage.deleteExpiredMessages();
       await storage.deleteExpiredAds();
+      await storage.deleteExpiredHandles();
+      await storage.deleteExpiredThemes();
+      await storage.cleanExpiredMutes();
     } catch (error) {
       console.error('Cleanup error:', error);
     }
