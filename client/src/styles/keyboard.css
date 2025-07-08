@@ -30,18 +30,31 @@
   }
 }
 
-/* Fixed input positioning - stable but visible */
+/* Fixed input positioning - iOS keyboard aware */
 .message-input-container {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 9999;
   background: var(--bg);
   border-top: 1px solid var(--input-border);
-  /* Stable positioning without breaking layout */
+  /* Ensure visibility on all devices */
   transform: translateZ(0);
+  will-change: bottom;
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .message-input-container {
+    /* Force hardware acceleration on iOS */
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    /* Ensure proper positioning on iOS */
+    position: fixed !important;
+    z-index: 9999 !important;
+  }
 }
 
 /* Use visual viewport API for keyboard detection */

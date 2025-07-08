@@ -16,6 +16,7 @@ export default function MessageInput({
 }: MessageInputProps) {
   const [messageText, setMessageText] = useState('');
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const maxLength = 500;
@@ -125,13 +126,14 @@ export default function MessageInput({
       className="message-input-container"
       style={{
         position: 'fixed',
-        bottom: 0,
+        bottom: isKeyboardOpen ? `${keyboardHeight}px` : '0px',
         left: 0,
         right: 0,
         width: '100%',
         backgroundColor: 'var(--bg)',
         borderTop: '1px solid var(--input-border)',
-        zIndex: 1000
+        zIndex: 9999,
+        transition: 'bottom 0.3s ease'
       }}
     >
       <div className="max-w-4xl mx-auto" style={{ padding: '12px' }}>
@@ -166,18 +168,23 @@ export default function MessageInput({
                   }
                 }}
                 onFocus={() => {
-                  // Prevent scroll when focusing on mobile
-                  if (window.innerWidth <= 768) {
+                  if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
                     setTimeout(() => {
-                      window.scrollTo(0, document.body.scrollHeight);
-                    }, 100);
+                      const viewport = window.visualViewport;
+                      if (viewport) {
+                        const kbHeight = window.innerHeight - viewport.height;
+                        if (kbHeight > 100) {
+                          setKeyboardHeight(kbHeight);
+                          setIsKeyboardOpen(true);
+                        }
+                      }
+                    }, 300);
                   }
                 }}
                 onBlur={() => {
-                  // Reset keyboard state when unfocused
                   setTimeout(() => {
                     setIsKeyboardOpen(false);
-                    document.body.classList.remove('ios-keyboard-open');
+                    setKeyboardHeight(0);
                   }, 100);
                 }}
                 placeholder="Type a message..."
