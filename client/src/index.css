@@ -56,11 +56,10 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Fixed input isolation layer */
+/* Ensure input visibility and stability */
 .message-input-container {
-  /* Force new stacking context to prevent scroll interference */
-  will-change: auto !important;
-  transform: translateZ(0) !important;
+  display: block !important;
+  visibility: visible !important;
 }
 
 /* Message bubble animations and mobile optimizations */

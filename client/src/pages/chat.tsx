@@ -97,19 +97,12 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    // Auto-scroll to bottom when new messages arrive
+    // Auto-scroll to bottom when new messages arrive - simple approach
     if (isConnected && messages.length > 0) {
-      // Delay scroll to prevent input movement
-      setTimeout(() => {
-        const body = document.body;
-        const html = document.documentElement;
-        const height = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-        
-        window.scrollTo({
-          top: height,
-          behavior: 'smooth'
-        });
-      }, 100);
+      // Use instant scroll to avoid input movement during animation
+      requestAnimationFrame(() => {
+        window.scrollTo(0, document.body.scrollHeight);
+      });
     }
   }, [messages, isConnected]);
 

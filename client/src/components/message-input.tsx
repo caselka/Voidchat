@@ -95,14 +95,6 @@ export default function MessageInput({
     e.preventDefault();
     
     if (canSend && isSecureMessage(messageText)) {
-      // Lock input position before sending to prevent movement during auto-scroll
-      const inputContainer = containerRef.current;
-      if (inputContainer) {
-        inputContainer.style.position = 'fixed';
-        inputContainer.style.bottom = '0px';
-        inputContainer.style.transform = 'translateZ(0)';
-      }
-      
       onSendMessage(messageText.trim());
       setMessageText('');
       
@@ -132,18 +124,14 @@ export default function MessageInput({
       ref={containerRef}
       className="message-input-container"
       style={{
+        position: 'fixed',
         bottom: 0,
         left: 0,
         right: 0,
         width: '100%',
         backgroundColor: 'var(--bg)',
         borderTop: '1px solid var(--input-border)',
-        position: 'fixed',
-        zIndex: 9999,
-        transform: 'translateZ(0)',
-        backfaceVisibility: 'hidden',
-        perspective: '1000px',
-        isolation: 'isolate'
+        zIndex: 1000
       }}
     >
       <div className="max-w-4xl mx-auto" style={{ padding: '12px' }}>
