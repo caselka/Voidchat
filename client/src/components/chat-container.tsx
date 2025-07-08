@@ -107,29 +107,15 @@ export default function ChatContainer({
             )}
             
             <div 
-              className={`p-3 rounded-2xl cursor-pointer transition-all duration-200 select-none ${
+              className={`font-mono text-xs md:text-sm leading-relaxed break-words ${
                 message.isAd 
-                  ? 'bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 italic text-amber-800 dark:text-amber-200' 
+                  ? 'italic text-void-600 dark:text-void-500 opacity-60' 
                   : message.username === 'system'
-                  ? 'bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 italic'
-                  : 'bg-muted/50 hover:bg-muted/70 border border-border/50'
+                  ? 'text-blue-600 dark:text-blue-400 italic'
+                  : ''
               }`}
-              onTouchStart={() => handleLongPressStart(message)}
-              onTouchEnd={handleLongPressEnd}
-              onMouseDown={() => handleLongPressStart(message)}
-              onMouseUp={handleLongPressEnd}
-              onMouseLeave={handleLongPressEnd}
             >
-              {/* Reply indicator */}
-              {message.replyToId && (
-                <div className="mb-2 pl-3 border-l-2 border-blue-500 text-xs text-muted-foreground">
-                  <span className="text-blue-600 dark:text-blue-400">↳ Reply</span>
-                </div>
-              )}
-              
-              <div className="text-sm md:text-base leading-relaxed break-words">
-                {profanityFilter ? filterProfanity(message.content) : message.content}
-              </div>
+              {profanityFilter ? filterProfanity(message.content) : message.content}
             </div>
           </div>
           

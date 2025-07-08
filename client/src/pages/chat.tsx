@@ -313,7 +313,7 @@ export default function Chat() {
       )}
 
       {/* Main Content */}
-      <main className="pt-20 pb-32 max-w-4xl mx-auto px-3 md:px-4 relative z-10">
+      <main className="pt-20 pb-24 max-w-4xl mx-auto px-3 md:px-4 relative z-10">
         <div className="min-h-screen">
           {/* Welcome Message */}
           <div className="text-center py-6 md:py-8 text-void-500 dark:text-void-400 text-xs md:text-sm font-mono">
@@ -328,32 +328,25 @@ export default function Chat() {
           </div>
 
           {/* Chat Container */}
-          <ChatContainer 
-            messages={messages}
-            isGuardian={isGuardian}
-            onMuteUser={muteUser}
-            onDeleteMessage={deleteMessage}
-            onReplyToMessage={setReplyingTo}
-            profanityFilter={profanityFilter}
-          />
+          <div className="chat-container">
+            <ChatContainer 
+              messages={messages}
+              isGuardian={isGuardian}
+              onMuteUser={muteUser}
+              onDeleteMessage={deleteMessage}
+              onReplyToMessage={() => {}}
+              profanityFilter={profanityFilter}
+            />
+          </div>
         </div>
       </main>
 
-      {/* Message Input - Fixed at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-20" data-walkthrough="message-input">
-        <div className="max-w-4xl mx-auto px-3 md:px-4 py-3">
-          <MessageInput 
-            onSendMessage={(content, replyToId) => {
-              sendMessage(content, replyToId);
-            }}
-            rateLimitTime={rateLimitTime}
-            error={error}
-            replyingTo={replyingTo}
-            onCancelReply={() => setReplyingTo(null)}
-            globalCooldown={globalCooldown}
-          />
-        </div>
-      </div>
+      {/* Message Input - Fixed at bottom with proper keyboard handling */}
+      <MessageInput 
+        onSendMessage={sendMessage}
+        rateLimitTime={rateLimitTime}
+        error={error}
+      />
 
       {/* Walkthrough */}
       <Walkthrough
