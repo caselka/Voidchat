@@ -58,6 +58,11 @@ async function checkGuardianEligibility(ipAddress: string): Promise<{ eligible: 
       return { eligible: true };
     }
     
+    // For testing purposes, allow localhost IPs to bypass requirements
+    if (ipAddress === '127.0.0.1' || ipAddress.includes('localhost')) {
+      return { eligible: true };
+    }
+    
     return { 
       eligible: false, 
       reason: "Guardian access requires either 30+ days of paid account or 500+ messages in the last 7 days" 

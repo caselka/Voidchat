@@ -73,7 +73,7 @@ function Router() {
         <Route path="/chat" component={Chat} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
-        <Route path="/guardian" component={GuardianCheckout} />
+        <Route path="/guardian-checkout" component={GuardianCheckout} />
         <Route path="/sponsor" component={Sponsor} />
         <Route path="/handle" component={Handle} />
         <Route path="/themes" component={Themes} />

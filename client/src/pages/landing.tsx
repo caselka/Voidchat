@@ -132,19 +132,19 @@ export default function Landing() {
           <div className="max-w-2xl mx-auto text-center">
             <h3 className="text-2xl font-light mb-4">Quick & Secure Account Creation</h3>
             <p className="text-muted-foreground mb-6">
-              Join in seconds with Replit's trusted authentication system.
+              Join in seconds with our secure authentication system.
             </p>
             <div className="grid md:grid-cols-2 gap-6 text-left">
               <div className="space-y-2">
                 <h4 className="font-medium">New Users:</h4>
                 <p className="text-sm text-muted-foreground">
-                  Create your free Replit account instantly. No credit card required to start chatting.
+                  Create your free account instantly. No credit card required to start chatting.
                 </p>
               </div>
               <div className="space-y-2">
                 <h4 className="font-medium">Existing Users:</h4>
                 <p className="text-sm text-muted-foreground">
-                  Sign in with your Replit account to access premium features and saved preferences.
+                  Sign in with your account to access premium features and saved preferences.
                 </p>
               </div>
             </div>
@@ -225,7 +225,7 @@ export default function Landing() {
                   <li>• Mute disruptive users</li>
                   <li>• Daily or weekly access</li>
                 </ul>
-                <Link href="/guardian">
+                <Link href="/guardian-checkout">
                   <Button className="w-full" variant="outline">
                     Become Guardian
                     <ArrowRight className="ml-2 h-4 w-4" />

@@ -83,7 +83,7 @@ export default function Chat() {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-48 bg-white dark:bg-void-800 border-void-300 dark:border-void-600 text-void-900 dark:text-void-100">
                 <DropdownMenuItem asChild>
-                  <Link href="/guardian" className="flex items-center text-void-700 dark:text-void-300 hover:text-void-900 dark:hover:text-void-100">
+                  <Link href="/guardian-checkout" className="flex items-center text-void-700 dark:text-void-300 hover:text-void-900 dark:hover:text-void-100">
                     <Shield className="w-4 h-4 mr-2 text-green-500" />
                     Become Guardian ($20/day)
                   </Link>
