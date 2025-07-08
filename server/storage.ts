@@ -268,6 +268,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async isHandleAvailable(handle: string): Promise<boolean> {
+    // Reserved usernames are never available
+    const reservedHandles = ['caselka', 'admin', 'system', 'root', 'void', 'guardian', 'mod', 'moderator'];
+    if (reservedHandles.includes(handle.toLowerCase())) {
+      return false;
+    }
+    
     const [existing] = await db.select().from(customHandles)
       .where(and(
         eq(customHandles.handle, handle),

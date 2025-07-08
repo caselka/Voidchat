@@ -124,3 +124,5 @@ Preferred communication style: Simple, everyday language.
 - **Payment protection**: All payment endpoints secured with authentication middleware
 - **User session management**: PostgreSQL-based session storage for persistence
 - **Auth navigation**: Login/logout buttons added with proper authentication state management
+- **Reserved usernames**: System accounts created with permanent handles (caselka, admin, system, etc.)
+- **Handle protection**: Reserved usernames are permanently unavailable for purchase
