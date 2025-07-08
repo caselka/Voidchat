@@ -213,6 +213,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('WebSocket message received:', message.type, 'from', ipAddress);
         
         if (message.type === 'send_message') {
+          // Check validation rate limit first
+          if (!checkValidationRateLimit(ipAddress)) {
+            ws.send(JSON.stringify({
+              type: 'error',
+              data: { message: 'Too many validation attempts. Please slow down.' }
+            }));
+            return;
+          }
+
           const { allowed, blockedUntil } = await checkRateLimit(ipAddress);
           
           if (!allowed) {
@@ -227,20 +236,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
             return;
           }
           
-          const validation = insertMessageSchema.safeParse({ content: message.data.content });
-          if (!validation.success) {
+          // Validate message content exists
+          if (!message.data?.content || typeof message.data.content !== 'string') {
             ws.send(JSON.stringify({
               type: 'error',
-              data: { message: 'Invalid message content' }
+              data: { message: 'Message content is required' }
+            }));
+            return;
+          }
+
+          // Check for backend interaction attempts
+          if (blockBackendInteraction(message.data.content)) {
+            ws.send(JSON.stringify({
+              type: 'error',
+              data: { message: 'Message content contains forbidden patterns' }
+            }));
+            return;
+          }
+
+          // Sanitize the content to remove any potential CSS/HTML injection
+          const sanitizedContent = sanitizeMessageContent(message.data.content);
+          
+          // Check if content is empty after sanitization
+          if (!sanitizedContent || sanitizedContent.trim().length === 0) {
+            ws.send(JSON.stringify({
+              type: 'error',
+              data: { message: 'Message content is empty or contains only forbidden elements' }
             }));
             return;
           }
           
-          // Check if user has a custom handle
-          let username = generateUsername();
+          const validation = insertMessageSchema.safeParse({ content: sanitizedContent });
+          if (!validation.success) {
+            ws.send(JSON.stringify({
+              type: 'error',
+              data: { message: 'Invalid message content after security validation' }
+            }));
+            return;
+          }
+          
+          // Check if user has a custom handle, otherwise use persistent anon username
+          let username: string;
           const customHandle = await storage.getCustomHandle(ipAddress);
           if (customHandle) {
-            username = customHandle.handle;
+            // Sanitize custom handle to prevent injection
+            username = sanitizeUsername(customHandle.handle);
+          } else {
+            // Get or create persistent anonymous username for this IP
+            username = await storage.getAnonUsername(ipAddress);
           }
           
           const newMessage = await storage.createMessage({

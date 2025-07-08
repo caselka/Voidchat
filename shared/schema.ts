@@ -84,6 +84,18 @@ export const themeCustomizations = pgTable("theme_customizations", {
   stripePaymentId: text("stripe_payment_id"),
 });
 
+export const anonUsernames = pgTable("anon_usernames", {
+  id: serial("id").primaryKey(),
+  ipAddress: text("ip_address").notNull().unique(),
+  username: text("username").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    ipAddressIdx: index("anon_usernames_ip_address_idx").on(table.ipAddress),
+  };
+});
+
 export const insertMessageSchema = createInsertSchema(messages).pick({
   content: true,
 });
@@ -153,5 +165,7 @@ export const users = pgTable("users", {
 
 export type ThemeCustomization = typeof themeCustomizations.$inferSelect;
 export type InsertThemeCustomization = z.infer<typeof insertThemeCustomizationSchema>;
+export type AnonUsername = typeof anonUsernames.$inferSelect;
+export type InsertAnonUsername = typeof anonUsernames.$inferInsert;
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;

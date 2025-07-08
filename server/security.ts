@@ -10,25 +10,62 @@ export function sanitizeMessageContent(content: string): string {
   
   // Remove all HTML tags, CSS, and script-like content
   const sanitized = content
-    // Remove HTML tags
+    // Remove HTML tags completely
     .replace(/<[^>]*>/g, '')
+    .replace(/&lt;[^&]*&gt;/gi, '')
     // Remove CSS style attributes and properties
     .replace(/style\s*=\s*["'][^"']*["']/gi, '')
     .replace(/\{[^}]*\}/g, '')
+    .replace(/:[^;]+;/g, '')
     // Remove JavaScript-like patterns
     .replace(/javascript:/gi, '')
     .replace(/on\w+\s*=/gi, '')
-    // Remove data URLs
+    .replace(/eval\s*\(/gi, '')
+    .replace(/function\s*\(/gi, '')
+    // Remove data URLs and protocols
     .replace(/data:/gi, '')
+    .replace(/file:/gi, '')
+    .replace(/ftp:/gi, '')
+    .replace(/vbscript:/gi, '')
     // Remove CSS import and url patterns
     .replace(/@import/gi, '')
     .replace(/url\s*\(/gi, '')
-    // Remove potential XSS vectors
+    .replace(/@media/gi, '')
+    .replace(/@keyframes/gi, '')
+    .replace(/expression\s*\(/gi, '')
+    .replace(/behavior\s*:/gi, '')
+    // Remove HTML entities that could be exploited
     .replace(/&lt;/g, '')
     .replace(/&gt;/g, '')
     .replace(/&quot;/g, '')
-    .replace(/&#x/gi, '')
-    .replace(/&#\d/g, '')
+    .replace(/&apos;/g, '')
+    .replace(/&amp;/g, '')
+    .replace(/&#x[0-9a-fA-F]+;/g, '')
+    .replace(/&#\d+;/g, '')
+    // Remove CSS hex colors and other patterns
+    .replace(/#[0-9a-fA-F]{3,8}/g, '')
+    .replace(/rgb\s*\([^)]*\)/gi, '')
+    .replace(/rgba\s*\([^)]*\)/gi, '')
+    .replace(/hsl\s*\([^)]*\)/gi, '')
+    .replace(/hsla\s*\([^)]*\)/gi, '')
+    // Remove CSS units and properties
+    .replace(/\d+px/gi, '')
+    .replace(/\d+em/gi, '')
+    .replace(/\d+rem/gi, '')
+    .replace(/\d+%/gi, '')
+    .replace(/!important/gi, '')
+    // Remove script and style blocks
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    // Remove iframe, object, embed
+    .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, '')
+    .replace(/<object[^>]*>[\s\S]*?<\/object>/gi, '')
+    .replace(/<embed[^>]*>/gi, '')
+    .replace(/<link[^>]*>/gi, '')
+    .replace(/<meta[^>]*>/gi, '')
+    .replace(/<base[^>]*>/gi, '')
+    // Remove CSS comments
+    .replace(/\/\*[\s\S]*?\*\//g, '')
     // Trim and normalize whitespace
     .trim()
     .replace(/\s+/g, ' ');
@@ -63,20 +100,39 @@ export function blockBackendInteraction(content: string): boolean {
   }
   
   const suspiciousPatterns = [
-    // API endpoints
+    // API endpoints and backend paths
     /\/api\//i,
-    // Database queries
-    /SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER/i,
-    // Server paths
     /\/server\//i,
-    // Config attempts
-    /\.env|config\.|database|admin/i,
-    // Injection attempts
-    /script|iframe|object|embed|link|meta|base/i,
-    // CSS injection
+    /\/admin/i,
+    /\/auth/i,
+    /\/ws/i,
+    // Database queries and commands
+    /SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|TRUNCATE|EXEC|EXECUTE/i,
+    /UNION|CONCAT|SUBSTRING|CHAR|ASCII|HEX|LOAD_FILE/i,
+    // System and config access
+    /\.env|config\.|database|admin|root|system/i,
+    /passwd|shadow|hosts|boot|proc|sys|etc/i,
+    // Script injection attempts
+    /script|iframe|object|embed|link|meta|base|form/i,
+    /document\.|window\.|eval\(|setTimeout|setInterval/i,
+    // CSS injection and styling
     /expression\(|javascript:|behavior:|@import|url\(/i,
+    /@media|@keyframes|@font-face|@page|@supports/i,
+    /position\s*:|z-index\s*:|opacity\s*:|visibility\s*:/i,
     // Protocol attempts
-    /file:|ftp:|data:|vbscript:/i,
+    /file:|ftp:|data:|vbscript:|about:|chrome:|moz-extension:|ms-its:/i,
+    // HTML entities and encoding
+    /&#x|&#\d|%3C|%3E|%22|%27|%2F|%5C/i,
+    // Server-side template injection
+    /\{\{|\}\}|\{%|%\}|\$\{|\`/i,
+    // Command injection
+    /\||&&|;|`|nc|netcat|wget|curl|ping|nslookup/i,
+    // Path traversal
+    /\.\.\/|\.\.\\|%2e%2e%2f|%2e%2e%5c/i,
+    // Common attack vectors
+    /xss|csrf|clickjack|sqli|rfi|lfi|xxe|ssrf/i,
+    // Hex and base64 that might encode attacks
+    /[0-9a-f]{20,}|[A-Za-z0-9+\/]{20,}=/i,
   ];
   
   return suspiciousPatterns.some(pattern => pattern.test(content));

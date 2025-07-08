@@ -9,6 +9,7 @@ import {
   customHandles,
   themeCustomizations,
   users,
+  anonUsernames,
   type Message, 
   type InsertMessage,
   type Guardian,
@@ -23,7 +24,9 @@ import {
   type ThemeCustomization,
   type InsertThemeCustomization,
   type User,
-  type UpsertUser
+  type UpsertUser,
+  type AnonUsername,
+  type InsertAnonUsername
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, lt, desc, asc, sql } from "drizzle-orm";
@@ -71,6 +74,11 @@ export interface IStorage {
   getThemeCustomization(ipAddress: string): Promise<ThemeCustomization | undefined>;
   deleteExpiredThemes(): Promise<void>;
 
+  // Anonymous usernames
+  getAnonUsername(ipAddress: string): Promise<string>;
+  createAnonUsername(ipAddress: string, username: string): Promise<AnonUsername>;
+  updateAnonUsernameLastUsed(ipAddress: string): Promise<void>;
+  
   // Auth (Email/Password)
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
@@ -82,11 +90,14 @@ export class DatabaseStorage implements IStorage {
   async createMessage(messageData: InsertMessage & { username: string; ipAddress: string }): Promise<Message> {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
     
+    // Additional security check: Ensure content and username are clean
+    const { sanitizeMessageContent, sanitizeUsername } = await import('./security');
+    
     const [message] = await db
       .insert(messages)
       .values({
-        content: messageData.content,
-        username: messageData.username,
+        content: sanitizeMessageContent(messageData.content),
+        username: sanitizeUsername(messageData.username),
         ipAddress: messageData.ipAddress,
         expiresAt,
       })
@@ -413,6 +424,61 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
       })
       .where(eq(users.id, id));
+  }
+
+  async getAnonUsername(ipAddress: string): Promise<string> {
+    const [existingUsername] = await db
+      .select()
+      .from(anonUsernames)
+      .where(eq(anonUsernames.ipAddress, ipAddress));
+
+    if (existingUsername) {
+      // Update last used timestamp
+      await this.updateAnonUsernameLastUsed(ipAddress);
+      return existingUsername.username;
+    }
+
+    // Generate a new unique username
+    let attempts = 0;
+    while (attempts < 100) { // Prevent infinite loop
+      const newUsername = `anon${Math.floor(1000 + Math.random() * 9000)}`;
+      
+      // Check if username is already taken
+      const [existing] = await db
+        .select()
+        .from(anonUsernames)
+        .where(eq(anonUsernames.username, newUsername));
+
+      if (!existing) {
+        // Create new username entry
+        const created = await this.createAnonUsername(ipAddress, newUsername);
+        return created.username;
+      }
+      attempts++;
+    }
+
+    // Fallback - should rarely happen
+    return `anon${Math.floor(1000 + Math.random() * 9000)}`;
+  }
+
+  async createAnonUsername(ipAddress: string, username: string): Promise<AnonUsername> {
+    const [anonUsername] = await db
+      .insert(anonUsernames)
+      .values({
+        ipAddress,
+        username,
+        createdAt: new Date(),
+        lastUsedAt: new Date(),
+      })
+      .returning();
+    return anonUsername;
+  }
+
+  async updateAnonUsernameLastUsed(ipAddress: string): Promise<void> {
+    await db
+      .update(anonUsernames)
+      .set({ lastUsedAt: new Date() })
+      .where(eq(anonUsernames.ipAddress, ipAddress));
   }
 }
 

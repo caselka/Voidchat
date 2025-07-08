@@ -15,13 +15,38 @@ export default function MessageInput({ onSendMessage, rateLimitTime, error }: Me
   const isRateLimited = rateLimitTime > 0;
   const canSend = messageText.trim().length > 0 && !isRateLimited;
 
+  // Basic client-side security validation
+  const isSecureMessage = (content: string): boolean => {
+    const forbiddenPatterns = [
+      /<[^>]*>/,  // HTML tags
+      /javascript:/i,  // JavaScript protocol
+      /on\w+\s*=/i,  // Event handlers
+      /@import/i,  // CSS imports
+      /url\s*\(/i,  // CSS url()
+      /expression\s*\(/i,  // CSS expressions
+      /\{[^}]*\}/,  // CSS blocks
+      /&#x/i,  // HTML entities
+      /data:/i,  // Data URLs
+      /\/api\//i,  // API endpoints
+    ];
+    
+    return !forbiddenPatterns.some(pattern => pattern.test(content));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (canSend) {
+    if (canSend && isSecureMessage(messageText)) {
       onSendMessage(messageText.trim());
       setMessageText('');
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Only allow plain text, prevent pasting of HTML/CSS
+    const cleanValue = value.replace(/<[^>]*>/g, '').replace(/\{[^}]*\}/g, '');
+    setMessageText(cleanValue);
   };
 
   return (
@@ -33,11 +58,20 @@ export default function MessageInput({ onSendMessage, rateLimitTime, error }: Me
               <Input
                 type="text"
                 value={messageText}
-                onChange={(e) => setMessageText(e.target.value)}
+                onChange={handleInputChange}
+                onPaste={(e) => {
+                  // Prevent pasting of potentially dangerous content
+                  e.preventDefault();
+                  const paste = e.clipboardData.getData('text/plain');
+                  const cleanPaste = paste.replace(/<[^>]*>/g, '').replace(/\{[^}]*\}/g, '');
+                  setMessageText(prev => (prev + cleanPaste).substring(0, maxLength));
+                }}
                 placeholder="Type your message into the void..."
                 className="w-full px-3 md:px-4 py-2 md:py-3 bg-input border border-border rounded-lg font-mono text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 maxLength={maxLength}
                 disabled={isRateLimited}
+                autoComplete="off"
+                spellCheck="false"
               />
               <div className="absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">
                 {messageText.length}/{maxLength}
