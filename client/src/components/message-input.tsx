@@ -22,48 +22,66 @@ export default function MessageInput({
   const isRateLimited = rateLimitTime > 0;
   const canSend = messageText.trim().length > 0 && !isRateLimited;
 
-  // Keyboard detection and locking mechanism
+  // Replit-style smooth keyboard detection and animations
   useEffect(() => {
+    let animationFrame: number;
+    
     const handleViewportChange = () => {
-      const visualViewport = window.visualViewport;
-      if (visualViewport) {
-        const keyboardHeight = window.innerHeight - visualViewport.height;
-        const isOpen = keyboardHeight > 100; // Threshold for keyboard detection
-        
-        setIsKeyboardOpen(isOpen);
-        
-        if (isOpen) {
-          // Lock body scroll and position input above keyboard
-          document.body.classList.add('ios-keyboard-open');
-          if (containerRef.current) {
-            containerRef.current.style.bottom = `${keyboardHeight}px`;
-          }
-        } else {
-          // Restore normal positioning
-          document.body.classList.remove('ios-keyboard-open');
-          if (containerRef.current) {
-            containerRef.current.style.bottom = '0px';
+      // Use requestAnimationFrame for smooth updates like Replit
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+      
+      animationFrame = requestAnimationFrame(() => {
+        const visualViewport = window.visualViewport;
+        if (visualViewport) {
+          const keyboardHeight = window.innerHeight - visualViewport.height;
+          const isOpen = keyboardHeight > 100;
+          
+          if (isOpen !== isKeyboardOpen) {
+            setIsKeyboardOpen(isOpen);
+            
+            if (isOpen) {
+              // Smooth keyboard appearance like Replit
+              document.body.classList.add('ios-keyboard-open');
+              if (containerRef.current) {
+                containerRef.current.classList.add('keyboard-entering');
+                containerRef.current.style.bottom = `${keyboardHeight}px`;
+              }
+            } else {
+              // Smooth keyboard dismissal
+              document.body.classList.remove('ios-keyboard-open');
+              if (containerRef.current) {
+                containerRef.current.classList.remove('keyboard-entering');
+                containerRef.current.style.bottom = '0px';
+              }
+            }
           }
         }
-      }
+      });
     };
 
-    // Listen for visual viewport changes (keyboard events)
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleViewportChange);
-      window.visualViewport.addEventListener('scroll', handleViewportChange);
-    }
-
-    // Fallback for older browsers
+    // Throttled resize handler for smooth performance
+    let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {
-      const heightDiff = window.screen.height - window.innerHeight;
-      const isOpen = heightDiff > 150;
-      setIsKeyboardOpen(isOpen);
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        const heightDiff = window.screen.height - window.innerHeight;
+        const isOpen = heightDiff > 150;
+        if (isOpen !== isKeyboardOpen) {
+          setIsKeyboardOpen(isOpen);
+        }
+      }, 16); // 60fps throttling
     };
 
-    window.addEventListener('resize', handleResize);
+    // Event listeners with passive option for better performance
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange, { passive: true });
+      window.visualViewport.addEventListener('scroll', handleViewportChange, { passive: true });
+    }
+    window.addEventListener('resize', handleResize, { passive: true });
 
     return () => {
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+      clearTimeout(resizeTimeout);
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleViewportChange);
         window.visualViewport.removeEventListener('scroll', handleViewportChange);
@@ -71,7 +89,7 @@ export default function MessageInput({
       window.removeEventListener('resize', handleResize);
       document.body.classList.remove('ios-keyboard-open');
     };
-  }, []);
+  }, [isKeyboardOpen]);
 
   // Basic client-side security validation
   const isSecureMessage = (content: string): boolean => {
@@ -111,11 +129,13 @@ export default function MessageInput({
     const cleanValue = value.replace(/<[^>]*>/g, '').replace(/\{[^}]*\}/g, '');
     setMessageText(cleanValue);
     
-    // Auto-resize textarea like Replit AI
-    const textarea = e.target;
-    textarea.style.height = 'auto';
-    const scrollHeight = Math.min(textarea.scrollHeight, 120); // Max height 120px
-    textarea.style.height = `${Math.max(44, scrollHeight)}px`;
+    // Smooth auto-resize like Replit AI
+    requestAnimationFrame(() => {
+      const textarea = e.target;
+      textarea.style.height = 'auto';
+      const scrollHeight = Math.min(textarea.scrollHeight, 120);
+      textarea.style.height = `${Math.max(44, scrollHeight)}px`;
+    });
   };
 
   return (
@@ -151,19 +171,22 @@ export default function MessageInput({
                   }
                 }}
                 onFocus={() => {
-                  // Prevent scroll when focusing on mobile
-                  if (window.innerWidth <= 768) {
-                    setTimeout(() => {
-                      window.scrollTo(0, document.body.scrollHeight);
-                    }, 100);
-                  }
+                  // Smooth scroll behavior like Replit
+                  requestAnimationFrame(() => {
+                    if (textareaRef.current) {
+                      textareaRef.current.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'nearest' 
+                      });
+                    }
+                  });
                 }}
                 onBlur={() => {
-                  // Reset keyboard state when unfocused
-                  setTimeout(() => {
+                  // Smooth keyboard state reset
+                  requestAnimationFrame(() => {
                     setIsKeyboardOpen(false);
                     document.body.classList.remove('ios-keyboard-open');
-                  }, 100);
+                  });
                 }}
                 placeholder="Type a message..."
                 className="message-input w-full resize-none border-none outline-none bg-transparent text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 text-[16px] leading-6 px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
