@@ -131,6 +131,9 @@ Preferred communication style: Simple, everyday language.
 - **Room mentions**: Users can mention rooms in global chat with /room-name format
 - **Database tables**: Created rooms and room_messages tables with proper relationships
 - **Payment simulation**: $49 payment processing simulated for demonstration
+- **Super user privileges**: Caselka can create rooms for free as founder account
+- **Human verification**: Anonymous users must solve simple math captcha before accessing chat
+- **Individual room pages**: Each room has dedicated page at /room/name with owner information
 
 ### Sponsor Ads Enhancement and Content Moderation
 - **Removed impression estimates**: Eliminated misleading impression counts from sponsor ad pricing display

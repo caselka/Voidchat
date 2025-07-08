@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import ChatContainer from "@/components/chat-container";
 import MessageInput from "@/components/message-input";
 import GuardianPanel from "@/components/guardian-panel";
+import HumanVerification from "@/components/human-verification";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette, LogIn, LogOut, Users } from "lucide-react";
 import {
@@ -22,6 +23,10 @@ export default function Chat() {
   const { messages, isConnected, isGuardian, currentUser, onlineCount, sendMessage, muteUser, deleteMessage, enableSlowMode, error, rateLimitTime } = useWebSocket();
   const [profanityFilter, setProfanityFilter] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [isHumanVerified, setIsHumanVerified] = useState(false);
+
+  // Check if user needs human verification (anonymous users only)
+  const needsVerification = !isAuthenticated && !isHumanVerified;
 
   useEffect(() => {
     // Check if user is at bottom
@@ -59,6 +64,10 @@ export default function Chat() {
 
   return (
     <div className="font-sans bg-background text-foreground transition-colors duration-300 min-h-screen">
+      {/* Human Verification Modal for Anonymous Users */}
+      {needsVerification && (
+        <HumanVerification onVerified={() => setIsHumanVerified(true)} />
+      )}
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-[9999] bg-background border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">

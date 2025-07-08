@@ -249,13 +249,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Room name already taken' });
       }
 
-      // Create room (simulate payment for now)
+      // Check if user is super user (caselka)
+      const user = await storage.getUser(userId);
+      const isSuperUser = user?.username === 'caselka';
+      
+      // Create room (free for super users, $49 for others)
       const room = await storage.createRoom({
         name: normalizedName,
         creatorId: userId,
       });
 
-      res.json({ room, message: 'Room created successfully! Payment of $49 processed.' });
+      const message = isSuperUser 
+        ? 'Room created successfully! Free for founder account.'
+        : 'Room created successfully! Payment of $49 processed.';
+
+      res.json({ room, message });
     } catch (error) {
       console.error('Room creation error:', error);
       res.status(500).json({ message: 'Failed to create room' });
