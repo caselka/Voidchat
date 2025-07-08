@@ -30,7 +30,7 @@
   }
 }
 
-/* Fixed input positioning - minimal and clean */
+/* Fixed input positioning - locked and stable */
 .message-input-container {
   position: fixed;
   bottom: 0;
@@ -40,10 +40,13 @@
   z-index: 1000;
   background: var(--bg);
   border-top: 1px solid var(--input-border);
-  /* Lock input above keyboard on mobile */
-  transform: translateZ(0);
+  /* Lock input in place - prevent any movement during scroll */
+  transform: translate3d(0, 0, 0);
   will-change: transform;
   backdrop-filter: blur(10px);
+  /* Ensure input stays fixed during auto-scroll */
+  pointer-events: auto;
+  contain: layout style paint;
 }
 
 /* Use visual viewport API for keyboard detection */

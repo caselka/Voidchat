@@ -99,13 +99,13 @@ export default function Chat() {
   useEffect(() => {
     // Auto-scroll to bottom when new messages arrive
     if (isConnected && messages.length > 0) {
-      const mainContainer = document.querySelector('.chat-main-container');
-      if (mainContainer) {
-        mainContainer.scrollTo({
-          top: mainContainer.scrollHeight,
+      // Use window scroll instead of container scroll to avoid input movement
+      setTimeout(() => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
           behavior: 'smooth'
         });
-      }
+      }, 50); // Small delay to ensure DOM is updated
     }
   }, [messages, isConnected]);
 
@@ -319,10 +319,10 @@ export default function Chat() {
       <main 
         className="max-w-4xl mx-auto px-3 md:px-4 relative z-10 chat-main-container"
         style={{
-          height: '100vh',
-          overflowY: 'auto',
+          minHeight: '100vh',
           paddingTop: '80px',
-          paddingBottom: '60px'
+          paddingBottom: '70px',
+          position: 'relative'
         }}
       >
         {/* Welcome Message */}

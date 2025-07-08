@@ -110,15 +110,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 8, 2025)
 
-### Final UI Polish and Theming (Latest)
+### Input Positioning Fix and UI Finalization (Latest)
+- **Fixed input movement**: Input now stays locked in place during auto-scroll after sending messages
+- **Stable positioning**: Using translate3d(0,0,0) and will-change:transform for hardware acceleration
+- **Window scroll method**: Auto-scroll uses window.scrollTo instead of container scroll to prevent input movement
 - **Complete CSS variable theming**: Clean --bg, --text, --bubble, --input-bg, --input-text variables
-- **Light mode styling**: White background, soft gray bubbles (#f5f5f5), black text with proper contrast
-- **Dark mode styling**: Black background, dark gray bubbles (#1a1a1a), white text for readability  
-- **Fixed input styling**: Consistent rounded corners (10px), padding, and styling across themes
-- **Ghost message filtering**: Only render messages with valid content (non-null, non-empty text)
+- **Light/dark mode styling**: Proper contrast and readability in both themes
 - **Mobile-first design**: 14px font, compact spacing, 90% max-width, fixed bottom input
-- **Smooth theme switching**: Comments added to theme-switch logic for maintainability
 - **Performance optimized**: Hardware acceleration, clean CSS, minimal dependencies
+- **Ghost message filtering**: Only render messages with valid content (non-null, non-empty text)
 
 ### Account Creation System with $3 Username Reservation
 - **Paid account creation**: Users pay $3 to reserve a unique username during registration

@@ -123,9 +123,16 @@ export default function MessageInput({
       ref={containerRef}
       className="message-input-container"
       style={{
-        transform: isKeyboardOpen ? 'translateZ(0)' : undefined,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        width: '100%',
+        backgroundColor: 'var(--bg)',
+        borderTop: '1px solid var(--input-border)',
         position: 'fixed',
-        zIndex: 1000
+        zIndex: 1000,
+        transform: 'translate3d(0, 0, 0)',
+        willChange: 'transform'
       }}
     >
       <div className="max-w-4xl mx-auto" style={{ padding: '12px' }}>
