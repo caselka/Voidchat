@@ -111,7 +111,7 @@ export default function GuardianCheckout() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-8">
+    <div className="min-h-screen bg-background text-foreground py-8">
       <div className="max-w-2xl mx-auto px-4">
         <div className="mb-6">
           <Link href="/">
