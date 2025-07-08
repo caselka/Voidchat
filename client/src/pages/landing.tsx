@@ -35,17 +35,26 @@ export default function Landing() {
             
             {!isAuthenticated ? (
               <div className="flex flex-col gap-4 items-center">
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="text-lg px-8 py-6"
-                  onClick={() => window.location.href = "/login"}
-                >
-                  <Star className="mr-2 h-5 w-5" />
-                  Sign Up / Login for Premium
-                </Button>
+                <div className="flex gap-4">
+                  <Button 
+                    size="lg" 
+                    className="text-lg px-8 py-6"
+                    onClick={() => window.location.href = "/register"}
+                  >
+                    <Star className="mr-2 h-5 w-5" />
+                    Sign Up ($3)
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="text-lg px-8 py-6"
+                    onClick={() => window.location.href = "/login"}
+                  >
+                    Sign In
+                  </Button>
+                </div>
                 <p className="text-sm text-muted-foreground max-w-md text-center">
-                  <strong>New users:</strong> Create your account instantly<br/>
+                  <strong>New users:</strong> Create your account for $3 to reserve your username<br/>
                   <strong>Returning users:</strong> Sign in to access your premium features
                 </p>
               </div>
@@ -176,12 +185,19 @@ export default function Landing() {
                   <li>• Stand out in conversations</li>
                   <li>• 7-30 day validity options</li>
                 </ul>
-                <Link href="/handle">
-                  <Button className="w-full">
-                    Reserve Handle
+                {!isAuthenticated ? (
+                  <Button className="w-full" onClick={() => window.location.href = "/register"}>
+                    Sign Up to Reserve Handle
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                </Link>
+                ) : (
+                  <Link href="/handle">
+                    <Button className="w-full">
+                      Reserve Handle
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -200,12 +216,19 @@ export default function Landing() {
                   <li>• Visual effects</li>
                   <li>• Bundle with Guardian access</li>
                 </ul>
-                <Link href="/themes">
-                  <Button className="w-full" variant="outline">
-                    Customize Theme
+                {!isAuthenticated ? (
+                  <Button className="w-full" variant="outline" onClick={() => window.location.href = "/register"}>
+                    Sign Up for Themes
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                </Link>
+                ) : (
+                  <Link href="/themes">
+                    <Button className="w-full" variant="outline">
+                      Customize Theme
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -225,12 +248,19 @@ export default function Landing() {
                   <li>• Mute disruptive users</li>
                   <li>• Daily or weekly access</li>
                 </ul>
-                <Link href={isAuthenticated ? "/guardian-checkout" : "/login"}>
-                  <Button className="w-full" variant="outline">
-                    Become Guardian
+                {!isAuthenticated ? (
+                  <Button className="w-full" variant="outline" onClick={() => window.location.href = "/register"}>
+                    Sign Up for Guardian
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                </Link>
+                ) : (
+                  <Link href="/guardian-checkout">
+                    <Button className="w-full" variant="outline">
+                      Become Guardian
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                )}
               </div>
             </CardContent>
           </Card>

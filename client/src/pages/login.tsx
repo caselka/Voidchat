@@ -38,10 +38,18 @@ export default function Login() {
         await refetch();
         setLocation('/');
       } else {
-        setError(result.message || 'Login failed');
+        // Handle specific error messages
+        if (response.status === 401) {
+          setError('Invalid username/email or password. Please check your credentials.');
+        } else if (response.status === 400) {
+          setError('Please fill in all required fields correctly.');
+        } else {
+          setError(result.message || 'Login failed. Please try again.');
+        }
       }
     } catch (error) {
-      setError('Network error. Please try again.');
+      console.error('Login error:', error);
+      setError('Connection error. Please check your internet and try again.');
     } finally {
       setIsLoading(false);
     }
