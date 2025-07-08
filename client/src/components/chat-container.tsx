@@ -8,9 +8,26 @@ interface ChatContainerProps {
   isGuardian: boolean;
   onMuteUser: (messageId: string | number) => void;
   onDeleteMessage: (messageId: string | number) => void;
+  profanityFilter?: boolean;
 }
 
-export default function ChatContainer({ messages, isGuardian, onMuteUser, onDeleteMessage }: ChatContainerProps) {
+// Simple profanity filter function
+function filterProfanity(text: string): string {
+  const profanityWords = [
+    'fuck', 'shit', 'damn', 'hell', 'ass', 'bitch', 'crap', 'piss', 'cock', 'dick',
+    'bastard', 'whore', 'slut', 'cunt', 'fag', 'nigger', 'retard', 'gay', 'homo'
+  ];
+  
+  let filteredText = text;
+  profanityWords.forEach(word => {
+    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    filteredText = filteredText.replace(regex, '#'.repeat(word.length));
+  });
+  
+  return filteredText;
+}
+
+export default function ChatContainer({ messages, isGuardian, onMuteUser, onDeleteMessage, profanityFilter = false }: ChatContainerProps) {
   const formatTime = (timestamp: string) => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
@@ -64,7 +81,7 @@ export default function ChatContainer({ messages, isGuardian, onMuteUser, onDele
                   : ''
               }`}
             >
-              {message.content}
+              {profanityFilter ? filterProfanity(message.content) : message.content}
             </div>
           </div>
           

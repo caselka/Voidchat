@@ -18,16 +18,31 @@ import {
 export default function Chat() {
   const { theme, toggleTheme } = useTheme();
   const { messages, isConnected, isGuardian, currentUser, onlineCount, sendMessage, muteUser, deleteMessage, enableSlowMode, error, rateLimitTime } = useWebSocket();
+  const [profanityFilter, setProfanityFilter] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(true);
 
   useEffect(() => {
-    // Auto-scroll to bottom when new messages arrive
-    if (isConnected && messages.length > 0) {
+    // Check if user is at bottom
+    const handleScroll = () => {
+      const threshold = 100;
+      const position = window.innerHeight + window.scrollY;
+      const height = document.documentElement.scrollHeight;
+      setIsAtBottom(position >= height - threshold);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // Auto-scroll to bottom only when user is at bottom and new messages arrive
+    if (isConnected && messages.length > 0 && isAtBottom) {
       window.scrollTo({
         top: document.body.scrollHeight,
         behavior: 'smooth'
       });
     }
-  }, [messages, isConnected]);
+  }, [messages, isConnected, isAtBottom]);
 
   // Show connection status
   if (!isConnected) {
@@ -43,16 +58,38 @@ export default function Chat() {
   return (
     <div className="font-sans bg-background text-foreground transition-colors duration-300 min-h-screen">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-background/95 border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-2 md:space-x-3">
-            <h1 className="text-lg md:text-xl font-light tracking-wider text-foreground">voidchat</h1>
+      <header className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-center relative">
+          <div className="absolute left-4 flex items-center space-x-2">
             <span className="text-xs px-2 py-1 bg-muted rounded text-muted-foreground hidden sm:inline">
               {isConnected ? `${onlineCount} online` : 'Connecting...'}
             </span>
           </div>
           
-          <div className="flex items-center space-x-2 md:space-x-4">
+          <h1 className="text-lg md:text-xl font-light tracking-wider text-foreground">voidchat</h1>
+          
+          <div className="absolute right-4 flex items-center space-x-2">
+            {/* Profanity Filter Toggle */}
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="profanity-filter"
+                checked={profanityFilter}
+                onChange={(e) => setProfanityFilter(e.target.checked)}
+                className="sr-only"
+              />
+              <label
+                htmlFor="profanity-filter"
+                className={`p-2 rounded-lg cursor-pointer transition-colors ${
+                  profanityFilter 
+                    ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' 
+                    : 'hover:bg-void-200 dark:hover:bg-void-700 text-void-700 dark:text-void-300'
+                }`}
+                title="Hide profanity"
+              >
+                🤬
+              </label>
+            </div>
             {/* Guardian Status */}
             {isGuardian && (
               <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded flex items-center">
@@ -144,6 +181,7 @@ export default function Chat() {
             isGuardian={isGuardian}
             onMuteUser={muteUser}
             onDeleteMessage={deleteMessage}
+            profanityFilter={profanityFilter}
           />
         </div>
       </main>

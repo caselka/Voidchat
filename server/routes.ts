@@ -58,10 +58,7 @@ async function checkGuardianEligibility(ipAddress: string): Promise<{ eligible: 
       return { eligible: true };
     }
     
-    // For testing purposes, allow localhost IPs to bypass requirements
-    if (ipAddress === '127.0.0.1' || ipAddress.includes('localhost')) {
-      return { eligible: true };
-    }
+    // Remove testing bypass for production
     
     return { 
       eligible: false, 

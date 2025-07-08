@@ -225,7 +225,7 @@ export default function Landing() {
                   <li>• Mute disruptive users</li>
                   <li>• Daily or weekly access</li>
                 </ul>
-                <Link href="/guardian-checkout">
+                <Link href={isAuthenticated ? "/guardian-checkout" : "/login"}>
                   <Button className="w-full" variant="outline">
                     Become Guardian
                     <ArrowRight className="ml-2 h-4 w-4" />
