@@ -67,4 +67,14 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
   });
+
+  // Start periodic cleanup every 5 minutes
+  setInterval(async () => {
+    try {
+      const { storage } = await import('./storage');
+      await storage.processExpiredUsernames();
+    } catch (error) {
+      console.error('Error processing expired usernames:', error);
+    }
+  }, 5 * 60 * 1000);
 })();

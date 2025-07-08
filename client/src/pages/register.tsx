@@ -255,6 +255,18 @@ export default function Register() {
           <CardDescription>
             Reserve your username for $3 USD
           </CardDescription>
+          <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+            <div className="text-sm text-amber-800 dark:text-amber-200">
+              <strong>⚠️ Username Expiration Policy:</strong>
+              <ul className="mt-2 space-y-1 text-xs">
+                <li>• Your username expires every 30 days</li>
+                <li>• You have 15 days after expiration to renew</li>
+                <li>• If not renewed, your account becomes anonymous</li>
+                <li>• Your username becomes available for others to purchase</li>
+                <li>• Others can access rooms you created</li>
+              </ul>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Elements stripe={stripePromise}>

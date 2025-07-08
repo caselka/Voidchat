@@ -131,6 +131,9 @@ export default function Login() {
                   Sign up
                 </Link>
               </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                ⚠️ Usernames expire every 30 days and must be renewed
+              </p>
             </div>
           </CardContent>
         </Card>

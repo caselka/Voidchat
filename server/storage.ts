@@ -96,6 +96,12 @@ export interface IStorage {
   // User stats for Guardian eligibility
   getUserStats?(ipAddress: string): Promise<{ messagesLast7Days: number; paidAccountSince?: Date } | undefined>;
   
+  // Username expiration management
+  processExpiredUsernames(): Promise<void>;
+  renewUsername(userId: string): Promise<void>;
+  isUsernameExpired(userId: string): Promise<boolean>;
+  getUsernameStatus(userId: string): Promise<{ expired: boolean; inGracePeriod: boolean; daysUntilExpiration: number }>;
+  
   // Room management
   createRoom(room: InsertRoom): Promise<Room>;
   getRoom(name: string): Promise<Room | undefined>;
@@ -453,11 +459,17 @@ export class DatabaseStorage implements IStorage {
 
   async createUser(userData: UpsertUser): Promise<User> {
     const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Set username expiration to 30 days from now
+    const usernameExpiresAt = new Date();
+    usernameExpiresAt.setDate(usernameExpiresAt.getDate() + 30);
+    
     const [user] = await db
       .insert(users)
       .values({
         ...userData,
         id: userId,
+        usernameExpiresAt,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -632,6 +644,109 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(roomMessages)
       .where(lt(roomMessages.expiresAt, new Date()));
+  }
+
+  // Username expiration management
+  async processExpiredUsernames(): Promise<void> {
+    const now = new Date();
+    
+    // Find users whose usernames expired and grace period has ended
+    const expiredUsers = await db
+      .select()
+      .from(users)
+      .where(
+        and(
+          lt(users.usernameExpiresAt, now),
+          or(
+            eq(users.usernameGracePeriodEnds, null),
+            lt(users.usernameGracePeriodEnds, now)
+          )
+        )
+      );
+
+    for (const user of expiredUsers) {
+      // Reset user to anonymous state
+      await db
+        .update(users)
+        .set({
+          username: null,
+          usernameExpiresAt: null,
+          usernameGracePeriodEnds: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, user.id));
+    }
+
+    // Find users whose usernames just expired and set grace period
+    const justExpiredUsers = await db
+      .select()
+      .from(users)
+      .where(
+        and(
+          lt(users.usernameExpiresAt, now),
+          eq(users.usernameGracePeriodEnds, null)
+        )
+      );
+
+    for (const user of justExpiredUsers) {
+      const gracePeriodEnds = new Date();
+      gracePeriodEnds.setDate(gracePeriodEnds.getDate() + 15);
+      
+      await db
+        .update(users)
+        .set({
+          usernameGracePeriodEnds: gracePeriodEnds,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, user.id));
+    }
+  }
+
+  async renewUsername(userId: string): Promise<void> {
+    const newExpirationDate = new Date();
+    newExpirationDate.setDate(newExpirationDate.getDate() + 30);
+    
+    await db
+      .update(users)
+      .set({
+        usernameExpiresAt: newExpirationDate,
+        usernameGracePeriodEnds: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async isUsernameExpired(userId: string): Promise<boolean> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId));
+    
+    if (!user || !user.usernameExpiresAt) return false;
+    
+    return new Date() > user.usernameExpiresAt;
+  }
+
+  async getUsernameStatus(userId: string): Promise<{ expired: boolean; inGracePeriod: boolean; daysUntilExpiration: number }> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId));
+    
+    if (!user || !user.usernameExpiresAt) {
+      return { expired: false, inGracePeriod: false, daysUntilExpiration: 0 };
+    }
+    
+    const now = new Date();
+    const expired = now > user.usernameExpiresAt;
+    const inGracePeriod = expired && user.usernameGracePeriodEnds && now <= user.usernameGracePeriodEnds;
+    
+    let daysUntilExpiration = 0;
+    if (!expired) {
+      daysUntilExpiration = Math.ceil((user.usernameExpiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    }
+    
+    return { expired, inGracePeriod, daysUntilExpiration };
   }
 }
 

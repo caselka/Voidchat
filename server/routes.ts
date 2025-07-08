@@ -212,6 +212,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
   
   // Room management routes
+  // Username status endpoint
+  app.get('/api/username-status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const status = await storage.getUsernameStatus(userId);
+      res.json(status);
+    } catch (error: any) {
+      console.error('Error checking username status:', error);
+      res.status(500).json({ message: 'Failed to check username status' });
+    }
+  });
+
+  // Renew username endpoint
+  app.post('/api/renew-username', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Check if user is in grace period
+      const status = await storage.getUsernameStatus(userId);
+      if (!status.expired && !status.inGracePeriod) {
+        return res.status(400).json({ message: 'Username is not expired' });
+      }
+      
+      // For now, simulate payment success for renewal
+      console.log(`Would charge $3 for username renewal by user ${userId}`);
+      
+      await storage.renewUsername(userId);
+      res.json({ message: 'Username renewed successfully' });
+    } catch (error: any) {
+      console.error('Error renewing username:', error);
+      res.status(500).json({ message: 'Failed to renew username' });
+    }
+  });
+
   app.get('/api/rooms', async (req, res) => {
     try {
       const rooms = await storage.getAllRooms();

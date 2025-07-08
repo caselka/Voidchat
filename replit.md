@@ -156,6 +156,14 @@ Preferred communication style: Simple, everyday language.
 - **Improved error handling**: Clear feedback for rejected ads with specific reasons
 - **Content review notice**: Added transparency about content review process
 
+### Username Expiration System
+- **30-day expiration cycle**: All paid usernames expire after 30 days
+- **15-day grace period**: Users have 15 days after expiration to renew
+- **Automatic cleanup**: After grace period ends, usernames become anonymous and available for others
+- **Room ownership transfer**: When usernames expire, new owners can access previously created rooms
+- **Clear warning system**: Registration page highlights expiration policy prominently
+- **Renewal process**: $3 payment required to extend username for another 30 days
+
 ### Comprehensive Username Protection System
 - **Multi-layered filtering**: System reserved terms, founder protection, profanity filtering, format validation
 - **Detailed error messages**: Specific feedback for each rejection reason (reserved terms, inappropriate content, format issues)
