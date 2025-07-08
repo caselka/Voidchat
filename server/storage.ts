@@ -26,7 +26,7 @@ import {
   type UpsertUser
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, desc, asc, sql } from "drizzle-orm";
+import { eq, and, gte, lte, lt, desc, asc, sql } from "drizzle-orm";
 import { checkProfanity, validateUsernameFormat } from "./profanity-filter";
 
 export interface IStorage {
