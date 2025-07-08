@@ -46,6 +46,21 @@ body {
   background-color: var(--bg);
   color: var(--text);
   transition: background-color 0.2s ease, color 0.2s ease;
+  /* Prevent scroll interference with fixed elements */
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Ensure smooth scrolling doesn't affect fixed elements */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fixed input isolation layer */
+.message-input-container {
+  /* Force new stacking context to prevent scroll interference */
+  will-change: auto !important;
+  transform: translateZ(0) !important;
 }
 
 /* Message bubble animations and mobile optimizations */

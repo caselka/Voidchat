@@ -95,8 +95,17 @@ export default function MessageInput({
     e.preventDefault();
     
     if (canSend && isSecureMessage(messageText)) {
+      // Lock input position before sending to prevent movement during auto-scroll
+      const inputContainer = containerRef.current;
+      if (inputContainer) {
+        inputContainer.style.position = 'fixed';
+        inputContainer.style.bottom = '0px';
+        inputContainer.style.transform = 'translateZ(0)';
+      }
+      
       onSendMessage(messageText.trim());
       setMessageText('');
+      
       // Keep focus on textarea to maintain keyboard without scrolling
       const textarea = e.currentTarget.querySelector('textarea');
       if (textarea) {
@@ -130,9 +139,11 @@ export default function MessageInput({
         backgroundColor: 'var(--bg)',
         borderTop: '1px solid var(--input-border)',
         position: 'fixed',
-        zIndex: 1000,
-        transform: 'translate3d(0, 0, 0)',
-        willChange: 'transform'
+        zIndex: 9999,
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden',
+        perspective: '1000px',
+        isolation: 'isolate'
       }}
     >
       <div className="max-w-4xl mx-auto" style={{ padding: '12px' }}>
