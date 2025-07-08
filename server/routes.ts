@@ -440,7 +440,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { handle } = req.params;
       const available = await storage.isHandleAvailable(handle);
-      res.json({ available });
+      
+      if (available) {
+        res.json({ available: true });
+      } else {
+        // Provide specific error messages based on the rejection reason
+        const lowerHandle = handle.toLowerCase().trim();
+        
+        // System reserved terms
+        const systemReserved = [
+          'voidchat', 'admin', 'moderator', 'guardian', 'system', 'server', 
+          'support', 'mod', 'root', 'dev', 'owner', 'bot', 'null', 
+          'undefined', 'console', 'test'
+        ];
+        
+        // Founder reserved terms
+        const founderReserved = [
+          'caselka', 'cameron', 'cameronpettit', 'cam', 'cmp', 
+          'ptcsolutions', 'redd'
+        ];
+        
+        let reason = 'Username not available';
+        
+        if (systemReserved.includes(lowerHandle)) {
+          reason = 'This username is reserved by the system';
+        } else if (founderReserved.some(term => lowerHandle.includes(term))) {
+          reason = 'This username contains protected terms';
+        } else if (/^anon\d+$/i.test(handle)) {
+          reason = 'This format is reserved for anonymous users';
+        } else if (handle.length < 2 || handle.length > 20) {
+          reason = 'Username must be 2-20 characters long';
+        } else if (!/^[a-zA-Z0-9_-]+$/.test(handle)) {
+          reason = 'Username can only contain letters, numbers, dashes, and underscores';
+        } else if (/^[-_]|[-_]$/.test(handle)) {
+          reason = 'Username cannot start or end with dashes or underscores';
+        } else if (/[-_]{2,}/.test(handle)) {
+          reason = 'Username cannot have consecutive dashes or underscores';
+        } else if (handle.includes('..')) {
+          reason = 'Username cannot contain consecutive dots';
+        } else if (/[\/\\%#@~]/.test(handle)) {
+          reason = 'Username contains invalid characters';
+        } else if (handle.startsWith('//')) {
+          reason = 'Username cannot start with //'
+        } else if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(handle)) {
+          reason = 'Username cannot be in UUID format';
+        } else {
+          // Check if it contains profanity or is already taken
+          const { checkProfanity } = await import('./profanity-filter');
+          const profanityCheck = checkProfanity(handle);
+          if (!profanityCheck.isClean) {
+            reason = 'Username contains inappropriate content';
+          } else {
+            reason = 'Username is already taken';
+          }
+        }
+        
+        res.json({ available: false, reason });
+      }
     } catch (error: any) {
       console.error('Error checking handle:', error);
       res.status(500).json({ message: 'Error checking handle: ' + error.message });

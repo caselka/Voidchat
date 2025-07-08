@@ -71,6 +71,7 @@ export default function Handle() {
   const [clientSecret, setClientSecret] = useState('');
   const [currentHandle, setCurrentHandle] = useState<string | null>(null);
   const [step, setStep] = useState<'form' | 'payment'>('form');
+  const [error, setError] = useState('');
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -99,8 +100,9 @@ export default function Handle() {
   }, []);
 
   const checkAvailability = async (handleToCheck: string) => {
-    if (!handleToCheck || handleToCheck.length < 3) {
+    if (!handleToCheck || handleToCheck.length < 2) {
       setIsAvailable(null);
+      setError('');
       return;
     }
 
@@ -108,8 +110,15 @@ export default function Handle() {
       const res = await apiRequest('GET', `/api/check-handle/${handleToCheck}`);
       const data = await res.json();
       setIsAvailable(data.available);
+      
+      if (!data.available && data.reason) {
+        setError(data.reason);
+      } else {
+        setError('');
+      }
     } catch (error) {
       console.error('Error checking handle:', error);
+      setError('Error checking username availability');
     }
   };
 
@@ -252,7 +261,7 @@ export default function Handle() {
                 )}
               </div>
               {isAvailable === false && (
-                <p className="text-sm text-red-500">Handle already taken</p>
+                <p className="text-sm text-red-500">{error || 'Handle not available'}</p>
               )}
               {isAvailable === true && (
                 <p className="text-sm text-green-500">Handle available!</p>

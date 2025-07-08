@@ -110,6 +110,21 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 8, 2025)
 
+### Comprehensive Username Protection System
+- **Multi-layered filtering**: System reserved terms, founder protection, profanity filtering, format validation
+- **Detailed error messages**: Specific feedback for each rejection reason (reserved terms, inappropriate content, format issues)
+- **Enhanced security**: Blocks system accounts, founder names, leetspeak variations, and harmful patterns
+- **Format validation**: Prevents UUID formats, anon patterns, and invalid character combinations
+- **Real-time feedback**: Users get immediate, clear explanations for username rejections
+
+### Username Categories Blocked:
+- **System Reserved**: voidchat, admin, moderator, guardian, system, server, support, mod, root, dev, owner, bot, null, undefined, console, test
+- **Founder Protection**: caselka, cameron, cameronpettit, cam, cmp, ptcsolutions, redd (including substring matching)
+- **Format Restrictions**: anonXXXX patterns, UUID formats, consecutive special characters, leading/trailing dashes
+- **Profanity & Harmful Content**: Comprehensive list including leetspeak variations and character substitutions
+
+## Previous Updates
+
 - Mobile optimization completed with responsive design
 - Logo updated to match minimalist aesthetic (lowercase "voidchat" with light font weight)
 - WebSocket connection stability improved with automatic reconnection
@@ -130,5 +145,5 @@ Preferred communication style: Simple, everyday language.
 - **Theme system improved**: Better dark/light mode with proper background color changes
 - **UI cleanup**: Simplified navigation and improved visual consistency across all pages
 - **Additional pages added**: Careers, Contact, Privacy Policy, and Terms of Service pages
-- **Enhanced username protection**: Any handle containing "caselka" (case-insensitive) is now blocked
+- **Comprehensive username filtering**: Multi-layered protection system with specific error messages
 - **Improved spacing**: Better visual hierarchy and spacing in hero section and throughout UI

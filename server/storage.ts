@@ -27,6 +27,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc, asc, sql } from "drizzle-orm";
+import { checkProfanity, validateUsernameFormat } from "./profanity-filter";
 
 export interface IStorage {
   // Messages
@@ -268,23 +269,65 @@ export class DatabaseStorage implements IStorage {
   }
 
   async isHandleAvailable(handle: string): Promise<boolean> {
-    // Reserved usernames are never available
-    const reservedHandles = ['caselka', 'admin', 'system', 'root', 'void', 'guardian', 'mod', 'moderator'];
-    const lowerHandle = handle.toLowerCase();
+    const trimmed = handle.trim();
+    const lowerHandle = trimmed.toLowerCase();
     
-    // Check exact reserved matches
-    if (reservedHandles.includes(lowerHandle)) {
+    // Basic format validation
+    const formatCheck = validateUsernameFormat(trimmed);
+    if (!formatCheck.isValid) {
       return false;
     }
     
-    // Check if handle contains "caselka" anywhere in it
-    if (lowerHandle.includes('caselka')) {
+    // Profanity check using comprehensive filter
+    const profanityCheck = checkProfanity(trimmed);
+    if (!profanityCheck.isClean) {
       return false;
     }
     
+    // System/Platform Reserved Terms
+    const systemReserved = [
+      'voidchat', 'admin', 'moderator', 'guardian', 'system', 'server', 
+      'support', 'mod', 'root', 'dev', 'owner', 'bot', 'null', 
+      'undefined', 'console', 'test'
+    ];
+    
+    // Personal/Founder Protection
+    const founderReserved = [
+      'caselka', 'cameron', 'cameronpettit', 'cam', 'cmp', 
+      'ptcsolutions', 'redd'
+    ];
+    
+    // Check exact matches against reserved lists
+    if (systemReserved.includes(lowerHandle) || founderReserved.includes(lowerHandle)) {
+      return false;
+    }
+    
+    // Check if handle contains any founder/personal terms (substring matching)
+    for (const term of founderReserved) {
+      if (lowerHandle.includes(term)) {
+        return false;
+      }
+    }
+    
+    // Block anon pattern (anonXXXX) to avoid confusion with generated usernames
+    if (/^anon\d+$/i.test(trimmed)) {
+      return false;
+    }
+    
+    // Block UUID-like patterns
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trimmed)) {
+      return false;
+    }
+    
+    // Block anything starting with //
+    if (trimmed.startsWith('//')) {
+      return false;
+    }
+    
+    // Check if handle is already taken in database
     const [existing] = await db.select().from(customHandles)
       .where(and(
-        eq(customHandles.handle, handle),
+        eq(customHandles.handle, trimmed),
         gte(customHandles.expiresAt, new Date())
       ));
     return !existing;
