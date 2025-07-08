@@ -137,17 +137,11 @@ export class DatabaseStorage implements IStorage {
 
   async getRecentMessages(limit = 50): Promise<Message[]> {
     const now = new Date();
-    const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60 * 1000);
-    
+    // Get messages from the last 15 minutes that haven't expired yet
     return await db
       .select()
       .from(messages)
-      .where(
-        and(
-          gte(messages.expiresAt, now), // Not expired
-          gte(messages.createdAt, fifteenMinutesAgo) // Within last 15 minutes
-        )
-      )
+      .where(gte(messages.expiresAt, now)) // Only non-expired messages
       .orderBy(desc(messages.createdAt))
       .limit(limit);
   }
