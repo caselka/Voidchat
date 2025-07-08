@@ -12,7 +12,9 @@ interface ChatContainerProps {
 
 export default function ChatContainer({ messages, isGuardian, onMuteUser, onDeleteMessage }: ChatContainerProps) {
   const formatTime = (timestamp: string) => {
+    if (!timestamp) return '';
     const date = new Date(timestamp);
+    if (isNaN(date.getTime())) return '';
     return date.toLocaleTimeString('en-US', { 
       hour: '2-digit', 
       minute: '2-digit',
@@ -25,6 +27,7 @@ export default function ChatContainer({ messages, isGuardian, onMuteUser, onDele
     const expires = new Date(expiresAt);
     const now = new Date();
     
+    if (isNaN(expires.getTime())) return '';
     if (expires <= now) return 'expired';
     
     return formatDistanceToNow(expires, { addSuffix: false }) + ' left';
@@ -32,8 +35,8 @@ export default function ChatContainer({ messages, isGuardian, onMuteUser, onDele
 
   return (
     <div className="space-y-3">
-      {messages.map((message) => (
-        <div key={`${message.id}-${message.timestamp}`} className="flex items-start space-x-2 md:space-x-3 group">
+      {messages.map((message, index) => (
+        <div key={message.id || `message-${index}-${Date.now()}`} className="flex items-start space-x-2 md:space-x-3 group">
           {/* Timestamp */}
           <div className="text-xs text-void-400 dark:text-void-500 w-12 md:w-16 flex-shrink-0 pt-1 font-mono">
             {formatTime(message.timestamp)}

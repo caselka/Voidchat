@@ -178,9 +178,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       url: req.url
     });
     
-    // Send recent messages to new client
-    storage.getRecentMessages(30).then(messages => {
-      const recentMessages = messages.reverse().map(msg => ({
+    // Send recent messages from past 15 minutes to new client
+    storage.getRecentMessages(100).then(messages => {
+      // Get all messages from past 15 minutes, most recent first
+      const recentMessages = messages.map(msg => ({
         type: 'message',
         data: {
           id: msg.id,
@@ -198,13 +199,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error sending initial messages:', error);
     });
     
-    // Send guardian status
-    storage.isGuardian(ipAddress).then(isGuardian => {
+    // Send guardian status and current user info
+    Promise.all([
+      storage.isGuardian(ipAddress),
+      storage.getAnonUsername(ipAddress),
+      storage.getCustomHandle(ipAddress)
+    ]).then(([isGuardian, anonUsername, customHandle]) => {
+      const currentUsername = customHandle ? customHandle.handle : anonUsername;
+      
       if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: 'guardian_status', data: { isGuardian } }));
+        ws.send(JSON.stringify({ 
+          type: 'guardian_status', 
+          data: { isGuardian } 
+        }));
+        ws.send(JSON.stringify({ 
+          type: 'current_user', 
+          data: { username: currentUsername } 
+        }));
       }
     }).catch(error => {
-      console.error('Error checking guardian status:', error);
+      console.error('Error checking guardian status or username:', error);
     });
     
     ws.on('message', async (data) => {

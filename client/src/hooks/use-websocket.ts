@@ -13,6 +13,7 @@ export interface WebSocketHook {
   messages: Message[];
   isConnected: boolean;
   isGuardian: boolean;
+  currentUser: string;
   sendMessage: (content: string) => void;
   muteUser: (messageId: string | number) => void;
   deleteMessage: (messageId: string | number) => void;
@@ -27,6 +28,7 @@ export function useWebSocket(): WebSocketHook {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isGuardian, setIsGuardian] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [rateLimitTime, setRateLimitTime] = useState(0);
 
@@ -53,7 +55,8 @@ export function useWebSocket(): WebSocketHook {
           
           switch (message.type) {
             case 'initial_messages':
-              setMessages(message.data);
+              // Reverse to show oldest messages first (chronological order)
+              setMessages(message.data.reverse());
               break;
               
             case 'message':
@@ -62,6 +65,10 @@ export function useWebSocket(): WebSocketHook {
               
             case 'guardian_status':
               setIsGuardian(message.data.isGuardian);
+              break;
+              
+            case 'current_user':
+              setCurrentUser(message.data.username);
               break;
               
             case 'message_deleted':
@@ -187,6 +194,7 @@ export function useWebSocket(): WebSocketHook {
     messages,
     isConnected,
     isGuardian,
+    currentUser,
     sendMessage,
     muteUser,
     deleteMessage,

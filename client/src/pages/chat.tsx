@@ -17,8 +17,7 @@ import {
 
 export default function Chat() {
   const { theme, toggleTheme } = useTheme();
-  const { messages, isConnected, isGuardian, sendMessage, muteUser, deleteMessage, enableSlowMode, error, rateLimitTime } = useWebSocket();
-  const [currentUser] = useState(""); // Username will be shown from messages
+  const { messages, isConnected, isGuardian, currentUser, sendMessage, muteUser, deleteMessage, enableSlowMode, error, rateLimitTime } = useWebSocket();
   const [onlineCount] = useState(Math.floor(Math.random() * 50) + 20);
 
   useEffect(() => {
@@ -141,7 +140,9 @@ export default function Chat() {
           {/* Welcome Message */}
           <div className="text-center py-6 md:py-8 text-void-500 dark:text-void-400 text-xs md:text-sm font-mono">
             <p>Welcome to the void. Messages vanish after 15 minutes.</p>
-            <p className="mt-1">Your username will appear when you send a message.</p>
+            {currentUser && (
+              <p className="mt-1">You are <span className="text-void-700 dark:text-void-300">{currentUser}</span></p>
+            )}
             {/* Online count for mobile */}
             <p className="mt-1 sm:hidden text-xs">
               {isConnected ? `${onlineCount} online` : 'Connecting...'}
