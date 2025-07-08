@@ -185,7 +185,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             return;
           }
           
-          const username = generateUsername();
+          // Check if user has a custom handle
+          let username = generateUsername();
+          const customHandle = await storage.getCustomHandle(ipAddress);
+          if (customHandle) {
+            username = customHandle.handle;
+          }
+          
           const newMessage = await storage.createMessage({
             content: validation.data.content,
             username,
@@ -330,6 +336,226 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error creating sponsor payment:', error);
       res.status(500).json({ message: 'Error creating payment intent: ' + error.message });
     }
+  });
+
+  // Custom handle routes
+  app.post('/api/create-handle-payment', async (req, res) => {
+    try {
+      const { handle, duration } = req.body;
+      const ipAddress = getClientIp(req);
+      
+      // Check if handle is available
+      const available = await storage.isHandleAvailable(handle);
+      if (!available) {
+        return res.status(400).json({ message: 'Handle already taken' });
+      }
+      
+      // Calculate amount based on duration
+      const prices = {
+        'permanent': 300, // $3 for 30 days
+        'temporary': 100 // $1 for 7 days
+      };
+      
+      const amount = prices[duration as keyof typeof prices];
+      if (!amount) {
+        return res.status(400).json({ message: 'Invalid duration' });
+      }
+      
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount,
+        currency: 'usd',
+        metadata: {
+          type: 'custom_handle',
+          handle,
+          duration,
+          ipAddress
+        }
+      });
+      
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error('Error creating handle payment:', error);
+      res.status(500).json({ message: 'Error creating payment intent: ' + error.message });
+    }
+  });
+
+  // Theme customization routes
+  app.post('/api/create-theme-payment', async (req, res) => {
+    try {
+      const { background, font, accentColor, messageFadeTime, backgroundFx, bundle } = req.body;
+      const ipAddress = getClientIp(req);
+      
+      // Calculate amount based on bundle
+      const prices = {
+        'theme_only': 200, // $2
+        'drift_premium': 700, // $7 (includes handle)
+        'void_guardian': 1000 // $10 (includes everything + guardian)
+      };
+      
+      const amount = prices[bundle as keyof typeof prices];
+      if (!amount) {
+        return res.status(400).json({ message: 'Invalid bundle' });
+      }
+      
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount,
+        currency: 'usd',
+        metadata: {
+          type: 'theme_customization',
+          background,
+          font,
+          accentColor,
+          messageFadeTime: messageFadeTime.toString(),
+          backgroundFx,
+          bundle,
+          ipAddress
+        }
+      });
+      
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error('Error creating theme payment:', error);
+      res.status(500).json({ message: 'Error creating payment intent: ' + error.message });
+    }
+  });
+
+  // Check handle availability
+  app.get('/api/check-handle/:handle', async (req, res) => {
+    try {
+      const { handle } = req.params;
+      const available = await storage.isHandleAvailable(handle);
+      res.json({ available });
+    } catch (error: any) {
+      console.error('Error checking handle:', error);
+      res.status(500).json({ message: 'Error checking handle: ' + error.message });
+    }
+  });
+
+  // Get user's custom handle
+  app.get('/api/my-handle', async (req, res) => {
+    try {
+      const ipAddress = getClientIp(req);
+      const handle = await storage.getCustomHandle(ipAddress);
+      res.json({ handle: handle?.handle || null });
+    } catch (error: any) {
+      console.error('Error getting handle:', error);
+      res.status(500).json({ message: 'Error getting handle: ' + error.message });
+    }
+  });
+
+  // Get user's theme customization
+  app.get('/api/my-theme', async (req, res) => {
+    try {
+      const ipAddress = getClientIp(req);
+      const theme = await storage.getThemeCustomization(ipAddress);
+      res.json({ theme });
+    } catch (error: any) {
+      console.error('Error getting theme:', error);
+      res.status(500).json({ message: 'Error getting theme: ' + error.message });
+    }
+  });
+
+  // Stripe webhook handler
+  app.post('/api/stripe-webhook', async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET || '');
+    } catch (err: any) {
+      console.error('Webhook signature verification failed:', err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    if (event.type === 'payment_intent.succeeded') {
+      const paymentIntent = event.data.object;
+      const metadata = paymentIntent.metadata;
+
+      try {
+        if (metadata.type === 'guardian') {
+          const duration = metadata.duration;
+          const ipAddress = metadata.ip;
+          const expiresAt = duration === 'week' 
+            ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            : new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+          await storage.createGuardian({
+            ipAddress,
+            expiresAt,
+            stripePaymentIntentId: paymentIntent.id
+          });
+
+          console.log('Guardian access granted to', ipAddress);
+        } else if (metadata.type === 'custom_handle') {
+          const handle = metadata.handle;
+          const duration = metadata.duration;
+          const ipAddress = metadata.ipAddress;
+          const expiresAt = duration === 'permanent'
+            ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+            : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+          await storage.createCustomHandle({
+            handle,
+            ipAddress,
+            expiresAt,
+            stripePaymentId: paymentIntent.id
+          });
+
+          console.log('Custom handle granted:', handle, 'to', ipAddress);
+        } else if (metadata.type === 'theme_customization') {
+          const ipAddress = metadata.ipAddress;
+          const bundle = metadata.bundle;
+          let expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+          if (bundle === 'void_guardian') {
+            expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+            // Also grant guardian access
+            await storage.createGuardian({
+              ipAddress,
+              expiresAt,
+              stripePaymentIntentId: paymentIntent.id
+            });
+          }
+
+          await storage.createThemeCustomization({
+            background: metadata.background,
+            font: metadata.font,
+            accentColor: metadata.accentColor,
+            messageFadeTime: parseInt(metadata.messageFadeTime),
+            backgroundFx: metadata.backgroundFx,
+            ipAddress,
+            expiresAt,
+            stripePaymentId: paymentIntent.id
+          });
+
+          // If premium bundle, also grant custom handle
+          if (bundle === 'drift_premium' || bundle === 'void_guardian') {
+            const randomHandle = `drift${Math.floor(Math.random() * 999)}`;
+            await storage.createCustomHandle({
+              handle: randomHandle,
+              ipAddress,
+              expiresAt,
+              stripePaymentId: paymentIntent.id
+            });
+          }
+
+          console.log('Theme customization granted to', ipAddress, 'bundle:', bundle);
+        } else if (metadata.type === 'sponsor') {
+          const duration = metadata.duration;
+          const expiresAt = duration === 'week'
+            ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            : new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+          // This would be handled by the sponsor page data
+          console.log('Sponsor payment received for duration:', duration);
+        }
+      } catch (error) {
+        console.error('Error processing webhook:', error);
+        return res.status(500).json({ error: 'Failed to process payment' });
+      }
+    }
+
+    res.json({ received: true });
   });
   
   app.post('/api/confirm-guardian-payment', async (req, res) => {

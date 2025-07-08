@@ -14,7 +14,13 @@ import {
   type InsertAmbientAd,
   type RateLimit,
   type MutedIp,
-  type GuardianAction
+  type GuardianAction,
+  customHandles,
+  themeCustomizations,
+  type CustomHandle,
+  type InsertCustomHandle,
+  type ThemeCustomization,
+  type InsertThemeCustomization
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc, asc, sql } from "drizzle-orm";
@@ -48,6 +54,17 @@ export interface IStorage {
   // System settings
   getSystemSetting(key: string): Promise<string | undefined>;
   setSystemSetting(key: string, value: string): Promise<void>;
+  
+  // Custom handles
+  createCustomHandle(handle: InsertCustomHandle): Promise<CustomHandle>;
+  getCustomHandle(ipAddress: string): Promise<CustomHandle | undefined>;
+  isHandleAvailable(handle: string): Promise<boolean>;
+  deleteExpiredHandles(): Promise<void>;
+  
+  // Theme customizations
+  createThemeCustomization(theme: InsertThemeCustomization): Promise<ThemeCustomization>;
+  getThemeCustomization(ipAddress: string): Promise<ThemeCustomization | undefined>;
+  deleteExpiredThemes(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -227,6 +244,66 @@ export class DatabaseStorage implements IStorage {
         .insert(systemSettings)
         .values({ key, value });
     }
+  }
+  // Custom handles
+  async createCustomHandle(handle: InsertCustomHandle): Promise<CustomHandle> {
+    const [newHandle] = await db.insert(customHandles).values(handle).returning();
+    return newHandle;
+  }
+
+  async getCustomHandle(ipAddress: string): Promise<CustomHandle | undefined> {
+    const [handle] = await db.select().from(customHandles)
+      .where(and(
+        eq(customHandles.ipAddress, ipAddress),
+        gte(customHandles.expiresAt, new Date())
+      ));
+    return handle || undefined;
+  }
+
+  async isHandleAvailable(handle: string): Promise<boolean> {
+    const [existing] = await db.select().from(customHandles)
+      .where(and(
+        eq(customHandles.handle, handle),
+        gte(customHandles.expiresAt, new Date())
+      ));
+    return !existing;
+  }
+
+  async deleteExpiredHandles(): Promise<void> {
+    await db.delete(customHandles)
+      .where(lte(customHandles.expiresAt, new Date()));
+  }
+
+  // Theme customizations
+  async createThemeCustomization(theme: InsertThemeCustomization): Promise<ThemeCustomization> {
+    const [newTheme] = await db.insert(themeCustomizations).values(theme)
+      .onConflictDoUpdate({
+        target: themeCustomizations.ipAddress,
+        set: {
+          background: theme.background,
+          font: theme.font,
+          accentColor: theme.accentColor,
+          messageFadeTime: theme.messageFadeTime,
+          backgroundFx: theme.backgroundFx,
+          expiresAt: theme.expiresAt,
+          stripePaymentId: theme.stripePaymentId
+        }
+      }).returning();
+    return newTheme;
+  }
+
+  async getThemeCustomization(ipAddress: string): Promise<ThemeCustomization | undefined> {
+    const [theme] = await db.select().from(themeCustomizations)
+      .where(and(
+        eq(themeCustomizations.ipAddress, ipAddress),
+        gte(themeCustomizations.expiresAt, new Date())
+      ));
+    return theme || undefined;
+  }
+
+  async deleteExpiredThemes(): Promise<void> {
+    await db.delete(themeCustomizations)
+      .where(lte(themeCustomizations.expiresAt, new Date()));
   }
 }
 

@@ -6,7 +6,7 @@ import ChatContainer from "@/components/chat-container";
 import MessageInput from "@/components/message-input";
 import GuardianPanel from "@/components/guardian-panel";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, MoreVertical, Shield, Megaphone, Info } from "lucide-react";
+import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -89,6 +89,19 @@ export default function Chat() {
                   <Link href="/sponsor" className="flex items-center">
                     <Megaphone className="w-4 h-4 mr-2 text-blue-500" />
                     Sponsor the Room
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="border-void-300 dark:border-void-600" />
+                <DropdownMenuItem asChild>
+                  <Link href="/handle" className="flex items-center">
+                    <User className="w-4 h-4 mr-2 text-purple-500" />
+                    Custom Handle ($3)
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/themes" className="flex items-center">
+                    <Palette className="w-4 h-4 mr-2 text-pink-500" />
+                    Custom Themes ($5)
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="border-void-300 dark:border-void-600" />

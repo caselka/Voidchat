@@ -7,6 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Chat from "@/pages/chat";
 import GuardianCheckout from "@/pages/guardian-checkout";
 import Sponsor from "@/pages/sponsor";
+import Handle from "@/pages/handle";
+import Themes from "@/pages/themes";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -15,6 +17,8 @@ function Router() {
       <Route path="/" component={Chat} />
       <Route path="/guardian" component={GuardianCheckout} />
       <Route path="/sponsor" component={Sponsor} />
+      <Route path="/handle" component={Handle} />
+      <Route path="/themes" component={Themes} />
       <Route component={NotFound} />
     </Switch>
   );

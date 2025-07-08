@@ -62,6 +62,28 @@ export const systemSettings = pgTable("system_settings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const customHandles = pgTable("custom_handles", {
+  id: serial("id").primaryKey(),
+  handle: text("handle").notNull().unique(),
+  ipAddress: text("ip_address").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+  stripePaymentId: text("stripe_payment_id"),
+});
+
+export const themeCustomizations = pgTable("theme_customizations", {
+  id: serial("id").primaryKey(),
+  ipAddress: text("ip_address").notNull().unique(),
+  background: text("background").default("dark"),
+  font: text("font").default("monospace"),
+  accentColor: text("accent_color").default("default"),
+  messageFadeTime: integer("message_fade_time").default(15),
+  backgroundFx: text("background_fx").default("none"),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at").notNull(),
+  stripePaymentId: text("stripe_payment_id"),
+});
+
 export const insertMessageSchema = createInsertSchema(messages).pick({
   content: true,
 });
@@ -78,6 +100,24 @@ export const insertAmbientAdSchema = createInsertSchema(ambientAds).pick({
   expiresAt: true,
 });
 
+export const insertCustomHandleSchema = createInsertSchema(customHandles).pick({
+  handle: true,
+  ipAddress: true,
+  expiresAt: true,
+  stripePaymentId: true,
+});
+
+export const insertThemeCustomizationSchema = createInsertSchema(themeCustomizations).pick({
+  ipAddress: true,
+  background: true,
+  font: true,
+  accentColor: true,
+  messageFadeTime: true,
+  backgroundFx: true,
+  expiresAt: true,
+  stripePaymentId: true,
+});
+
 export type Message = typeof messages.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type Guardian = typeof guardians.$inferSelect;
@@ -87,3 +127,7 @@ export type InsertAmbientAd = z.infer<typeof insertAmbientAdSchema>;
 export type RateLimit = typeof rateLimits.$inferSelect;
 export type MutedIp = typeof mutedIps.$inferSelect;
 export type GuardianAction = typeof guardianActions.$inferSelect;
+export type CustomHandle = typeof customHandles.$inferSelect;
+export type InsertCustomHandle = z.infer<typeof insertCustomHandleSchema>;
+export type ThemeCustomization = typeof themeCustomizations.$inferSelect;
+export type InsertThemeCustomization = z.infer<typeof insertThemeCustomizationSchema>;
