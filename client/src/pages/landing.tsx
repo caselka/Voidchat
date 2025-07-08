@@ -33,22 +33,33 @@ export default function Landing() {
             </Link>
             
             {!isAuthenticated ? (
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="text-lg px-8 py-6"
-                onClick={() => window.location.href = "/api/login"}
-              >
-                <Star className="mr-2 h-5 w-5" />
-                Get Premium Features
-              </Button>
-            ) : (
-              <Link href="/handle">
-                <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+              <div className="flex flex-col gap-4 items-center">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="text-lg px-8 py-6"
+                  onClick={() => window.location.href = "/api/login"}
+                >
                   <Star className="mr-2 h-5 w-5" />
-                  Manage Premium
+                  Sign Up / Login for Premium
                 </Button>
-              </Link>
+                <p className="text-sm text-muted-foreground max-w-md text-center">
+                  <strong>New users:</strong> Create your account instantly with Replit<br/>
+                  <strong>Returning users:</strong> Sign in to access your premium features
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4 items-center">
+                <div className="text-lg text-muted-foreground">
+                  Welcome back, {user?.firstName || user?.email?.split('@')[0] || 'user'}!
+                </div>
+                <Link href="/handle">
+                  <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+                    <Star className="mr-2 h-5 w-5" />
+                    Manage Premium Features
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
         </div>
@@ -113,6 +124,32 @@ export default function Landing() {
           </Card>
         </div>
       </div>
+
+      {/* Authentication Info Section */}
+      {!isAuthenticated && (
+        <div className="container mx-auto px-4 py-8 bg-muted/20">
+          <div className="max-w-2xl mx-auto text-center">
+            <h3 className="text-2xl font-light mb-4">Quick & Secure Account Creation</h3>
+            <p className="text-muted-foreground mb-6">
+              Join in seconds with Replit's trusted authentication system.
+            </p>
+            <div className="grid md:grid-cols-2 gap-6 text-left">
+              <div className="space-y-2">
+                <h4 className="font-medium">New Users:</h4>
+                <p className="text-sm text-muted-foreground">
+                  Create your free Replit account instantly. No credit card required to start chatting.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-medium">Existing Users:</h4>
+                <p className="text-sm text-muted-foreground">
+                  Sign in with your Replit account to access premium features and saved preferences.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Premium Features */}
       <div className="container mx-auto px-4 py-16">
