@@ -1,0 +1,54 @@
+Create a web app called **Voidchat** — a minimalist, anonymous, real-time chat room with the aesthetic of a public notepad.
+
+Core Features:
+1. **Live Chat Stream**
+   - All users see the same global message feed.
+   - Messages are plain text only.
+   - Users are anonymous, with randomly generated "anon" usernames (e.g. anon3721).
+   - Messages appear instantly and scroll up like IRC.
+
+2. **Ephemeral Messages**
+   - Each message expires and auto-deletes 15 minutes after being posted.
+
+3. **Spam Protection**
+   - Rate limit each IP to 1 message every 5 seconds.
+   - If 5+ messages are sent in under 10 seconds from the same IP, block them for 5 minutes.
+   - Optional: basic profanity filter to flag/remove toxic entries.
+
+4. **Ambient Ads**
+   - Every 20 messages, inject one short ambient sponsor message from a stored list.
+   - Each sponsor message must follow this format:
+     - ✦ Try: “Product Name” – short poetic or reflective line with optional link.
+   - Ads are subtle, styled in grey italic text, and link quietly.
+   - Ads expire after their sponsor period (daily, weekly, etc.).
+
+5. **Guardian System (Paid Mods)**
+   - Users can become a temporary **Guardian** (moderator) by paying.
+   - Guardians can:
+     - Mute IPs for 10 minutes
+     - Flag or delete abusive messages
+     - Enable slow mode (10s per message) for 5 minutes
+   - Guardian payments: $2/day or $10/week via Stripe (stub out backend if needed).
+   - Guardian actions are logged.
+
+6. **User Interface**
+   - Clean, full-screen notepad layout.
+   - Dark and light mode toggle.
+   - Message input bar fixed at the bottom.
+   - Messages display in a continuous scroll above.
+   - Optional timestamp in light grey beside messages.
+   - No user login, no accounts, no email — completely anonymous.
+
+7. **Tech Stack**
+   - Frontend: HTML, CSS, JavaScript (or lightweight React if needed)
+   - Backend: Node.js with WebSocket support (or Replit-compatible equivalent)
+   - Storage: Replit DB or Firebase for messages with TTL support
+
+Include:
+- `ambient_ads.json` as the rotating ad source
+- a basic “Sponsor the Room” page for submitting and paying for ambient ads
+- a placeholder for Stripe integration for Guardian payments
+
+Project name: `Voidchat`
+Theme: minimalist, poetic, ambient, anonymous
+Do not include social features, likes, or usernames.
