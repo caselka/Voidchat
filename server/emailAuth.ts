@@ -189,6 +189,87 @@ export async function setupAuth(app: Express) {
     }
   });
 
+  // Username payment endpoint for registration
+  app.post('/api/create-username-payment', async (req, res) => {
+    try {
+      const { username, email, amount } = req.body;
+      
+      if (!username || !email || !amount) {
+        return res.status(400).json({ message: 'Username, email, and amount are required' });
+      }
+
+      // Validate username availability
+      const isAvailable = await storage.getUserByUsername(username);
+      if (isAvailable) {
+        return res.status(400).json({ message: 'Username already taken' });
+      }
+
+      // Import Stripe dynamically since it's not imported in this file
+      const Stripe = require('stripe');
+      if (!process.env.STRIPE_SECRET_KEY) {
+        throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+      }
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: "2023-10-16",
+      });
+
+      // Create payment intent for $3 username reservation
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount, // Amount in cents
+        currency: 'usd',
+        metadata: {
+          username,
+          email,
+          type: 'username_reservation',
+        },
+      });
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error('Error creating username payment:', error);
+      res.status(500).json({ message: 'Failed to create payment intent' });
+    }
+  });
+
+  // Complete registration endpoint
+  app.post('/api/complete-registration', async (req, res) => {
+    try {
+      const { username, email, password } = req.body;
+      
+      if (!username || !email || !password) {
+        return res.status(400).json({ message: 'All fields are required' });
+      }
+
+      // Check if username is still available
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: 'Username already taken' });
+      }
+
+      // Hash password
+      const hashedPassword = await hashPassword(password);
+
+      // Create user account
+      const user = await storage.createUser({
+        username,
+        email,
+        password: hashedPassword,
+        isVerified: false, // Email verification required
+      });
+
+      // TODO: Send verification email
+      console.log(`Account created for ${username} (${email})`);
+
+      res.status(201).json({ 
+        message: 'Account created successfully',
+        user: { id: user.id, username: user.username, email: user.email }
+      });
+    } catch (error: any) {
+      console.error('Error completing registration:', error);
+      res.status(500).json({ message: 'Failed to create account' });
+    }
+  });
+
   // Login endpoint  
   app.post("/api/login", async (req, res) => {
     try {

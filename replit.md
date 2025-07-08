@@ -110,6 +110,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 8, 2025)
 
+### Account Creation System with $3 Username Reservation
+- **Paid account creation**: Users pay $3 to reserve a unique username during registration
+- **Two-step registration**: Details collection followed by Stripe payment processing
+- **Username validation**: Real-time checking for availability and format compliance
+- **Secure payment flow**: Stripe integration for $3 username reservation fee
+- **Registration page**: Complete signup form with payment integration at /register
+- **Account verification**: Email verification system for new accounts (placeholder)
+- **Login page enhancement**: Added "Create account ($3)" link for easy access to registration
+
 ### Authentication System Fixed and Guardian Requirements Updated
 - **Authentication system working**: Fixed session management for login/logout functionality
 - **Guardian pricing increased**: Updated from $2/day, $10/week to $20/day, $100/week to reduce abuse
