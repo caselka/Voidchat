@@ -110,6 +110,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 8, 2025)
 
+### Chat Interface Improvements (Latest)
+- **Fixed keyboard positioning**: Changed from oval text input back to original design to prevent screen scrolling away
+- **Improved dark theme readability**: Enhanced text contrast and visibility in dark mode
+- **Keyboard persistence**: Removed aggressive scroll behavior that was causing input to scroll away from view
+- **Clean message display**: Removed broken reply UI containers and outline boxes for cleaner interface
+- **Better mobile experience**: Fixed iOS keyboard handling without auto-scroll that disrupts message viewing
+
 ### Account Creation System with $3 Username Reservation
 - **Paid account creation**: Users pay $3 to reserve a unique username during registration
 - **Two-step registration**: Details collection followed by Stripe payment processing

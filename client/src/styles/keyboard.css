@@ -1,45 +1,47 @@
 /* iOS Safari keyboard handling */
 @supports (-webkit-touch-callout: none) {
-  /* This targets iOS Safari specifically */
-  
   .message-input-container {
-    /* Use viewport units that adjust for keyboard */
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     z-index: 40;
-    /* Safe area handling for notched devices */
     padding-bottom: env(safe-area-inset-bottom);
-    
-    /* Prevent zoom on input focus */
-    transform: translate3d(0, 0, 0);
   }
   
   .message-input {
     font-size: 16px !important; /* Prevents zoom on iOS */
     -webkit-appearance: none;
-    -webkit-border-radius: 0;
-    border-radius: 24px;
-  }
-  
-  /* Handle viewport height changes from keyboard */
-  body {
-    /* Use viewport units that work with iOS keyboard */
-    height: 100vh;
-    height: 100dvh; /* Dynamic viewport height */
   }
 }
 
-/* General improvements for all devices */
+/* Prevent scroll away on keyboard focus */
+.message-input-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .message-input-container {
+    background: rgba(0, 0, 0, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Chat container spacing */
 .chat-container {
-  /* Account for input height */
   padding-bottom: 80px;
   min-height: calc(100vh - 160px);
-  min-height: calc(100dvh - 160px);
 }
 
-/* Smooth scroll behavior */
+/* Disable smooth scroll to prevent scroll away */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }

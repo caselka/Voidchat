@@ -43,13 +43,10 @@ export default function MessageInput({
     if (canSend && isSecureMessage(messageText)) {
       onSendMessage(messageText.trim());
       setMessageText('');
-      // Keep focus on input to maintain keyboard
+      // Keep focus on input to maintain keyboard without scrolling
       const input = e.currentTarget.querySelector('input');
       if (input) {
-        setTimeout(() => {
-          input.focus();
-          input.click(); // Ensure keyboard stays visible on iOS
-        }, 10);
+        input.focus();
       }
     }
   };
@@ -62,53 +59,40 @@ export default function MessageInput({
   };
 
   return (
-    <div className="message-input-container bg-background/95 backdrop-blur-sm border-t border-border">
+    <div className="message-input-container">
       <div className="max-w-4xl mx-auto px-3 md:px-4 py-3 md:py-4">
 
         <form onSubmit={handleSubmit}>
-          <div className="flex items-center space-x-2 md:space-x-3">
-            <div className="flex-1 relative">
-              <Input
-                type="text"
-                value={messageText}
-                onChange={handleInputChange}
-                onPaste={(e) => {
-                  // Prevent pasting of potentially dangerous content
-                  e.preventDefault();
-                  const paste = e.clipboardData.getData('text/plain');
-                  const cleanPaste = paste.replace(/<[^>]*>/g, '').replace(/\{[^}]*\}/g, '');
-                  setMessageText(prev => (prev + cleanPaste).substring(0, maxLength));
-                }}
-                onFocus={(e) => {
-                  // Smooth scroll to input when keyboard appears
-                  setTimeout(() => {
-                    e.target.scrollIntoView({ 
-                      behavior: 'smooth', 
-                      block: 'nearest',
-                      inline: 'nearest'
-                    });
-                  }, 300);
-                }}
-                placeholder="Text Message"
-                className="message-input w-full px-4 py-3 bg-muted/50 border-0 rounded-full text-base focus-visible:ring-1 focus-visible:ring-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
-                maxLength={maxLength}
-                disabled={isRateLimited}
-                autoComplete="off"
-                spellCheck="false"
-                inputMode="text"
-              />
-              <div className="absolute right-3 bottom-1 text-xs text-muted-foreground">
-                {messageText.length}/{maxLength}
-              </div>
+          <div className="flex items-center bg-muted/30 dark:bg-muted/50 border border-border rounded-lg p-1">
+            <input
+              type="text"
+              value={messageText}
+              onChange={handleInputChange}
+              onPaste={(e) => {
+                // Prevent pasting of potentially dangerous content
+                e.preventDefault();
+                const paste = e.clipboardData.getData('text/plain');
+                const cleanPaste = paste.replace(/<[^>]*>/g, '').replace(/\{[^}]*\}/g, '');
+                setMessageText(prev => (prev + cleanPaste).substring(0, maxLength));
+              }}
+              placeholder="Type a message..."
+              className="message-input flex-1 bg-transparent border-none outline-none text-foreground dark:text-foreground placeholder:text-muted-foreground dark:placeholder:text-muted-foreground text-base px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              maxLength={maxLength}
+              disabled={isRateLimited}
+              autoComplete="off"
+              spellCheck="false"
+              inputMode="text"
+            />
+            <div className="text-xs text-muted-foreground dark:text-muted-foreground px-2">
+              {messageText.length}/{maxLength}
             </div>
-            
             <Button
               type="submit"
               disabled={!canSend}
-              size="icon"
-              className="h-11 w-11 rounded-full bg-blue-500 hover:bg-blue-600 disabled:bg-muted text-white disabled:text-muted-foreground shrink-0"
+              size="sm"
+              className="h-8 px-4 bg-blue-500 hover:bg-blue-600 disabled:bg-muted dark:disabled:bg-muted text-white disabled:text-muted-foreground dark:disabled:text-muted-foreground shrink-0"
             >
-              <Send className="w-5 h-5" />
+              <Send className="w-4 h-4" />
             </Button>
           </div>
           
