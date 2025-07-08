@@ -87,11 +87,11 @@ export default function Chat() {
                 }`}
                 title="Hide profanity"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                  <path strokeWidth="2" d="M8 14s1.5 2 4 2 4-2 4-2"/>
-                  <line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="2"/>
-                  <line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="2"/>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                  <circle cx="9" cy="9" r="0.5" fill="currentColor"/>
+                  <circle cx="15" cy="9" r="0.5" fill="currentColor"/>
                 </svg>
               </label>
             </div>
@@ -166,7 +166,7 @@ export default function Chat() {
       )}
 
       {/* Main Content */}
-      <main className="pt-20 pb-28 max-w-4xl mx-auto px-3 md:px-4">
+      <main className="pt-20 pb-28 max-w-4xl mx-auto px-3 md:px-4 relative z-10">
         <div className="min-h-screen">
           {/* Welcome Message */}
           <div className="text-center py-6 md:py-8 text-void-500 dark:text-void-400 text-xs md:text-sm font-mono">
