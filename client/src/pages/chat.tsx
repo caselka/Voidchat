@@ -58,7 +58,7 @@ export default function Chat() {
   return (
     <div className="font-sans bg-background text-foreground transition-colors duration-300 min-h-screen">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-[9999] bg-background border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-center relative">
           <div className="absolute left-4 flex items-center space-x-2">
             <span className="text-xs px-2 py-1 bg-muted rounded text-muted-foreground hidden sm:inline">

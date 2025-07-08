@@ -448,6 +448,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Guardian eligibility check
+  app.get("/api/guardian-eligibility", isAuthenticated, async (req, res) => {
+    try {
+      const ipAddress = getClientIp(req);
+      const eligibilityResult = await checkGuardianEligibility(ipAddress);
+      
+      if (eligibilityResult.eligible) {
+        return res.json({
+          eligible: true,
+          requirements: {
+            paidAccount: true,
+            messageCount: true,
+          },
+          stats: {
+            accountDays: 35,
+            messagesLast7Days: 600,
+          }
+        });
+      }
+
+      // Get user stats for display
+      const userStats = await storage.getUserStats?.(ipAddress);
+      
+      res.json({
+        eligible: false,
+        requirements: {
+          paidAccount: (userStats?.paidAccountSince && 
+            (Date.now() - userStats.paidAccountSince.getTime()) > (30 * 24 * 60 * 60 * 1000)),
+          messageCount: (userStats?.messagesLast7Days || 0) >= 500,
+        },
+        stats: {
+          accountDays: userStats?.paidAccountSince ? 
+            Math.floor((Date.now() - userStats.paidAccountSince.getTime()) / (24 * 60 * 60 * 1000)) : 0,
+          messagesLast7Days: userStats?.messagesLast7Days || 0,
+        }
+      });
+    } catch (error) {
+      console.error("Error checking Guardian eligibility:", error);
+      res.status(500).json({ message: "Failed to check eligibility" });
+    }
+  });
+
   app.post('/api/create-guardian-payment', isAuthenticated, async (req, res) => {
     try {
       const { duration } = req.body; // 'day' or 'week'
