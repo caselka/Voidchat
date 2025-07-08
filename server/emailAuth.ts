@@ -202,17 +202,23 @@ export async function setupAuth(app: Express) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      // Special case for caselka - simple password check for testing
-      if (user.username === 'caselka' && password === 'caselka123') {
-        // Login user - store in session
-        (req.session as any).user = {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          isVerified: true
-        };
-        (req as any).user = (req.session as any).user;
-        return res.json({ message: "Login successful", user: (req as any).user });
+      // Special case for caselka - simple password check
+      if (user.username === 'caselka') {
+        console.log('Caselka login attempt with password:', password);
+        console.log('Stored password:', user.password);
+        
+        // Check if password matches the stored plain text password
+        if (password === user.password) {
+          // Login user - store in session
+          (req.session as any).user = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            isVerified: true
+          };
+          (req as any).user = (req.session as any).user;
+          return res.json({ message: "Login successful", user: (req as any).user });
+        }
       }
 
       // Regular password check for other users

@@ -116,10 +116,11 @@ Preferred communication style: Simple, everyday language.
 - **Guardian eligibility requirements**: Users must have either:
   - 30+ days of paid account history OR
   - 500+ messages in the last 7 days
-- **UI cleanup on chat page**: Removed login button and theme toggle as requested, centered "voidchat" title with backdrop blur
+- **UI cleanup on chat page**: Fixed header button positioning using flexbox instead of absolute positioning to prevent glitches
 - **Complete payment flow working**: Guardian payment initialization now functional with authentication
 - **Smart auto-scroll**: Messages only auto-scroll when user is at bottom of chat
 - **Profanity filter**: Added toggle for all users (including anonymous) with swearing mouth icon, replaces curse words with ### matching letter count
+- **Super user account**: Created caselka founder account with permanent Guardian access (password: fafjyc-9koVbi-jopdoz-53838)&@1-gdbbskh)
 
 ### Sponsor Ads Enhancement and Content Moderation
 - **Removed impression estimates**: Eliminated misleading impression counts from sponsor ad pricing display
