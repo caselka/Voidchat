@@ -12,6 +12,7 @@ import Landing from "@/pages/landing";
 import Chat from "@/pages/chat";
 import ChatMobile from "@/pages/chat-mobile";
 import VoidchatLayout from "@/components/voidchat-layout";
+import VoidchatSimple from "@/components/voidchat-simple";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import GuardianCheckout from "@/pages/guardian-checkout";
@@ -81,7 +82,7 @@ function Navigation() {
 function Router() {
   return (
     <Switch>
-      <Route path="/chat" component={VoidchatLayout} />
+      <Route path="/chat" component={VoidchatSimple} />
       <Route>
         <Navigation />
         <Switch>

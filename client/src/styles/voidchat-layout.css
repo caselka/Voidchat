@@ -109,29 +109,35 @@ html, body {
   box-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
 }
 
-/* Messages Container */
+/* Messages Container - Flexbox layout with column direction */
 .messages-container {
   flex: 1;
   overflow-y: auto;
   padding: 80px 16px 100px;
   background-color: #0a0a0a;
   scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column; /* Flexbox column for chat feed */
 }
 
+/* Messages list container */
 .messages-list {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: column; /* Column layout for messages */
   max-width: 800px;
   margin: 0 auto;
+  width: 100%;
+  flex-grow: 1;
+  /* Remove gap since we use margin-bottom on bubbles */
 }
 
-/* Message Bubble */
+/* Message Bubble - Improved styling with 12px margin */
 .message-bubble {
   background-color: #1c1c1c;
   border: 1px solid #333;
   border-radius: 12px;
   padding: 12px 16px;
+  margin-bottom: 12px; /* 12px margin between messages */
   position: relative;
   animation: messageSlideIn 0.3s ease-out;
 }
@@ -147,17 +153,19 @@ html, body {
   }
 }
 
+/* Message header with username and timestamp */
 .message-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 8px; /* Clear padding between header and content */
 }
 
+/* Username styling - bold and green */
 .message-username {
-  font-size: 12px;
-  font-weight: 600;
-  color: #00ff88;
+  font-size: 13px;
+  font-weight: bold;
+  color: #00ff88; /* Green username */
   text-shadow: 0 0 4px rgba(0, 255, 136, 0.3);
 }
 
@@ -171,18 +179,64 @@ html, body {
   text-shadow: 0 0 4px rgba(255, 217, 61, 0.3);
 }
 
+/* Timestamp styling - smaller gray text */
 .message-time {
   font-size: 11px;
-  color: #666;
+  color: #777; /* Gray timestamp */
   font-family: monospace;
 }
 
+/* Message content - white text with proper padding */
 .message-content {
-  color: #ffffff;
+  color: #ffffff; /* White text for message */
   font-size: 14px;
   line-height: 1.5;
   word-wrap: break-word;
   white-space: pre-wrap;
+  padding-top: 4px; /* Clear padding underneath header */
+}
+
+/* Sponsor link styling */
+.sponsor-link {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #333;
+}
+
+.sponsor-url {
+  color: #00ff88;
+  font-size: 12px;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.sponsor-url:hover {
+  opacity: 0.8;
+}
+
+/* Guardian controls styling */
+.guardian-controls {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #333;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.guardian-button {
+  background: rgba(255, 68, 68, 0.1);
+  border: 1px solid #ff4444;
+  color: #ff6b6b;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.guardian-button:hover {
+  background: rgba(255, 68, 68, 0.2);
 }
 
 /* Empty State */
@@ -203,7 +257,7 @@ html, body {
   opacity: 0.7;
 }
 
-/* Input Container */
+/* Input Container - Mobile-first with keyboard overlap fix */
 .input-container {
   position: fixed;
   bottom: 0;
@@ -214,8 +268,11 @@ html, body {
   backdrop-filter: blur(10px);
   border-top: 1px solid #333;
   padding: 16px;
+  /* Mobile keyboard handling */
+  padding-bottom: env(safe-area-inset-bottom, 16px);
 }
 
+/* Flexbox wrapper for input area */
 .input-wrapper {
   max-width: 800px;
   margin: 0 auto;
@@ -224,14 +281,15 @@ html, body {
   align-items: flex-end;
 }
 
+/* Message input with 12px internal padding */
 .message-input {
   flex: 1;
   background-color: #1c1c1c;
   border: 1px solid #333;
   border-radius: 24px;
-  padding: 12px 16px;
+  padding: 12px 16px; /* 12px internal padding as requested */
   color: #ffffff;
-  font-size: 16px;
+  font-size: 16px; /* 16px to prevent zoom on iOS */
   font-family: inherit;
   resize: none;
   outline: none;
@@ -239,6 +297,8 @@ html, body {
   max-height: 120px;
   line-height: 1.4;
   transition: border-color 0.2s ease;
+  /* Prevent keyboard from pushing input offscreen */
+  position: relative;
 }
 
 .message-input:focus {
@@ -250,12 +310,13 @@ html, body {
   color: #666;
 }
 
+/* Send button with larger clickable area and hover effect */
 .send-button {
   background: linear-gradient(135deg, #00ff88, #00cc6a);
   border: none;
   border-radius: 50%;
-  width: 48px;
-  height: 48px;
+  width: 52px; /* Larger clickable area */
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -263,11 +324,18 @@ html, body {
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
+  /* Ensure button stays visible */
+  position: relative;
 }
 
+/* Small hover effect for send button */
 .send-button:hover:not(:disabled) {
   transform: scale(1.05);
   box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+}
+
+.send-button:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .send-button:disabled {
@@ -348,7 +416,7 @@ html, body {
   margin: 4px 0;
 }
 
-/* Responsive Design */
+/* Mobile-first responsive design */
 @media (max-width: 768px) {
   .voidchat-header {
     padding: 10px 12px;
@@ -359,20 +427,33 @@ html, body {
   }
   
   .messages-container {
-    padding: 70px 12px 90px;
+    padding: 70px 12px 110px; /* Extra bottom padding for mobile keyboard */
   }
   
   .message-bubble {
     padding: 10px 12px;
+    margin-bottom: 12px; /* Consistent 12px margin */
   }
   
   .input-container {
     padding: 12px;
+    /* Mobile keyboard overlap prevention */
+    padding-bottom: max(env(safe-area-inset-bottom), 12px);
   }
   
   .header-button {
     padding: 6px 8px;
     font-size: 13px;
+  }
+  
+  /* Ensure input stays visible on keyboard open */
+  .message-input {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .send-button {
+    width: 48px; /* Slightly smaller on mobile but still large enough */
+    height: 48px;
   }
 }
 
@@ -386,11 +467,12 @@ html, body {
   }
   
   .messages-container {
-    padding: 65px 10px 85px;
+    padding: 65px 10px 95px; /* Adjusted for smaller screens */
   }
   
   .input-container {
     padding: 10px;
+    padding-bottom: max(env(safe-area-inset-bottom), 10px);
   }
   
   .header-controls {
@@ -400,6 +482,10 @@ html, body {
   .header-button {
     padding: 5px 6px;
     font-size: 12px;
+  }
+  
+  .message-bubble {
+    margin-bottom: 12px; /* Maintain consistent spacing */
   }
 }
 

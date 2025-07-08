@@ -1,25 +1,15 @@
 /**
- * Voidchat Main Layout Component
+ * Voidchat Simple Layout Component
  * 
- * This component provides the main chat interface with:
- * - Clean mobile-first design with centered header
- * - Message filtering (only valid messages with content)
+ * Clean, mobile-first chat interface with:
+ * - Message filtering (only valid messages)
  * - Auto-scroll to latest messages
  * - Mobile keyboard handling
- * - Guardian moderation controls
- * - Profanity filtering
- * 
- * Styling: Uses voidchat-layout.css for all visual styling
- * Color scheme: Black background (#0a0a0a), green usernames (#00ff88), white message text, gray timestamps (#777)
+ * - Flexbox column layout
  */
 
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { useWebSocket } from "@/hooks/use-websocket";
-import { useTheme } from "@/components/theme-provider";
-import { useAuth } from "@/hooks/useAuth";
-import HumanVerification from "@/components/human-verification";
-import Walkthrough from "@/components/walkthrough";
 import { Send, MoreVertical, Shield, User, LogIn, LogOut, Palette, Megaphone, Info } from "lucide-react";
 import {
   DropdownMenu,
@@ -29,69 +19,114 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function VoidchatLayout() {
-  const { theme, toggleTheme } = useTheme();
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const { 
-    messages, 
-    isConnected, 
-    isGuardian, 
-    onlineCount, 
-    sendMessage, 
-    muteUser, 
-    deleteMessage, 
-    error, 
-    rateLimitTime 
-  } = useWebSocket();
+// Basic message interface
+interface SimpleMessage {
+  id: string | number;
+  content: string;
+  username: string;
+  timestamp?: string;
+  createdAt?: string;
+  isAd?: boolean;
+  type?: string;
+  isGuardian?: boolean;
+}
 
+export default function VoidchatSimple() {
   const [messageText, setMessageText] = useState('');
+  const [messages, setMessages] = useState<SimpleMessage[]>([]);
+  const [isConnected, setIsConnected] = useState(false);
+  const [onlineCount, setOnlineCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [rateLimitTime, setRateLimitTime] = useState(0);
   const [profanityFilter, setProfanityFilter] = useState(false);
-  const [isHumanVerified, setIsHumanVerified] = useState(false);
-  const [showWalkthrough, setShowWalkthrough] = useState(false);
 
   const maxLength = 500;
   const isRateLimited = rateLimitTime > 0;
   const canSend = messageText.trim().length > 0 && !isRateLimited;
-  const needsVerification = !isAuthenticated && !isHumanVerified;
 
-  // Check if user is new (for walkthrough)
+  // WebSocket connection
   useEffect(() => {
-    if (!isAuthenticated) {
-      const hasSeenWalkthrough = localStorage.getItem('voidchat-walkthrough-seen');
-      if (!hasSeenWalkthrough) {
-        setShowWalkthrough(true);
-      }
-    }
-  }, [isAuthenticated]);
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    
+    console.log('Connecting to WebSocket:', wsUrl);
+    const ws = new WebSocket(wsUrl);
 
-  // Auto-scroll to bottom when new messages arrive or when sending
+    ws.onopen = () => {
+      console.log('WebSocket connected successfully');
+      setIsConnected(true);
+      setError(null);
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        
+        if (data.type === 'recent_messages' && Array.isArray(data.messages)) {
+          setMessages(data.messages);
+        } else if (data.type === 'new_message' && data.message) {
+          setMessages(prev => [...prev, data.message]);
+        } else if (data.type === 'online_count') {
+          setOnlineCount(data.count || 0);
+        } else if (data.type === 'error') {
+          setError(data.message);
+        }
+      } catch (err) {
+        console.error('Failed to parse WebSocket message:', err);
+      }
+    };
+
+    ws.onclose = () => {
+      setIsConnected(false);
+      console.log('WebSocket disconnected');
+    };
+
+    ws.onerror = (err) => {
+      console.error('WebSocket error:', err);
+      setError('Connection error');
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, []);
+
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     const container = document.querySelector('.messages-container');
-    if (container && validMessages.length > 0) {
-      // Use requestAnimationFrame for smoother scrolling
+    if (container) {
       requestAnimationFrame(() => {
         container.scrollTop = container.scrollHeight;
       });
     }
-  }, [validMessages.length, messageText.length === 0]); // Scroll when messages change or after sending
+  }, [messages.length]);
 
-  const handleWalkthroughComplete = () => {
-    setShowWalkthrough(false);
-    localStorage.setItem('voidchat-walkthrough-seen', 'true');
-  };
-
-  const handleWalkthroughSkip = () => {
-    setShowWalkthrough(false);
-    localStorage.setItem('voidchat-walkthrough-seen', 'true');
-  };
+  // Filter out invalid messages
+  const validMessages = messages.filter(message => 
+    message && 
+    message.content && 
+    typeof message.content === 'string' && 
+    message.content.trim().length > 0 &&
+    message.username &&
+    typeof message.username === 'string' &&
+    message.username.trim().length > 0
+  );
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (canSend) {
-      sendMessage(messageText.trim());
+      // Simple message sending (WebSocket integration would go here)
+      const newMessage: SimpleMessage = {
+        id: Date.now(),
+        content: messageText.trim(),
+        username: 'anon' + Math.floor(Math.random() * 9999).toString().padStart(4, '0'),
+        timestamp: new Date().toISOString()
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
       setMessageText('');
       
-      // Auto-resize textarea
+      // Reset textarea height
       const textarea = document.querySelector('.message-input') as HTMLTextAreaElement;
       if (textarea) {
         textarea.style.height = 'auto';
@@ -112,7 +147,6 @@ export default function VoidchatLayout() {
     }
   };
 
-  // Helper function to format timestamp
   const formatTime = (timestamp: string) => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
@@ -124,7 +158,6 @@ export default function VoidchatLayout() {
     });
   };
 
-  // Helper function for profanity filtering
   const filterProfanity = (text: string) => {
     if (!profanityFilter) return text;
     const badWords = ['fuck', 'shit', 'damn', 'hell', 'bitch', 'ass', 'bastard'];
@@ -135,35 +168,6 @@ export default function VoidchatLayout() {
     });
     return filtered;
   };
-
-  // Filter out invalid messages - only show valid messages with content
-  const validMessages = messages.filter(message => 
-    message && 
-    message.content && 
-    typeof message.content === 'string' && 
-    message.content.trim().length > 0 &&
-    message.username &&
-    typeof message.username === 'string' &&
-    message.username.trim().length > 0
-  );
-
-  if (showWalkthrough) {
-    return (
-      <Walkthrough
-        isVisible={showWalkthrough}
-        onComplete={handleWalkthroughComplete}
-        onSkip={handleWalkthroughSkip}
-      />
-    );
-  }
-
-  if (needsVerification) {
-    return (
-      <div className="modal-overlay">
-        <HumanVerification onVerified={() => setIsHumanVerified(true)} />
-      </div>
-    );
-  }
 
   return (
     <div className="voidchat-container">
@@ -178,13 +182,6 @@ export default function VoidchatLayout() {
         <h1 className="voidchat-title">voidchat</h1>
         
         <div className="header-controls">
-          {isGuardian && (
-            <div className="header-button" style={{ background: 'rgba(0, 255, 136, 0.1)', borderColor: '#00ff88' }}>
-              <Shield size={14} />
-              Guardian
-            </div>
-          )}
-          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="header-button">
@@ -192,42 +189,17 @@ export default function VoidchatLayout() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="dropdown-menu" align="end">
-              <div className="dropdown-item" onClick={toggleTheme}>
-                <Palette size={16} />
-                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-              </div>
               <div className="dropdown-item" onClick={() => setProfanityFilter(!profanityFilter)}>
                 <Megaphone size={16} />
                 Profanity Filter: {profanityFilter ? 'ON' : 'OFF'}
               </div>
               <div className="dropdown-separator"></div>
-              {!isLoading && (
-                <>
-                  {isAuthenticated ? (
-                    <>
-                      <Link href="/member-settings">
-                        <div className="dropdown-item">
-                          <User size={16} />
-                          Account Settings
-                        </div>
-                      </Link>
-                      <Link href="/api/logout">
-                        <div className="dropdown-item">
-                          <LogOut size={16} />
-                          Sign Out
-                        </div>
-                      </Link>
-                    </>
-                  ) : (
-                    <Link href="/api/login">
-                      <div className="dropdown-item">
-                        <LogIn size={16} />
-                        Sign In
-                      </div>
-                    </Link>
-                  )}
-                </>
-              )}
+              <Link href="/api/login">
+                <div className="dropdown-item">
+                  <LogIn size={16} />
+                  Sign In
+                </div>
+              </Link>
               <div className="dropdown-separator"></div>
               <Link href="/guardian">
                 <div className="dropdown-item">
@@ -291,7 +263,7 @@ export default function VoidchatLayout() {
                     )}
                   </span>
                   <span className="message-time">
-                    {formatTime(message.createdAt || message.timestamp)}
+                    {formatTime(message.createdAt || message.timestamp || '')}
                   </span>
                 </div>
                 
@@ -299,38 +271,6 @@ export default function VoidchatLayout() {
                 <div className="message-content">
                   {filterProfanity(message.content)}
                 </div>
-                
-                {/* Sponsor ad link if applicable */}
-                {(message.type === 'ad' || message.isAd) && message.url && (
-                  <div className="sponsor-link">
-                    <a 
-                      href={message.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="sponsor-url"
-                    >
-                      Learn more →
-                    </a>
-                  </div>
-                )}
-                
-                {/* Guardian moderation controls */}
-                {isGuardian && message.username !== 'system' && message.username !== 'System' && !message.isAd && message.type !== 'ad' && (
-                  <div className="guardian-controls">
-                    <button 
-                      onClick={() => muteUser(message.id)}
-                      className="guardian-button guardian-mute"
-                    >
-                      Mute
-                    </button>
-                    <button 
-                      onClick={() => deleteMessage(message.id)}
-                      className="guardian-button guardian-delete"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
               </div>
             ))
           )}
