@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Clock, Hourglass } from "lucide-react";
@@ -15,9 +15,63 @@ export default function MessageInput({
   error
 }: MessageInputProps) {
   const [messageText, setMessageText] = useState('');
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const maxLength = 500;
   const isRateLimited = rateLimitTime > 0;
   const canSend = messageText.trim().length > 0 && !isRateLimited;
+
+  // Keyboard detection and locking mechanism
+  useEffect(() => {
+    const handleViewportChange = () => {
+      const visualViewport = window.visualViewport;
+      if (visualViewport) {
+        const keyboardHeight = window.innerHeight - visualViewport.height;
+        const isOpen = keyboardHeight > 100; // Threshold for keyboard detection
+        
+        setIsKeyboardOpen(isOpen);
+        
+        if (isOpen) {
+          // Lock body scroll and position input above keyboard
+          document.body.classList.add('ios-keyboard-open');
+          if (containerRef.current) {
+            containerRef.current.style.bottom = `${keyboardHeight}px`;
+          }
+        } else {
+          // Restore normal positioning
+          document.body.classList.remove('ios-keyboard-open');
+          if (containerRef.current) {
+            containerRef.current.style.bottom = '0px';
+          }
+        }
+      }
+    };
+
+    // Listen for visual viewport changes (keyboard events)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportChange);
+      window.visualViewport.addEventListener('scroll', handleViewportChange);
+    }
+
+    // Fallback for older browsers
+    const handleResize = () => {
+      const heightDiff = window.screen.height - window.innerHeight;
+      const isOpen = heightDiff > 150;
+      setIsKeyboardOpen(isOpen);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleViewportChange);
+        window.visualViewport.removeEventListener('scroll', handleViewportChange);
+      }
+      window.removeEventListener('resize', handleResize);
+      document.body.classList.remove('ios-keyboard-open');
+    };
+  }, []);
 
   // Basic client-side security validation
   const isSecureMessage = (content: string): boolean => {
@@ -65,13 +119,22 @@ export default function MessageInput({
   };
 
   return (
-    <div className="message-input-container">
+    <div 
+      ref={containerRef}
+      className="message-input-container"
+      style={{
+        transform: isKeyboardOpen ? 'translateZ(0)' : undefined,
+        position: 'fixed',
+        zIndex: 1000
+      }}
+    >
       <div className="max-w-4xl mx-auto px-3 md:px-4 py-3 md:py-4">
 
         <form onSubmit={handleSubmit} className="w-full">
           <div className="relative flex items-end bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm hover:border-gray-400 dark:hover:border-gray-500 focus-within:border-blue-500 dark:focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-500 dark:focus-within:ring-blue-400 transition-all duration-200">
             <div className="flex-1 min-h-[44px] max-h-[120px] overflow-hidden">
               <textarea
+                ref={textareaRef}
                 value={messageText}
                 onChange={handleInputChange}
                 onPaste={(e) => {
@@ -86,6 +149,21 @@ export default function MessageInput({
                     e.preventDefault();
                     handleSubmit(e);
                   }
+                }}
+                onFocus={() => {
+                  // Prevent scroll when focusing on mobile
+                  if (window.innerWidth <= 768) {
+                    setTimeout(() => {
+                      window.scrollTo(0, document.body.scrollHeight);
+                    }, 100);
+                  }
+                }}
+                onBlur={() => {
+                  // Reset keyboard state when unfocused
+                  setTimeout(() => {
+                    setIsKeyboardOpen(false);
+                    document.body.classList.remove('ios-keyboard-open');
+                  }, 100);
                 }}
                 placeholder="Type a message..."
                 className="message-input w-full resize-none border-none outline-none bg-transparent text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 text-[16px] leading-6 px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
