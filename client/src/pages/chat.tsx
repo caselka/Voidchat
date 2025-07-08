@@ -282,10 +282,23 @@ export default function Chat() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="border-void-300 dark:border-void-600" />
-                <DropdownMenuItem className="text-void-600 dark:text-void-400">
-                  <Info className="w-4 h-4 mr-2" />
-                  About Voidchat
+                <DropdownMenuItem asChild>
+                  <Link href="/about" className="flex items-center">
+                    <Info className="w-4 h-4 mr-2" />
+                    About Voidchat
+                  </Link>
                 </DropdownMenuItem>
+                {isAuthenticated && (
+                  <>
+                    <DropdownMenuSeparator className="border-void-300 dark:border-void-600" />
+                    <DropdownMenuItem asChild>
+                      <Link href="/member-settings" className="flex items-center">
+                        <User className="w-4 h-4 mr-2" />
+                        Member Settings
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

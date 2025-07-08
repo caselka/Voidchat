@@ -224,6 +224,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Guardian status endpoint
+  app.get('/api/guardian-status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      const guardianStatus = await storage.getGuardianStatus(user.email || '');
+      
+      res.json({
+        isGuardian: !!guardianStatus,
+        expiresAt: guardianStatus?.expiresAt,
+        createdAt: guardianStatus?.createdAt
+      });
+    } catch (error: any) {
+      console.error('Error fetching guardian status:', error);
+      res.status(500).json({ message: 'Failed to fetch guardian status' });
+    }
+  });
+
   // Renew username endpoint
   app.post('/api/renew-username', isAuthenticated, async (req: any, res) => {
     try {

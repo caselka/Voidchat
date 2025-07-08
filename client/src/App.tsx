@@ -22,6 +22,8 @@ import Careers from "@/pages/careers";
 import Contact from "@/pages/contact";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
+import MemberSettings from "@/pages/member-settings";
+import About from "@/pages/about";
 import NotFound from "@/pages/not-found";
 
 function Navigation() {
@@ -89,6 +91,8 @@ function Router() {
         <Route path="/themes" component={Themes} />
         <Route path="/create-room" component={CreateRoom} />
         <Route path="/room/:name" component={Room} />
+        <Route path="/member-settings" component={MemberSettings} />
+        <Route path="/about" component={About} />
         <Route path="/careers" component={Careers} />
         <Route path="/contact" component={Contact} />
         <Route path="/privacy" component={Privacy} />

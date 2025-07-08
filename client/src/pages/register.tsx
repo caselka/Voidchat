@@ -84,10 +84,10 @@ const RegistrationForm = () => {
     setIsProcessing(true);
 
     try {
-      const { error } = await stripe.confirmPayment({
+      const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/register-success`,
+          return_url: `${window.location.origin}/login?registration=success`,
         },
         redirect: 'if_required',
       });
@@ -98,20 +98,26 @@ const RegistrationForm = () => {
           description: error.message,
           variant: "destructive",
         });
-      } else {
-        // Complete registration
-        await apiRequest("POST", "/api/complete-registration", {
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
-        });
-        
-        toast({
-          title: "Success",
-          description: "Account created successfully! Please check your email to verify your account.",
-        });
-        
-        setLocation("/login");
+      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+        // Payment successful, complete registration
+        try {
+          await apiRequest("POST", "/api/complete-username-registration", {
+            payment_intent_id: paymentIntent.id,
+          });
+          
+          toast({
+            title: "Success",
+            description: "Account created successfully! You can now sign in.",
+          });
+          
+          setLocation("/login?registration=success");
+        } catch (registrationError: any) {
+          toast({
+            title: "Registration Error",
+            description: registrationError.message || "Failed to complete registration",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error: any) {
       toast({

@@ -198,10 +198,10 @@ export async function setupAuth(app: Express) {
         return res.status(400).json({ message: 'Username, email, and amount are required' });
       }
 
-      // Validate username availability
-      const isAvailable = await storage.getUserByUsername(username);
-      if (isAvailable) {
-        return res.status(400).json({ message: 'Username already taken' });
+      // Validate username availability (use email to avoid schema issues)
+      const existingByEmail = await storage.getUserByEmail(email);
+      if (existingByEmail) {
+        return res.status(400).json({ message: 'Email already registered' });
       }
 
       // Import Stripe dynamically since it's not imported in this file
@@ -228,6 +228,60 @@ export async function setupAuth(app: Express) {
     } catch (error: any) {
       console.error('Error creating username payment:', error);
       res.status(500).json({ message: 'Failed to create payment intent' });
+    }
+  });
+
+  // Complete username registration after payment
+  app.post('/api/complete-username-registration', async (req, res) => {
+    try {
+      const { payment_intent_id } = req.body;
+      
+      if (!payment_intent_id) {
+        return res.status(400).json({ message: 'Payment intent ID required' });
+      }
+      
+      const Stripe = require('stripe');
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      
+      const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ message: 'Payment not completed' });
+      }
+      
+      const { username, email, password } = paymentIntent.metadata;
+      
+      // Check if user already exists 
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.json({ message: 'Account already exists' });
+      }
+      
+      // Set username expiration dates
+      const now = new Date();
+      const usernameExpiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+      
+      // Create user account with paid username
+      const user = await storage.createUser({
+        username,
+        email,
+        password: password, // Already hashed from payment creation
+        isVerified: true, // Auto-verify paid accounts
+        usernameExpiresAt,
+        usernameGracePeriodEnds: null
+      });
+      
+      res.json({ 
+        message: 'Account created successfully',
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email
+        }
+      });
+    } catch (error: any) {
+      console.error('Registration completion error:', error);
+      res.status(500).json({ message: 'Failed to complete registration' });
     }
   });
 
