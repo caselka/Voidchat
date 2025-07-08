@@ -50,7 +50,7 @@ export default function MessageInput({ onSendMessage, rateLimitTime, error }: Me
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border safe-area-inset-bottom">
+    <div className="fixed bottom-0 left-0 right-0 bg-background/95 border-t border-border safe-area-inset-bottom">
       <div className="max-w-4xl mx-auto px-3 md:px-4 py-3 md:py-4">
         <form onSubmit={handleSubmit}>
           <div className="flex items-center space-x-2 md:space-x-3">
