@@ -126,3 +126,6 @@ Preferred communication style: Simple, everyday language.
 - **Auth navigation**: Login/logout buttons added with proper authentication state management
 - **Reserved usernames**: System accounts created with permanent handles (caselka, admin, system, etc.)
 - **Handle protection**: Reserved usernames are permanently unavailable for purchase
+- **Landing page created**: Professional homepage with premium feature overview and pricing
+- **Theme system improved**: Better dark/light mode with proper background color changes
+- **UI cleanup**: Simplified navigation and improved visual consistency across all pages

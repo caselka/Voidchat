@@ -5,25 +5,26 @@
 @tailwind utilities;
 
 :root {
+  /* Light theme - clean void aesthetic */
   --background: hsl(0, 0%, 98%);
-  --foreground: hsl(240, 10%, 5%);
-  --muted: hsl(210, 40%, 96%);
-  --muted-foreground: hsl(215, 16%, 47%);
+  --foreground: hsl(0, 0%, 5%);
+  --muted: hsl(0, 0%, 96%);
+  --muted-foreground: hsl(0, 0%, 45%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(240, 10%, 5%);
+  --popover-foreground: hsl(0, 0%, 5%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(240, 10%, 5%);
-  --border: hsl(214, 32%, 91%);
-  --input: hsl(214, 32%, 91%);
-  --primary: hsl(221, 83%, 53%);
-  --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(210, 40%, 96%);
-  --secondary-foreground: hsl(222, 84%, 5%);
-  --accent: hsl(210, 40%, 96%);
-  --accent-foreground: hsl(222, 84%, 5%);
+  --card-foreground: hsl(0, 0%, 5%);
+  --border: hsl(0, 0%, 90%);
+  --input: hsl(0, 0%, 90%);
+  --primary: hsl(0, 0%, 10%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(0, 0%, 96%);
+  --secondary-foreground: hsl(0, 0%, 10%);
+  --accent: hsl(0, 0%, 96%);
+  --accent-foreground: hsl(0, 0%, 10%);
   --destructive: hsl(0, 84%, 60%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --ring: hsl(240, 10%, 5%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(0, 0%, 10%);
   --radius: 0.5rem;
   
   /* Void theme colors */
@@ -40,25 +41,26 @@
 }
 
 .dark {
-  --background: hsl(220, 39%, 11%);
-  --foreground: hsl(210, 40%, 98%);
-  --muted: hsl(217, 33%, 17%);
-  --muted-foreground: hsl(215, 20%, 65%);
-  --popover: hsl(220, 39%, 11%);
-  --popover-foreground: hsl(210, 40%, 98%);
-  --card: hsl(220, 39%, 11%);
-  --card-foreground: hsl(210, 40%, 98%);
-  --border: hsl(217, 33%, 17%);
-  --input: hsl(217, 33%, 17%);
-  --primary: hsl(221, 83%, 53%);
-  --primary-foreground: hsl(210, 40%, 98%);
-  --secondary: hsl(217, 33%, 17%);
-  --secondary-foreground: hsl(210, 40%, 98%);
-  --accent: hsl(217, 33%, 17%);
-  --accent-foreground: hsl(210, 40%, 98%);
-  --destructive: hsl(0, 63%, 31%);
-  --destructive-foreground: hsl(210, 40%, 98%);
-  --ring: hsl(216, 12%, 84%);
+  /* Dark theme - deep void aesthetic */
+  --background: hsl(0, 0%, 3%);
+  --foreground: hsl(0, 0%, 95%);
+  --muted: hsl(0, 0%, 8%);
+  --muted-foreground: hsl(0, 0%, 65%);
+  --popover: hsl(0, 0%, 5%);
+  --popover-foreground: hsl(0, 0%, 95%);
+  --card: hsl(0, 0%, 5%);
+  --card-foreground: hsl(0, 0%, 95%);
+  --border: hsl(0, 0%, 12%);
+  --input: hsl(0, 0%, 12%);
+  --primary: hsl(0, 0%, 95%);
+  --primary-foreground: hsl(0, 0%, 5%);
+  --secondary: hsl(0, 0%, 8%);
+  --secondary-foreground: hsl(0, 0%, 95%);
+  --accent: hsl(0, 0%, 8%);
+  --accent-foreground: hsl(0, 0%, 95%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(0, 0%, 95%);
+  --ring: hsl(0, 0%, 83%);
   --radius: 0.5rem;
 }
 

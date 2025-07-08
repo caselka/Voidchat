@@ -21,6 +21,17 @@ export default function Chat() {
   const [currentUser] = useState(`anon${Math.floor(Math.random() * 9999)}`);
   const [onlineCount] = useState(Math.floor(Math.random() * 50) + 20);
 
+  // Show connection status
+  if (!isConnected) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-center">
+          <div className="animate-pulse text-muted-foreground">connecting to the void...</div>
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     // Auto-scroll to bottom when new messages arrive
     window.scrollTo({
@@ -30,13 +41,15 @@ export default function Chat() {
   }, [messages]);
 
   return (
-    <div className="font-sans bg-void-50 dark:bg-void-900 text-void-800 dark:text-void-200 transition-colors duration-300 min-h-screen">
+    <div className="font-sans bg-background text-foreground transition-colors duration-300 min-h-screen">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-void-50/95 dark:bg-void-900/95 backdrop-blur-sm border-b border-void-300 dark:border-void-700">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-2 md:space-x-3">
-            <h1 className="text-lg md:text-xl font-light tracking-wider text-void-900 dark:text-void-100">voidchat</h1>
-            <span className="text-xs px-2 py-1 bg-void-200 dark:bg-void-700 rounded text-void-600 dark:text-void-400 hidden sm:inline">
+            <Link href="/">
+              <h1 className="text-lg md:text-xl font-light tracking-wider text-foreground hover:text-muted-foreground transition-colors cursor-pointer">voidchat</h1>
+            </Link>
+            <span className="text-xs px-2 py-1 bg-muted rounded text-muted-foreground hidden sm:inline">
               {isConnected ? `${onlineCount} online` : 'Connecting...'}
             </span>
           </div>
@@ -44,7 +57,7 @@ export default function Chat() {
           <div className="flex items-center space-x-2 md:space-x-4">
             {/* Guardian Status */}
             {isGuardian && (
-              <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded flex items-center">
+              <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded flex items-center">
                 <Shield className="w-3 h-3 mr-1" />
                 <span className="hidden sm:inline">Guardian</span>
               </span>

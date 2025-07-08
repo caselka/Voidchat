@@ -1,0 +1,212 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MessageCircle, Shield, Palette, Clock, Star, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
+
+export default function Landing() {
+  const { isAuthenticated, user } = useAuth();
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Hero Section */}
+      <div className="container mx-auto px-4 py-16 text-center">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-6xl md:text-8xl font-light mb-6 tracking-tight">
+            voidchat
+          </h1>
+          <p className="text-xl md:text-2xl text-muted-foreground mb-8 font-light">
+            Anonymous real-time conversations that fade into the void
+          </p>
+          <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto">
+            Join ephemeral discussions where messages disappear after 15 minutes. 
+            Chat freely without accounts, or unlock premium features with a reserved username.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link href="/chat">
+              <Button size="lg" className="text-lg px-8 py-6">
+                <MessageCircle className="mr-2 h-5 w-5" />
+                Start Chatting Anonymously
+              </Button>
+            </Link>
+            
+            {!isAuthenticated ? (
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="text-lg px-8 py-6"
+                onClick={() => window.location.href = "/api/login"}
+              >
+                <Star className="mr-2 h-5 w-5" />
+                Get Premium Features
+              </Button>
+            ) : (
+              <Link href="/handle">
+                <Button variant="outline" size="lg" className="text-lg px-8 py-6">
+                  <Star className="mr-2 h-5 w-5" />
+                  Manage Premium
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-light mb-4">Features</h2>
+          <p className="text-xl text-muted-foreground">
+            Simple, ephemeral, and beautifully minimal
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <Card className="text-center">
+            <CardHeader>
+              <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <CardTitle className="text-xl">Ephemeral Messages</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                All messages automatically disappear after 15 minutes. No permanent record, just the moment.
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center">
+            <CardHeader>
+              <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <CardTitle className="text-xl">Anonymous by Default</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Join conversations instantly without registration. Your privacy is protected by design.
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center">
+            <CardHeader>
+              <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <CardTitle className="text-xl">Guardian Moderation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Paid moderators ensure quality conversations. Become a Guardian to help maintain the space.
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="text-center">
+            <CardHeader>
+              <Palette className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <CardTitle className="text-xl">Custom Themes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription>
+                Personalize your void with custom colors, fonts, and visual effects.
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Premium Features */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-light mb-4">Premium Features</h2>
+          <p className="text-xl text-muted-foreground">
+            Reserve your identity in the void
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <Card className="relative">
+            <CardHeader>
+              <Badge variant="secondary" className="w-fit">Popular</Badge>
+              <CardTitle className="text-2xl">Custom Handle</CardTitle>
+              <CardDescription>Reserve your unique username</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-3xl font-light">$1-3</div>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• Permanent username reservation</li>
+                  <li>• Stand out in conversations</li>
+                  <li>• 7-30 day validity options</li>
+                </ul>
+                <Link href="/handle">
+                  <Button className="w-full">
+                    Reserve Handle
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl">Theme Customization</CardTitle>
+              <CardDescription>Personalize your void aesthetic</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-3xl font-light">$2-10</div>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• Custom color schemes</li>
+                  <li>• Font selection</li>
+                  <li>• Visual effects</li>
+                  <li>• Bundle with Guardian access</li>
+                </ul>
+                <Link href="/themes">
+                  <Button className="w-full" variant="outline">
+                    Customize Theme
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Badge variant="outline" className="w-fit">Exclusive</Badge>
+              <CardTitle className="text-2xl">Guardian Access</CardTitle>
+              <CardDescription>Moderate and protect the void</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-3xl font-light">$2-10</div>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• Moderation powers</li>
+                  <li>• Delete inappropriate messages</li>
+                  <li>• Mute disruptive users</li>
+                  <li>• Daily or weekly access</li>
+                </ul>
+                <Link href="/guardian">
+                  <Button className="w-full" variant="outline">
+                    Become Guardian
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="border-t bg-muted/30 py-12">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-muted-foreground">
+            voidchat - where conversations fade into the beautiful void
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}

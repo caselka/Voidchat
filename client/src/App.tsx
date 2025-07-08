@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Moon, Sun, User, LogOut } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
+import Landing from "@/pages/landing";
 import Chat from "@/pages/chat";
 import GuardianCheckout from "@/pages/guardian-checkout";
 import Sponsor from "@/pages/sponsor";
@@ -62,7 +63,8 @@ function Router() {
     <>
       <Navigation />
       <Switch>
-        <Route path="/" component={Chat} />
+        <Route path="/" component={Landing} />
+        <Route path="/chat" component={Chat} />
         <Route path="/guardian" component={GuardianCheckout} />
         <Route path="/sponsor" component={Sponsor} />
         <Route path="/handle" component={Handle} />
