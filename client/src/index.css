@@ -4,6 +4,97 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Message bubble animations and mobile optimizations */
+.message-bubble {
+  /* Smooth enter animation */
+  animation: messageSlideIn 0.3s ease-out;
+  /* Improve text rendering */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent overflow on mobile */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  /* Hardware acceleration for smooth scrolling */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Chat messages container optimizations */
+.chat-messages-container {
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+}
+
+.chat-messages-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages-container::-webkit-scrollbar-thumb {
+  background-color: #333;
+  border-radius: 3px;
+}
+
+.chat-messages-container::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .message-bubble {
+    /* Reduce padding on mobile */
+    padding: 8px 12px !important;
+    margin-bottom: 8px !important;
+    /* Ensure readable text size */
+    font-size: 14px;
+  }
+  
+  .chat-messages-container {
+    /* Better mobile scrolling */
+    -webkit-overflow-scrolling: touch;
+    /* Prevent horizontal scroll */
+    overflow-x: hidden;
+  }
+  
+  /* Improve touch targets */
+  .message-bubble .group button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Dark theme message styling */
+@media (prefers-color-scheme: dark) {
+  .message-bubble {
+    background-color: #1a1a1a !important;
+    border-color: #333 !important;
+  }
+  
+  /* Ensure text contrast in dark mode */
+  .message-bubble span,
+  .message-bubble div {
+    text-shadow: none;
+  }
+}
+
 :root {
   /* Light theme - clean void aesthetic */
   --background: hsl(0, 0%, 98%);

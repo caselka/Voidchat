@@ -328,7 +328,7 @@ export default function Chat() {
           </div>
 
           {/* Chat Container */}
-          <div className="chat-container">
+          <div className="chat-container chat-messages-container">
             <ChatContainer 
               messages={messages}
               isGuardian={isGuardian}

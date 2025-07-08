@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Volume, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -84,66 +84,131 @@ export default function ChatContainer({
     }
   };
 
+  // Auto-scroll to bottom when new messages arrive
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   return (
     <div className="space-y-3 pb-4">
       {messages.map((message, index) => (
-        <div key={message.id || `message-${index}-${Date.now()}`} className="flex items-start space-x-2 md:space-x-3 group">
-          {/* Timestamp */}
-          <div className="text-xs text-muted-foreground w-12 md:w-16 flex-shrink-0 pt-1 font-mono">
-            {formatTime(message.createdAt || message.timestamp)}
+        <div 
+          key={message.id || `message-${index}-${Date.now()}`} 
+          className="message-bubble group"
+          style={{
+            backgroundColor: '#1a1a1a',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            marginBottom: '12px',
+            border: '1px solid #333'
+          }}
+          onTouchStart={() => handleLongPressStart(message)}
+          onTouchEnd={handleLongPressEnd}
+          onMouseDown={() => handleLongPressStart(message)}
+          onMouseUp={handleLongPressEnd}
+          onMouseLeave={handleLongPressEnd}
+        >
+          {/* Message Header: Username and Timestamp */}
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2">
+              {/* Username - Bold Green */}
+              <span 
+                className="font-bold font-mono text-sm"
+                style={{ color: '#00ff88' }}
+              >
+                {message.username}
+              </span>
+              
+              {/* Guardian Controls - Inline with username */}
+              {isGuardian && message.username !== 'system' && !message.isAd && (
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onMuteUser(message.id)}
+                    className="text-red-400 hover:text-red-500 text-xs p-1 h-auto"
+                    title="Mute IP"
+                  >
+                    <Volume className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDeleteMessage(message.id)}
+                    className="text-red-400 hover:text-red-500 text-xs p-1 h-auto"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            
+            {/* Timestamp - Right Aligned Gray */}
+            <span 
+              className="text-xs font-mono"
+              style={{ color: '#888' }}
+            >
+              {formatTime(message.createdAt || message.timestamp)}
+            </span>
           </div>
           
-          {/* Message Content */}
-          <div className="flex-1">
-            {message.username !== 'system' && (
-              <div className="text-xs text-muted-foreground mb-1">
-                <span className="font-mono">{message.username}</span>
-                {message.expiresAt && (
-                  <span className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {getTimeUntilDelete(message.expiresAt)}
-                  </span>
+          {/* Expiry Notice - Below Username */}
+          {message.expiresAt && (
+            <div 
+              className="text-xs font-mono mb-3"
+              style={{ color: '#666' }}
+            >
+              [{getTimeUntilDelete(message.expiresAt)}]
+            </div>
+          )}
+          
+          {/* Message Content - Light White Text */}
+          <div 
+            className={`font-mono text-sm leading-relaxed break-words ${
+              message.isAd 
+                ? 'italic opacity-60' 
+                : message.username === 'system'
+                ? 'italic'
+                : ''
+            }`}
+            style={{ 
+              color: message.username === 'system' ? '#4ade80' : '#f0f0f0'
+            }}
+          >
+            {profanityFilter ? filterProfanity(message.content) : message.content}
+          </div>
+          
+          {/* Ad-specific content */}
+          {message.isAd && message.productName && (
+            <div className="mt-2 pt-2 border-t border-gray-700">
+              <div className="text-xs font-mono" style={{ color: '#888' }}>
+                <span className="font-semibold">{message.productName}</span>
+                {message.description && (
+                  <div className="mt-1">{message.description}</div>
+                )}
+                {message.url && (
+                  <div className="mt-1">
+                    <a 
+                      href={message.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-blue-300 underline"
+                    >
+                      Learn more
+                    </a>
+                  </div>
                 )}
               </div>
-            )}
-            
-            <div 
-              className={`font-mono text-xs md:text-sm leading-relaxed break-words ${
-                message.isAd 
-                  ? 'italic text-void-600 dark:text-void-500 opacity-60' 
-                  : message.username === 'system'
-                  ? 'text-blue-600 dark:text-blue-400 italic'
-                  : ''
-              }`}
-            >
-              {profanityFilter ? filterProfanity(message.content) : message.content}
-            </div>
-          </div>
-          
-          {/* Guardian Controls */}
-          {isGuardian && message.username !== 'system' && !message.isAd && (
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onMuteUser(message.id)}
-                className="text-red-400 hover:text-red-500 text-xs p-1 h-auto"
-                title="Mute IP"
-              >
-                <Volume className="w-3 h-3" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onDeleteMessage(message.id)}
-                className="text-red-400 hover:text-red-500 text-xs p-1 h-auto"
-                title="Delete"
-              >
-                <Trash2 className="w-3 h-3" />
-              </Button>
             </div>
           )}
         </div>
       ))}
+      
+      {/* Auto-scroll anchor */}
+      <div ref={messagesEndRef} />
     </div>
   );
 }
