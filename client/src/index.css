@@ -4,6 +4,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Override Tailwind with mobile-first dark theme */
+:root {
+  --bg-primary: #0e0e0e;
+  --bg-secondary: #1c1c1c;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --accent-blue: #5f5fff;
+  --border-color: #333;
+}
+
+/* Force override any existing Tailwind styling */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
 :root {
   /* Light theme - clean void aesthetic */
   --background: hsl(0, 0%, 98%);

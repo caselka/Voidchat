@@ -10,6 +10,7 @@ import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Chat from "@/pages/chat";
+import ChatMobile from "@/pages/chat-mobile";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import GuardianCheckout from "@/pages/guardian-checkout";
@@ -82,7 +83,7 @@ function Router() {
       <Navigation />
       <Switch>
         <Route path="/" component={Landing} />
-        <Route path="/chat" component={Chat} />
+        <Route path="/chat" component={ChatMobile} />
         <Route path="/login" component={Login} />
         <Route path="/register" component={Register} />
         <Route path="/guardian-checkout" component={GuardianCheckout} />

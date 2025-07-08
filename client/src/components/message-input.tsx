@@ -121,19 +121,14 @@ export default function MessageInput({
   return (
     <div 
       ref={containerRef}
-      className="message-input-container"
+      className="input-container"
       style={{
         transform: isKeyboardOpen ? 'translateZ(0)' : undefined,
-        position: 'fixed',
-        zIndex: 1000
       }}
     >
-      <div className="max-w-4xl mx-auto px-3 md:px-4 py-3 md:py-4">
-
-        <form onSubmit={handleSubmit} className="w-full">
-          <div className="relative flex items-end bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm hover:border-gray-400 dark:hover:border-gray-500 focus-within:border-blue-500 dark:focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-500 dark:focus-within:ring-blue-400 transition-all duration-200">
-            <div className="flex-1 min-h-[44px] max-h-[120px] overflow-hidden">
-              <textarea
+        <form onSubmit={handleSubmit} className="flex items-center gap-3 w-full">
+          <div className="flex-1 relative">
+            <textarea
                 ref={textareaRef}
                 value={messageText}
                 onChange={handleInputChange}
@@ -196,7 +191,7 @@ export default function MessageInput({
                   }, 200);
                 }}
                 placeholder="Type a message..."
-                className="message-input w-full resize-none border-none outline-none bg-transparent text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 text-[16px] leading-6 px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="message-input-field"
                 maxLength={maxLength}
                 disabled={isRateLimited}
                 autoComplete="off"
@@ -208,33 +203,43 @@ export default function MessageInput({
                   scrollbarWidth: 'none',
                   msOverflowStyle: 'none'
                 }}
-              />
-            </div>
+            />
             
-            <div className="flex items-center gap-2 pr-2 pb-2">
-              <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
-                {messageText.length}/{maxLength}
-              </span>
-              <Button
-                type="submit"
-                disabled={!canSend}
-                size="sm"
-                className="h-8 w-8 p-0 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-200 dark:disabled:bg-gray-700 text-white disabled:text-gray-400 dark:disabled:text-gray-500 rounded-lg shrink-0 transition-colors duration-200"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
+            {/* Character Counter */}
+            <div className="character-counter">
+              {messageText.length}/{maxLength}
             </div>
           </div>
           
-          {/* Error Messages */}
-          {(error || isRateLimited) && (
-            <div className="mt-2 px-4 text-xs text-destructive flex items-center">
-              <Clock className="w-3 h-3 mr-1" />
-              {error || `Wait ${rateLimitTime} seconds before sending another message`}
+          <button
+            type="submit"
+            disabled={!canSend}
+            className="send-button"
+          >
+            {isRateLimited ? (
+              <Hourglass className="w-4 h-4" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+          </button>
+          
+          {/* Rate limit and error indicators - position them above input */}
+          {(isRateLimited || error) && (
+            <div className="absolute bottom-full left-0 right-0 mb-2 px-4">
+              {isRateLimited && (
+                <div className="error-message bg-orange-600">
+                  <Clock className="w-4 h-4 inline mr-2" />
+                  Rate limited. Wait {rateLimitTime} seconds.
+                </div>
+              )}
+              {error && (
+                <div className="error-message">
+                  {error}
+                </div>
+              )}
             </div>
           )}
         </form>
-      </div>
     </div>
   );
 }
