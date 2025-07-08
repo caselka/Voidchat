@@ -4,19 +4,19 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CSS Variables for theming */
+/* CSS Variables for clean theming */
 :root {
   /* Light theme colors */
-  --message-bg: #f5f5f5;
-  --message-border: #e0e0e0;
-  --message-text: #333;
-  --username-color: #00aa66;
-  --timestamp-color: #888;
-  --expiry-color: #999;
-  --system-color: #4ade80;
+  --bg: #ffffff;
+  --text: #000000;
+  --bubble: #f5f5f5;
   --input-bg: #ffffff;
-  --input-border: #d1d5db;
-  --input-text: #374151;
+  --input-text: #000000;
+  --input-border: #e0e0e0;
+  --username-color: #00aa66;
+  --timestamp-color: #888888;
+  --expiry-color: #999999;
+  --system-color: #4ade80;
   --counter-color: #9ca3af;
   --send-button: #3b82f6;
   --send-button-disabled: #d1d5db;
@@ -25,20 +25,27 @@
 
 /* Dark theme colors */
 .dark {
-  --message-bg: #1a1a1a;
-  --message-border: #333;
-  --message-text: #f0f0f0;
+  --bg: #000000;
+  --text: #ffffff;
+  --bubble: #1a1a1a;
+  --input-bg: #1a1a1a;
+  --input-text: #ffffff;
+  --input-border: #333333;
   --username-color: #00ff88;
-  --timestamp-color: #888;
-  --expiry-color: #666;
+  --timestamp-color: #888888;
+  --expiry-color: #666666;
   --system-color: #4ade80;
-  --input-bg: #2a2a2a;
-  --input-border: #404040;
-  --input-text: #f0f0f0;
-  --counter-color: #888;
+  --counter-color: #888888;
   --send-button: #3b82f6;
-  --send-button-disabled: #555;
-  --welcome-text: #888;
+  --send-button-disabled: #555555;
+  --welcome-text: #888888;
+}
+
+/* Apply theme variables to body and base elements */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Message bubble animations and mobile optimizations */
@@ -97,11 +104,11 @@
 /* Mobile optimizations - minimal and fast */
 @media (max-width: 768px) {
   .message-bubble {
-    /* Tighter spacing on mobile */
-    padding: 6px 10px !important;
-    margin-bottom: 6px !important;
-    font-size: 13px !important;
-    max-width: 95% !important;
+    /* Compact spacing on mobile */
+    padding: 8px 12px !important;
+    margin-bottom: 10px !important;
+    font-size: 14px !important;
+    max-width: 90% !important;
   }
   
   .chat-main-container {
@@ -110,18 +117,13 @@
     /* Prevent horizontal scroll */
     overflow-x: hidden;
     /* Adjust for mobile keyboard */
-    padding-bottom: 60px !important;
-  }
-  
-  .message-input-container {
-    /* Tighter mobile input */
-    padding: 8px !important;
+    padding-bottom: 70px !important;
   }
   
   /* Improve touch targets */
   .message-bubble .group button {
-    min-height: 40px;
-    min-width: 40px;
+    min-height: 44px;
+    min-width: 44px;
   }
 }
 

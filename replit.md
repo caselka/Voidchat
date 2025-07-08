@@ -110,14 +110,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 8, 2025)
 
-### Minimalist Frontend Layout Optimization (Latest)
+### Final UI Polish and Theming (Latest)
+- **Complete CSS variable theming**: Clean --bg, --text, --bubble, --input-bg, --input-text variables
+- **Light mode styling**: White background, soft gray bubbles (#f5f5f5), black text with proper contrast
+- **Dark mode styling**: Black background, dark gray bubbles (#1a1a1a), white text for readability  
+- **Fixed input styling**: Consistent rounded corners (10px), padding, and styling across themes
 - **Ghost message filtering**: Only render messages with valid content (non-null, non-empty text)
-- **Reduced font sizing**: Base 14px font, tighter line-height 1.4, smaller padding (8px 12px)
-- **Mobile-optimized input**: Fixed bottom positioning, 40px height, compact spacing (6px 10px)
-- **Full-height scrollable container**: 100vh with overflow-y auto, proper keyboard handling
-- **CSS variables theming**: Clean light/dark theme variables for consistent color management
-- **Compact message bubbles**: 10px border-radius, 90% max-width, responsive mobile scaling
-- **Performance optimizations**: Hardware acceleration, smooth scrolling, efficient rendering
+- **Mobile-first design**: 14px font, compact spacing, 90% max-width, fixed bottom input
+- **Smooth theme switching**: Comments added to theme-switch logic for maintainability
+- **Performance optimized**: Hardware acceleration, clean CSS, minimal dependencies
 
 ### Account Creation System with $3 Username Reservation
 - **Paid account creation**: Users pay $3 to reserve a unique username during registration

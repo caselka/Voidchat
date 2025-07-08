@@ -128,15 +128,17 @@ export default function MessageInput({
         zIndex: 1000
       }}
     >
-      <div className="max-w-4xl mx-auto px-3 md:px-4" style={{ padding: '8px 12px' }}>
+      <div className="max-w-4xl mx-auto" style={{ padding: '12px' }}>
 
         <form onSubmit={handleSubmit} className="w-full">
           <div 
-            className="relative flex items-center border rounded-lg transition-all duration-200"
+            className="relative flex items-center transition-all duration-200"
             style={{
               backgroundColor: 'var(--input-bg)',
-              borderColor: 'var(--input-border)',
-              height: '40px'
+              border: '1px solid var(--input-border)',
+              borderRadius: '10px',
+              height: '40px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
             }}
           >
             <div className="flex-1 overflow-hidden">
@@ -186,12 +188,6 @@ export default function MessageInput({
                 autoComplete="off"
                 spellCheck="false"
                 rows={1}
-                style={{
-                  fontSize: '16px',
-                  lineHeight: '24px',
-                  scrollbarWidth: 'none',
-                  msOverflowStyle: 'none'
-                }}
               />
             </div>
             

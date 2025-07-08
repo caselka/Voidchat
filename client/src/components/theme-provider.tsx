@@ -37,18 +37,25 @@ export function ThemeProvider({
 
   useEffect(() => {
     const root = window.document.documentElement;
+    
+    // Remove existing theme classes
     root.classList.remove("light", "dark");
+    
+    // Apply the selected theme class to enable CSS variables
+    // This switches between :root (light) and .dark (dark) variable sets
     root.classList.add(theme);
   }, [theme]);
 
   const value = {
     theme,
+    // Theme setter: updates localStorage and state
     setTheme: (newTheme: Theme) => {
       if (typeof window !== "undefined") {
         localStorage.setItem(storageKey, newTheme);
       }
       setTheme(newTheme);
     },
+    // Theme toggle: switches between light and dark
     toggleTheme: () => {
       const newTheme = theme === "light" ? "dark" : "light";
       if (typeof window !== "undefined") {

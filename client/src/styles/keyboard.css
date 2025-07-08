@@ -38,11 +38,12 @@
   right: 0;
   width: 100%;
   z-index: 1000;
-  background: var(--input-bg);
+  background: var(--bg);
   border-top: 1px solid var(--input-border);
   /* Lock input above keyboard on mobile */
   transform: translateZ(0);
   will-change: transform;
+  backdrop-filter: blur(10px);
 }
 
 /* Use visual viewport API for keyboard detection */
