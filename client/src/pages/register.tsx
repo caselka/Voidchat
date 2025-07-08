@@ -247,25 +247,19 @@ const RegistrationForm = () => {
 };
 
 export default function Register() {
-  const [clientSecret, setClientSecret] = useState("");
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle>Create Account</CardTitle>
           <CardDescription>
-            Join voidchat with your reserved username
+            Reserve your username for $3 USD
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {clientSecret ? (
-            <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <RegistrationForm />
-            </Elements>
-          ) : (
+          <Elements stripe={stripePromise}>
             <RegistrationForm />
-          )}
+          </Elements>
         </CardContent>
       </Card>
     </div>

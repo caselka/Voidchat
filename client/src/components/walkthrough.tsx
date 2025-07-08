@@ -55,30 +55,31 @@ export default function Walkthrough({ isVisible, onComplete, onSkip }: Walkthrou
   useEffect(() => {
     if (!isVisible) return;
 
+    // Remove previous highlight
+    if (highlightTarget) {
+      highlightTarget.classList.remove('walkthrough-highlight');
+    }
+
     const step = walkthroughSteps[currentStep];
     if (step.target) {
       const element = document.querySelector(step.target);
       setHighlightTarget(element);
       
-      // Scroll element into view
+      // Add highlighting and scroll into view
       if (element) {
+        element.classList.add('walkthrough-highlight');
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     } else {
       setHighlightTarget(null);
     }
 
-    // Add overlay highlighting
-    if (highlightTarget) {
-      highlightTarget.classList.add('walkthrough-highlight');
-    }
-
     return () => {
-      if (highlightTarget) {
-        highlightTarget.classList.remove('walkthrough-highlight');
-      }
+      // Cleanup highlight when unmounting
+      const allHighlighted = document.querySelectorAll('.walkthrough-highlight');
+      allHighlighted.forEach(el => el.classList.remove('walkthrough-highlight'));
     };
-  }, [currentStep, isVisible, highlightTarget]);
+  }, [currentStep, isVisible]);
 
   if (!isVisible) return null;
 
