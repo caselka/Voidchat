@@ -36,12 +36,14 @@ export default function MessageInput({
           // Lock body scroll and position input above keyboard
           document.body.classList.add('ios-keyboard-open');
           if (containerRef.current) {
-            containerRef.current.style.bottom = `${keyboardHeight}px`;
+            containerRef.current.style.transform = `translateY(-${keyboardHeight}px)`;
+            containerRef.current.style.bottom = '0px';
           }
         } else {
           // Restore normal positioning
           document.body.classList.remove('ios-keyboard-open');
           if (containerRef.current) {
+            containerRef.current.style.transform = '';
             containerRef.current.style.bottom = '0px';
           }
         }
@@ -151,18 +153,27 @@ export default function MessageInput({
                   }
                 }}
                 onFocus={() => {
-                  // Prevent scroll when focusing on mobile
+                  // Enhanced focus handling for mobile keyboards
+                  setIsKeyboardOpen(true);
                   if (window.innerWidth <= 768) {
-                    setTimeout(() => {
-                      window.scrollTo(0, document.body.scrollHeight);
-                    }, 100);
+                    // Lock scroll position and prevent drift
+                    document.body.style.position = 'fixed';
+                    document.body.style.top = `-${window.scrollY}px`;
+                    document.body.style.width = '100%';
                   }
                 }}
                 onBlur={() => {
-                  // Reset keyboard state when unfocused
+                  // Restore scroll position when keyboard closes
                   setTimeout(() => {
                     setIsKeyboardOpen(false);
                     document.body.classList.remove('ios-keyboard-open');
+                    if (window.innerWidth <= 768) {
+                      const scrollY = document.body.style.top;
+                      document.body.style.position = '';
+                      document.body.style.top = '';
+                      document.body.style.width = '';
+                      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                    }
                   }, 100);
                 }}
                 placeholder="Type a message..."

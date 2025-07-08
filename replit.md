@@ -110,12 +110,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 8, 2025)
 
-### Chat Interface Improvements (Latest)
-- **Fixed keyboard positioning**: Changed from oval text input back to original design to prevent screen scrolling away
-- **Improved dark theme readability**: Enhanced text contrast and visibility in dark mode
-- **Keyboard persistence**: Removed aggressive scroll behavior that was causing input to scroll away from view
-- **Clean message display**: Removed broken reply UI containers and outline boxes for cleaner interface
-- **Better mobile experience**: Fixed iOS keyboard handling without auto-scroll that disrupts message viewing
+### Chat Interface Improvements (Latest - July 8, 2025)
+- **Replit AI-style input design**: Redesigned text input to match Replit AI with rounded corners, proper borders, and blue focus states
+- **Auto-resizing textarea**: Input expands up to 120px height with smooth animations like Replit AI
+- **Enhanced keyboard positioning**: Implemented visual viewport API for proper keyboard detection and input locking on mobile
+- **Smart scroll behavior**: Added intelligent auto-scroll that only triggers when user is near bottom of chat
+- **Performance optimizations**: Added scroll throttling, smooth scrolling, and CSS containment for better performance
+- **Fixed mobile keyboard drift**: Input now locks properly above keyboard using transform instead of bottom positioning
+- **Scroll to bottom button**: Added floating button that appears when user scrolls up from bottom
+- **Improved focus handling**: Enhanced mobile focus/blur events to prevent scroll drift and maintain keyboard state
+- **Better typing experience**: Enter to send, Shift+Enter for new lines, with proper keyboard shortcuts
+- **Enhanced visual feedback**: Added hover states, focus rings, and smooth transitions matching Replit AI design
 
 ### Account Creation System with $3 Username Reservation
 - **Paid account creation**: Users pay $3 to reserve a unique username during registration
