@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { useTheme } from "@/components/theme-provider";
+import { useAuth } from "@/hooks/useAuth";
 import ChatContainer from "@/components/chat-container";
 import MessageInput from "@/components/message-input";
 import GuardianPanel from "@/components/guardian-panel";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette } from "lucide-react";
+import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette, LogIn, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,7 @@ import {
 
 export default function Chat() {
   const { theme, toggleTheme } = useTheme();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const { messages, isConnected, isGuardian, currentUser, onlineCount, sendMessage, muteUser, deleteMessage, enableSlowMode, error, rateLimitTime } = useWebSocket();
   const [profanityFilter, setProfanityFilter] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
@@ -60,15 +62,25 @@ export default function Chat() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-[9999] bg-background border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 min-w-[120px]">
             <span className="text-xs px-2 py-1 bg-muted rounded text-muted-foreground hidden sm:inline">
               {isConnected ? `${onlineCount} online` : 'Connecting...'}
             </span>
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              className="p-2"
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+            >
+              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            </Button>
           </div>
           
           <h1 className="text-lg md:text-xl font-light tracking-wider text-foreground">voidchat</h1>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 min-w-[120px] justify-end">
             {/* Profanity Filter Toggle */}
             <div className="flex items-center space-x-2">
               <input
@@ -111,6 +123,32 @@ export default function Chat() {
             )}
             
 
+            
+            {/* Login/Logout Button */}
+            {isAuthenticated ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => window.location.href = '/api/logout'}
+                className="flex items-center space-x-1 text-xs"
+                title="Logout"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            ) : (
+              <Link href="/login">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center space-x-1 text-xs"
+                  title="Login"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span className="hidden sm:inline">Login</span>
+                </Button>
+              </Link>
+            )}
             
             {/* Menu */}
             <DropdownMenu>
