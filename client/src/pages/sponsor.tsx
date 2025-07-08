@@ -133,7 +133,7 @@ export default function Sponsor() {
   const previewText = form.watch();
 
   return (
-    <div className="min-h-screen bg-void-50 dark:bg-void-900 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-2xl mx-auto px-4">
         <div className="mb-6">
           <Link href="/">

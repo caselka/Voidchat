@@ -51,6 +51,18 @@ export default {
           "4": "var(--chart-4)",
           "5": "var(--chart-5)",
         },
+        void: {
+          50: "var(--void-50)",
+          100: "var(--void-100)",
+          200: "var(--void-200)",
+          300: "var(--void-300)",
+          400: "var(--void-400)",
+          500: "var(--void-500)",
+          600: "var(--void-600)",
+          700: "var(--void-700)",
+          800: "var(--void-800)",
+          900: "var(--void-900)",
+        },
         sidebar: {
           DEFAULT: "var(--sidebar-background)",
           foreground: "var(--sidebar-foreground)",

@@ -7,8 +7,8 @@ interface GuardianPanelProps {
 
 export default function GuardianPanel({ onEnableSlowMode }: GuardianPanelProps) {
   return (
-    <div className="fixed top-20 right-2 md:right-4 w-56 md:w-64 bg-white dark:bg-void-800 rounded-lg shadow-lg border border-void-300 dark:border-void-600 p-3 md:p-4 z-40">
-      <h3 className="font-medium text-xs md:text-sm mb-2 md:mb-3 text-void-900 dark:text-void-100">Guardian Controls</h3>
+    <div className="fixed top-20 right-2 md:right-4 w-56 md:w-64 bg-card rounded-lg shadow-lg border border-border p-3 md:p-4 z-40">
+      <h3 className="font-medium text-xs md:text-sm mb-2 md:mb-3 text-foreground">Guardian Controls</h3>
       <div className="space-y-2">
         <Button
           onClick={onEnableSlowMode}
@@ -19,7 +19,7 @@ export default function GuardianPanel({ onEnableSlowMode }: GuardianPanelProps) 
           <Clock className="w-3 h-3 mr-2" />
           Enable Slow Mode (10s)
         </Button>
-        <div className="text-xs text-void-500 dark:text-void-400">
+        <div className="text-xs text-muted-foreground">
           Tap messages to moderate
         </div>
       </div>

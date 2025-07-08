@@ -152,7 +152,7 @@ export default function Handle() {
 
   if (currentHandle) {
     return (
-      <div className="min-h-screen bg-void-50 dark:bg-void-900 p-4">
+      <div className="min-h-screen bg-background p-4">
         <div className="max-w-md mx-auto pt-20">
           <Link href="/chat">
             <Button variant="ghost" className="mb-4">
@@ -220,7 +220,7 @@ export default function Handle() {
   }
 
   return (
-    <div className="min-h-screen bg-void-50 dark:bg-void-900 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-md mx-auto pt-20">
         <Link href="/chat">
           <Button variant="ghost" className="mb-4">
