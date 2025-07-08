@@ -21,6 +21,16 @@ export default function Chat() {
   const [currentUser] = useState(`anon${Math.floor(Math.random() * 9999)}`);
   const [onlineCount] = useState(Math.floor(Math.random() * 50) + 20);
 
+  useEffect(() => {
+    // Auto-scroll to bottom when new messages arrive
+    if (isConnected && messages.length > 0) {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+  }, [messages, isConnected]);
+
   // Show connection status
   if (!isConnected) {
     return (
@@ -31,14 +41,6 @@ export default function Chat() {
       </div>
     );
   }
-
-  useEffect(() => {
-    // Auto-scroll to bottom when new messages arrive
-    window.scrollTo({
-      top: document.body.scrollHeight,
-      behavior: 'smooth'
-    });
-  }, [messages]);
 
   return (
     <div className="font-sans bg-background text-foreground transition-colors duration-300 min-h-screen">
