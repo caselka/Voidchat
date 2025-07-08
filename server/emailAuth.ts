@@ -74,7 +74,7 @@ export async function setupAuth(app: Express) {
   // Register endpoint
   app.post("/api/register", async (req, res) => {
     try {
-      const { email, password, firstName, lastName } = req.body;
+      const { username, email, password } = req.body;
       
       // Validate input
       const validEmail = emailSchema.parse(email.toLowerCase().trim());
@@ -90,12 +90,22 @@ export async function setupAuth(app: Express) {
       const verificationCode = generateVerificationCode();
       const hashedPassword = await hashPassword(validPassword);
 
+      // Validate username
+      const validUsername = z.string().min(3).max(30).regex(/^[a-zA-Z0-9_-]+$/).parse(username);
+      
+      // Check if username exists
+      const existingUsername = await storage.getUserByUsername(validUsername);
+      if (existingUsername) {
+        return res.status(400).json({ message: "Username already taken" });
+      }
+
       // Create unverified user
+      const userId = `user_${Date.now()}_${Math.random().toString(36).substring(2)}`;
       const user = await storage.createUser({
+        id: userId,
+        username: validUsername,
         email: validEmail,
         password: hashedPassword,
-        firstName: firstName?.trim() || undefined,
-        lastName: lastName?.trim() || undefined,
         isVerified: false,
         verificationCode,
         verificationExpires: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
@@ -163,12 +173,12 @@ export async function setupAuth(app: Express) {
   // Login endpoint  
   app.post("/api/login", async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { usernameOrEmail, password } = req.body;
       
-      const validEmail = emailSchema.parse(email.toLowerCase().trim());
+      const validUsernameOrEmail = z.string().min(1).parse(usernameOrEmail.trim());
       const validPassword = passwordSchema.parse(password);
 
-      const user = await storage.getUserByEmail(validEmail);
+      const user = await storage.getUserByUsernameOrEmail(validUsernameOrEmail);
       if (!user || !await comparePasswords(validPassword, user.password)) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
@@ -180,9 +190,8 @@ export async function setupAuth(app: Express) {
       // Login user
       (req as any).user = {
         id: user.id,
+        username: user.username,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
         isVerified: true
       };
 

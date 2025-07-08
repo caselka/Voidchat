@@ -27,7 +27,7 @@ function Navigation() {
   const { isAuthenticated, user } = useAuth();
 
   return (
-    <div className="fixed top-4 right-4 flex items-center gap-2 z-50">
+    <div className="fixed top-4 left-4 flex items-center gap-2 z-40">
       <Button
         variant="outline"
         size="icon"

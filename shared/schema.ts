@@ -149,13 +149,12 @@ export const sessions = pgTable(
   }
 );
 
-// User storage table for Replit Auth
+// User storage table for email auth
 export const users = pgTable("users", {
   id: text("id").primaryKey().notNull(),
+  username: text("username").unique().notNull(),
   email: text("email").unique().notNull(),
   password: text("password").notNull(),
-  firstName: text("first_name"),
-  lastName: text("last_name"),
   isVerified: boolean("is_verified").default(false).notNull(),
   verificationCode: text("verification_code"),
   verificationExpires: timestamp("verification_expires"),

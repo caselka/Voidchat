@@ -11,7 +11,7 @@ export default function Login() {
   const [, setLocation] = useLocation();
   const { refetch } = useAuth();
   const [formData, setFormData] = useState({
-    email: '',
+    usernameOrEmail: '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -65,7 +65,7 @@ export default function Login() {
           <CardHeader>
             <CardTitle>Welcome back</CardTitle>
             <CardDescription>
-              Enter your email and password to access premium features
+              Enter your username/email and password to access premium features
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -77,13 +77,13 @@ export default function Login() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="usernameOrEmail">Username or Email</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  id="usernameOrEmail"
+                  type="text"
+                  placeholder="username or your@email.com"
+                  value={formData.usernameOrEmail}
+                  onChange={(e) => setFormData({ ...formData, usernameOrEmail: e.target.value })}
                   required
                 />
               </div>
