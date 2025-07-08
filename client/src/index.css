@@ -4,37 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Voidchat custom base styles - override Tailwind */
-* {
-  box-sizing: border-box;
-}
-
-html, body {
-  margin: 0 !important;
-  padding: 0 !important;
-  height: 100% !important;
-  background-color: #0a0a0a !important;
-  color: #ffffff !important;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  overflow-x: hidden !important;
-}
-
-#root {
-  height: 100vh !important;
-  background-color: #0a0a0a !important;
-}
-
-/* Override any existing theme classes */
-.dark, .light {
-  background-color: #0a0a0a !important;
-  color: #ffffff !important;
-}
-
-/* Hide default navigation when using voidchat layout */
-.voidchat-container ~ * {
-  display: none;
-}
-
 :root {
   /* Light theme - clean void aesthetic */
   --background: hsl(0, 0%, 98%);

@@ -110,24 +110,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 8, 2025)
 
-### Complete Mobile-First Layout Rebuild (Latest)
-- **Rebuilt entire frontend**: Created clean, centered mobile-first layout with no overlapping UI elements
-- **Fixed header design**: Voidchat title centered, all controls moved to right-aligned dropdown menu
-- **Clean message rendering**: Only real messages displayed with username, timestamp, and content in rounded bubbles
-- **Dark theme styling**: Black background (#0a0a0a) with neon green accents (#00ff88) for minimalist aesthetic
-- **Fixed bottom input**: Properly positioned input bar with auto-resizing textarea and prominent send button
-- **Mobile responsiveness**: Optimized for iPhone screens with proper touch targets and 16px font sizes
-- **Flexbox layout**: Eliminated layout shifting with proper flex/grid structure and smooth auto-scroll
-- **Glitchy aesthetics**: Subtle neon glow effects and smooth animations while maintaining minimalism
-
-### Chat Interface Improvements & Registration Fix (Previous)
-- **Fixed keyboard positioning**: Enhanced mobile keyboard handling with proper scroll locking and position restoration
-- **Replit AI-style input**: Implemented auto-resizing textarea with proper focus states and rounded design
-- **Enhanced mobile optimization**: Added visual viewport detection and dynamic keyboard adjustment for all devices
-- **Scroll locking**: Input stays locked in place when keyboard appears, prevents scrolling away on mobile
-- **Fixed sign up payment**: Added missing registration payment endpoints for $3 username reservation system
-- **Payment integration working**: Complete Stripe payment flow for account creation now functional
-- **Better iOS support**: Enhanced CSS for safe area handling and keyboard environment variables
+### Chat Interface Improvements (Latest)
+- **Fixed keyboard positioning**: Changed from oval text input back to original design to prevent screen scrolling away
+- **Improved dark theme readability**: Enhanced text contrast and visibility in dark mode
+- **Keyboard persistence**: Removed aggressive scroll behavior that was causing input to scroll away from view
+- **Clean message display**: Removed broken reply UI containers and outline boxes for cleaner interface
+- **Better mobile experience**: Fixed iOS keyboard handling without auto-scroll that disrupts message viewing
 
 ### Account Creation System with $3 Username Reservation
 - **Paid account creation**: Users pay $3 to reserve a unique username during registration

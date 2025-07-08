@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { Volume, Trash2, Shield } from "lucide-react";
+import { Volume, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Message } from "@/hooks/use-websocket";
 
@@ -33,21 +33,14 @@ function filterProfanity(text: string): string {
   return filteredText;
 }
 
-interface ExtendedChatContainerProps extends ChatContainerProps {
-  isAtBottom?: boolean;
-  setIsAtBottom?: (value: boolean) => void;
-}
-
 export default function ChatContainer({ 
   messages, 
   isGuardian, 
   onMuteUser, 
   onDeleteMessage, 
   onReplyToMessage,
-  profanityFilter = false,
-  isAtBottom = true,
-  setIsAtBottom 
-}: ExtendedChatContainerProps) {
+  profanityFilter = false 
+}: ChatContainerProps) {
   const formatTime = (timestamp: string) => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
@@ -91,98 +84,66 @@ export default function ChatContainer({
     }
   };
 
-  // Auto-scroll to bottom effect
-  useEffect(() => {
-    if (messages.length > 0 && isAtBottom) {
-      const container = document.querySelector('.messages-container');
-      if (container) {
-        setTimeout(() => {
-          container.scrollTop = container.scrollHeight;
-        }, 50);
-      }
-    }
-  }, [messages, isAtBottom]);
-
-  // Check if user is at bottom for auto-scroll
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const container = e.currentTarget;
-    const threshold = 100;
-    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
-    
-    if (setIsAtBottom) {
-      setIsAtBottom(isNearBottom);
-    }
-  };
-
   return (
-    <>
-      {messages.length === 0 ? (
-        <div className="loading-message">
-          <p>No messages yet. Start the conversation!</p>
-        </div>
-      ) : (
-        messages.map((message, index) => (
-          <div key={message.id || `message-${index}-${Date.now()}`} className="message-item">
-            <div className="message-header">
-              <div className="flex items-center space-x-2">
-                <span className={`message-username ${
-                  message.type === 'ad' || message.isAd
-                    ? 'text-amber-400'
-                    : message.username === 'system' || message.username === 'System'
-                    ? 'text-red-400'
-                    : ''
-                }`}>
-                  {message.username}
-                  {(message.type === 'ad' || message.isAd) && <span className="ml-1 text-xs opacity-70">(sponsor)</span>}
-                </span>
-                {message.isGuardian && (
-                  <Shield className="w-3 h-3 text-green-400" />
+    <div className="space-y-3 pb-4">
+      {messages.map((message, index) => (
+        <div key={message.id || `message-${index}-${Date.now()}`} className="flex items-start space-x-2 md:space-x-3 group">
+          {/* Timestamp */}
+          <div className="text-xs text-muted-foreground w-12 md:w-16 flex-shrink-0 pt-1 font-mono">
+            {formatTime(message.createdAt || message.timestamp)}
+          </div>
+          
+          {/* Message Content */}
+          <div className="flex-1">
+            {message.username !== 'system' && (
+              <div className="text-xs text-muted-foreground mb-1">
+                <span className="font-mono">{message.username}</span>
+                {message.expiresAt && (
+                  <span className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {getTimeUntilDelete(message.expiresAt)}
+                  </span>
                 )}
               </div>
-              <span className="message-time">
-                {formatTime(message.createdAt || message.timestamp)}
-              </span>
-            </div>
-            <p className="message-content">
+            )}
+            
+            <div 
+              className={`font-mono text-xs md:text-sm leading-relaxed break-words ${
+                message.isAd 
+                  ? 'italic text-void-600 dark:text-void-500 opacity-60' 
+                  : message.username === 'system'
+                  ? 'text-blue-600 dark:text-blue-400 italic'
+                  : ''
+              }`}
+            >
               {profanityFilter ? filterProfanity(message.content) : message.content}
-            </p>
-            {(message.type === 'ad' || message.isAd) && message.url && (
-              <div className="mt-2 pt-2 border-t border-gray-600">
-                <a 
-                  href={message.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-400 hover:underline"
-                >
-                  Learn more →
-                </a>
-              </div>
-            )}
-            {isGuardian && message.username !== 'system' && message.username !== 'System' && !message.isAd && message.type !== 'ad' && (
-              <div className="message-actions">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onMuteUser(message.id)}
-                  className="text-xs"
-                >
-                  <Volume className="w-3 h-3 mr-1" />
-                  Mute User
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onDeleteMessage(message.id)}
-                  className="text-xs text-red-400"
-                >
-                  <Trash2 className="w-3 h-3 mr-1" />
-                  Delete
-                </Button>
-              </div>
-            )}
+            </div>
           </div>
-        ))
-      )}
-    </>
+          
+          {/* Guardian Controls */}
+          {isGuardian && message.username !== 'system' && !message.isAd && (
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onMuteUser(message.id)}
+                className="text-red-400 hover:text-red-500 text-xs p-1 h-auto"
+                title="Mute IP"
+              >
+                <Volume className="w-3 h-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDeleteMessage(message.id)}
+                className="text-red-400 hover:text-red-500 text-xs p-1 h-auto"
+                title="Delete"
+              >
+                <Trash2 className="w-3 h-3" />
+              </Button>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
   );
 }

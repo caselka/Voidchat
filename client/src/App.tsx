@@ -10,9 +10,6 @@ import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Chat from "@/pages/chat";
-import ChatMobile from "@/pages/chat-mobile";
-import VoidchatLayout from "@/components/voidchat-layout";
-import VoidchatSimple from "@/components/voidchat-simple";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import GuardianCheckout from "@/pages/guardian-checkout";
@@ -81,30 +78,28 @@ function Navigation() {
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/chat" component={VoidchatSimple} />
-      <Route>
-        <Navigation />
-        <Switch>
-          <Route path="/" component={Landing} />
-          <Route path="/login" component={Login} />
-          <Route path="/register" component={Register} />
-          <Route path="/guardian-checkout" component={GuardianCheckout} />
-          <Route path="/sponsor" component={Sponsor} />
-          <Route path="/handle" component={Handle} />
-          <Route path="/themes" component={Themes} />
-          <Route path="/create-room" component={CreateRoom} />
-          <Route path="/room/:name" component={Room} />
-          <Route path="/member-settings" component={MemberSettings} />
-          <Route path="/about" component={About} />
-          <Route path="/careers" component={Careers} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/privacy" component={Privacy} />
-          <Route path="/terms" component={Terms} />
-          <Route component={NotFound} />
-        </Switch>
-      </Route>
-    </Switch>
+    <>
+      <Navigation />
+      <Switch>
+        <Route path="/" component={Landing} />
+        <Route path="/chat" component={Chat} />
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
+        <Route path="/guardian-checkout" component={GuardianCheckout} />
+        <Route path="/sponsor" component={Sponsor} />
+        <Route path="/handle" component={Handle} />
+        <Route path="/themes" component={Themes} />
+        <Route path="/create-room" component={CreateRoom} />
+        <Route path="/room/:name" component={Room} />
+        <Route path="/member-settings" component={MemberSettings} />
+        <Route path="/about" component={About} />
+        <Route path="/careers" component={Careers} />
+        <Route path="/contact" component={Contact} />
+        <Route path="/privacy" component={Privacy} />
+        <Route path="/terms" component={Terms} />
+        <Route component={NotFound} />
+      </Switch>
+    </>
   );
 }
 
