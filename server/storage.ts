@@ -71,9 +71,11 @@ export interface IStorage {
   getThemeCustomization(ipAddress: string): Promise<ThemeCustomization | undefined>;
   deleteExpiredThemes(): Promise<void>;
 
-  // Auth (Replit Auth)
+  // Auth (Email/Password)
   getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: UpsertUser): Promise<User>;
+  verifyUser(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -376,25 +378,41 @@ export class DatabaseStorage implements IStorage {
       .where(lte(themeCustomizations.expiresAt, new Date()));
   }
 
-  // Auth methods for Replit Auth
+  // Auth methods for Email/Password
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(userData: UpsertUser): Promise<User> {
+    const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const [user] = await db
       .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
+      .values({
+        ...userData,
+        id: userId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
       .returning();
     return user;
+  }
+
+  async verifyUser(id: string): Promise<void> {
+    await db
+      .update(users)
+      .set({
+        isVerified: true,
+        verificationCode: null,
+        verificationExpires: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id));
   }
 }
 

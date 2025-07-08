@@ -4,7 +4,8 @@ import { WebSocketServer, WebSocket } from "ws";
 import Stripe from "stripe";
 import { storage } from "./storage";
 import { insertMessageSchema, insertAmbientAdSchema } from "@shared/schema";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./emailAuth";
+import { sanitizeMessageContent, sanitizeUsername, blockBackendInteraction, checkValidationRateLimit } from "./security";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
