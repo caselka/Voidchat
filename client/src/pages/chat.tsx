@@ -58,7 +58,7 @@ export default function Chat() {
   return (
     <div className="font-sans bg-background text-foreground transition-colors duration-300 min-h-screen">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-center relative">
           <div className="absolute left-4 flex items-center space-x-2">
             <span className="text-xs px-2 py-1 bg-muted rounded text-muted-foreground hidden sm:inline">
@@ -87,7 +87,12 @@ export default function Chat() {
                 }`}
                 title="Hide profanity"
               >
-                🤬
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+                  <path strokeWidth="2" d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                  <line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="2"/>
+                  <line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="2"/>
+                </svg>
               </label>
             </div>
             {/* Guardian Status */}
@@ -118,7 +123,7 @@ export default function Chat() {
                   <MoreVertical className="w-3 h-3 md:w-4 md:h-4 text-void-700 dark:text-void-300" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-48 bg-white dark:bg-void-800 border-void-300 dark:border-void-600 text-void-900 dark:text-void-100">
+              <DropdownMenuContent className="w-48 bg-white dark:bg-void-800 border-void-300 dark:border-void-600 text-void-900 dark:text-void-100 z-50">
                 <DropdownMenuItem asChild>
                   <Link href="/guardian-checkout" className="flex items-center text-void-700 dark:text-void-300 hover:text-void-900 dark:hover:text-void-100">
                     <Shield className="w-4 h-4 mr-2 text-green-500" />
