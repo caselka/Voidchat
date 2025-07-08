@@ -116,23 +116,6 @@ export default function Chat() {
                 </svg>
               </label>
             </div>
-            {/* Guardian Status */}
-            {isGuardian && (
-              <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded flex items-center">
-                <Shield className="w-3 h-3 mr-1" />
-                <span className="hidden sm:inline">Guardian</span>
-              </span>
-            )}
-            
-            {/* Rate Limit Indicator */}
-            {rateLimitTime > 0 && (
-              <div className="text-xs text-void-500 dark:text-void-400">
-                {rateLimitTime}s
-              </div>
-            )}
-            
-
-            
             {/* Create Room Button */}
             {isAuthenticated && (
               <Button
@@ -147,6 +130,21 @@ export default function Chat() {
                   <span className="hidden sm:inline">Room</span>
                 </Link>
               </Button>
+            )}
+
+            {/* Guardian Status */}
+            {isGuardian && (
+              <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded flex items-center">
+                <Shield className="w-3 h-3 mr-1" />
+                <span className="hidden sm:inline">Guardian</span>
+              </span>
+            )}
+            
+            {/* Rate Limit Indicator */}
+            {rateLimitTime > 0 && (
+              <div className="text-xs text-void-500 dark:text-void-400">
+                {rateLimitTime}s
+              </div>
             )}
 
             {/* Login/Logout Button */}
