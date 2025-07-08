@@ -28,6 +28,8 @@ export default function Chat() {
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isHumanVerified, setIsHumanVerified] = useState(false);
   const [showWalkthrough, setShowWalkthrough] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<{ id: number; content: string; username: string } | null>(null);
+  const [globalCooldown, setGlobalCooldown] = useState<{ active: boolean; timeLeft: number; reason: string } | null>(null);
 
   // Fetch rooms for dropdown
   const { data: rooms = [], isLoading: roomsLoading } = useQuery({
@@ -331,6 +333,7 @@ export default function Chat() {
             isGuardian={isGuardian}
             onMuteUser={muteUser}
             onDeleteMessage={deleteMessage}
+            onReplyToMessage={setReplyingTo}
             profanityFilter={profanityFilter}
           />
         </div>
@@ -340,9 +343,14 @@ export default function Chat() {
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-20" data-walkthrough="message-input">
         <div className="max-w-4xl mx-auto px-3 md:px-4 py-3">
           <MessageInput 
-            onSendMessage={sendMessage}
+            onSendMessage={(content, replyToId) => {
+              sendMessage(content, replyToId);
+            }}
             rateLimitTime={rateLimitTime}
             error={error}
+            replyingTo={replyingTo}
+            onCancelReply={() => setReplyingTo(null)}
+            globalCooldown={globalCooldown}
           />
         </div>
       </div>

@@ -385,6 +385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           username: msg.username,
           timestamp: msg.createdAt.toISOString(),
           expiresAt: msg.expiresAt.toISOString(),
+          replyToId: msg.replyToId,
         }
       }));
       
@@ -500,6 +501,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             content: validation.data.content,
             username,
             ipAddress,
+            replyToId: message.data.replyToId
           });
           
           const broadcastData = {
@@ -510,6 +512,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               username: newMessage.username,
               timestamp: newMessage.createdAt.toISOString(),
               expiresAt: newMessage.expiresAt.toISOString(),
+              replyToId: newMessage.replyToId,
             }
           };
           

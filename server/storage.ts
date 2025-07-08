@@ -117,7 +117,7 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  async createMessage(messageData: InsertMessage & { username: string; ipAddress: string }): Promise<Message> {
+  async createMessage(messageData: InsertMessage & { username: string; ipAddress: string; replyToId?: number }): Promise<Message> {
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
     
     // Additional security check: Ensure content and username are clean
@@ -130,6 +130,7 @@ export class DatabaseStorage implements IStorage {
         username: sanitizeUsername(messageData.username),
         ipAddress: messageData.ipAddress,
         expiresAt,
+        replyToId: messageData.replyToId || null,
       })
       .returning();
     return message;
@@ -139,7 +140,15 @@ export class DatabaseStorage implements IStorage {
     const now = new Date();
     // Get messages from the last 15 minutes that haven't expired yet
     return await db
-      .select()
+      .select({
+        id: messages.id,
+        content: messages.content,
+        username: messages.username,
+        ipAddress: messages.ipAddress,
+        createdAt: messages.createdAt,
+        expiresAt: messages.expiresAt,
+        replyToId: messages.replyToId,
+      })
       .from(messages)
       .where(gte(messages.expiresAt, now)) // Only non-expired messages
       .orderBy(desc(messages.createdAt))

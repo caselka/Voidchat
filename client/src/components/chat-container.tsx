@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Volume, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ interface ChatContainerProps {
   isGuardian: boolean;
   onMuteUser: (messageId: string | number) => void;
   onDeleteMessage: (messageId: string | number) => void;
+  onReplyToMessage: (message: { id: number; content: string; username: string }) => void;
   profanityFilter?: boolean;
 }
 
@@ -31,7 +33,14 @@ function filterProfanity(text: string): string {
   return filteredText;
 }
 
-export default function ChatContainer({ messages, isGuardian, onMuteUser, onDeleteMessage, profanityFilter = false }: ChatContainerProps) {
+export default function ChatContainer({ 
+  messages, 
+  isGuardian, 
+  onMuteUser, 
+  onDeleteMessage, 
+  onReplyToMessage,
+  profanityFilter = false 
+}: ChatContainerProps) {
   const formatTime = (timestamp: string) => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
@@ -54,19 +63,40 @@ export default function ChatContainer({ messages, isGuardian, onMuteUser, onDele
     return formatDistanceToNow(expires, { addSuffix: false }) + ' left';
   };
 
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const handleLongPressStart = (message: any) => {
+    const timer = setTimeout(() => {
+      onReplyToMessage({
+        id: message.id,
+        content: message.content,
+        username: message.username
+      });
+      navigator.vibrate?.(50); // Haptic feedback
+    }, 500);
+    setLongPressTimer(timer);
+  };
+
+  const handleLongPressEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 pb-4">
       {messages.map((message, index) => (
         <div key={message.id || `message-${index}-${Date.now()}`} className="flex items-start space-x-2 md:space-x-3 group">
           {/* Timestamp */}
-          <div className="text-xs text-void-400 dark:text-void-500 w-12 md:w-16 flex-shrink-0 pt-1 font-mono">
-            {formatTime(message.timestamp)}
+          <div className="text-xs text-muted-foreground w-12 md:w-16 flex-shrink-0 pt-1 font-mono">
+            {formatTime(message.createdAt || message.timestamp)}
           </div>
           
           {/* Message Content */}
           <div className="flex-1">
             {message.username !== 'system' && (
-              <div className="text-xs text-void-500 dark:text-void-400 mb-1">
+              <div className="text-xs text-muted-foreground mb-1">
                 <span className="font-mono">{message.username}</span>
                 {message.expiresAt && (
                   <span className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -77,15 +107,29 @@ export default function ChatContainer({ messages, isGuardian, onMuteUser, onDele
             )}
             
             <div 
-              className={`font-mono text-xs md:text-sm leading-relaxed break-words ${
+              className={`p-3 rounded-2xl cursor-pointer transition-all duration-200 select-none ${
                 message.isAd 
-                  ? 'italic text-void-600 dark:text-void-500 opacity-60' 
+                  ? 'bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 italic text-amber-800 dark:text-amber-200' 
                   : message.username === 'system'
-                  ? 'text-blue-600 dark:text-blue-400 italic'
-                  : ''
+                  ? 'bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 italic'
+                  : 'bg-muted/50 hover:bg-muted/70 border border-border/50'
               }`}
+              onTouchStart={() => handleLongPressStart(message)}
+              onTouchEnd={handleLongPressEnd}
+              onMouseDown={() => handleLongPressStart(message)}
+              onMouseUp={handleLongPressEnd}
+              onMouseLeave={handleLongPressEnd}
             >
-              {profanityFilter ? filterProfanity(message.content) : message.content}
+              {/* Reply indicator */}
+              {message.replyToId && (
+                <div className="mb-2 pl-3 border-l-2 border-blue-500 text-xs text-muted-foreground">
+                  <span className="text-blue-600 dark:text-blue-400">↳ Reply</span>
+                </div>
+              )}
+              
+              <div className="text-sm md:text-base leading-relaxed break-words">
+                {profanityFilter ? filterProfanity(message.content) : message.content}
+              </div>
             </div>
           </div>
           

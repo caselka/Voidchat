@@ -7,6 +7,7 @@ export const messages = pgTable("messages", {
   content: text("content").notNull(),
   username: text("username").notNull(),
   ipAddress: text("ip_address").notNull(),
+  replyToId: integer("reply_to_id").references(() => messages.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   expiresAt: timestamp("expires_at").notNull(),
 });

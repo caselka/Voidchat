@@ -5,8 +5,10 @@ export interface Message {
   content: string;
   username: string;
   timestamp: string;
+  createdAt?: string;
   expiresAt?: string;
   isAd?: boolean;
+  replyToId?: number;
 }
 
 export interface WebSocketHook {
@@ -15,7 +17,7 @@ export interface WebSocketHook {
   isGuardian: boolean;
   currentUser: string;
   onlineCount: number;
-  sendMessage: (content: string) => void;
+  sendMessage: (content: string, replyToId?: number) => void;
   muteUser: (messageId: string | number) => void;
   deleteMessage: (messageId: string | number) => void;
   enableSlowMode: () => void;
@@ -154,11 +156,11 @@ export function useWebSocket(): WebSocketHook {
     }
   }, [rateLimitTime]);
 
-  const sendMessage = (content: string) => {
+  const sendMessage = (content: string, replyToId?: number) => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify({
         type: 'send_message',
-        data: { content }
+        data: { content, replyToId }
       }));
       setError(null);
     } else {
