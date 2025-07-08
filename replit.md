@@ -107,3 +107,12 @@ Voidchat is a minimalist, anonymous real-time chat room designed with the aesthe
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+## Recent Updates (July 8, 2025)
+
+- Mobile optimization completed with responsive design
+- Logo updated to match minimalist aesthetic (lowercase "voidchat" with light font weight)
+- WebSocket connection stability improved with automatic reconnection
+- Touch-friendly interface for mobile devices
+- Safe area support for notched devices
+- Responsive text sizes and spacing across all screen sizes

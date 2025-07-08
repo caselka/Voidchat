@@ -33,9 +33,9 @@ export default function ChatContainer({ messages, isGuardian, onMuteUser, onDele
   return (
     <div className="space-y-3">
       {messages.map((message) => (
-        <div key={message.id} className="flex items-start space-x-3 group">
+        <div key={`${message.id}-${message.timestamp}`} className="flex items-start space-x-2 md:space-x-3 group">
           {/* Timestamp */}
-          <div className="text-xs text-void-400 dark:text-void-500 w-16 flex-shrink-0 pt-1 font-mono">
+          <div className="text-xs text-void-400 dark:text-void-500 w-12 md:w-16 flex-shrink-0 pt-1 font-mono">
             {formatTime(message.timestamp)}
           </div>
           
@@ -53,7 +53,7 @@ export default function ChatContainer({ messages, isGuardian, onMuteUser, onDele
             )}
             
             <div 
-              className={`font-mono text-sm leading-relaxed ${
+              className={`font-mono text-xs md:text-sm leading-relaxed break-words ${
                 message.isAd 
                   ? 'italic text-void-600 dark:text-void-500 opacity-60' 
                   : message.username === 'system'

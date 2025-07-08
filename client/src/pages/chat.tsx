@@ -34,19 +34,19 @@ export default function Chat() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-void-50/95 dark:bg-void-900/95 backdrop-blur-sm border-b border-void-300 dark:border-void-700">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <h1 className="text-xl font-medium text-void-900 dark:text-void-100">Voidchat</h1>
-            <span className="text-xs px-2 py-1 bg-void-200 dark:bg-void-700 rounded text-void-600 dark:text-void-400">
+          <div className="flex items-center space-x-2 md:space-x-3">
+            <h1 className="text-lg md:text-xl font-light tracking-wider text-void-900 dark:text-void-100">voidchat</h1>
+            <span className="text-xs px-2 py-1 bg-void-200 dark:bg-void-700 rounded text-void-600 dark:text-void-400 hidden sm:inline">
               {isConnected ? `${onlineCount} online` : 'Connecting...'}
             </span>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4">
             {/* Guardian Status */}
             {isGuardian && (
               <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded flex items-center">
                 <Shield className="w-3 h-3 mr-1" />
-                Guardian
+                <span className="hidden sm:inline">Guardian</span>
               </span>
             )}
             
@@ -64,7 +64,7 @@ export default function Chat() {
               onClick={toggleTheme}
               className="p-2 rounded-lg hover:bg-void-200 dark:hover:bg-void-700 transition-colors"
             >
-              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {theme === "dark" ? <Sun className="w-3 h-3 md:w-4 md:h-4" /> : <Moon className="w-3 h-3 md:w-4 md:h-4" />}
             </Button>
             
             {/* Menu */}
@@ -75,7 +75,7 @@ export default function Chat() {
                   size="sm"
                   className="p-2 rounded-lg hover:bg-void-200 dark:hover:bg-void-700 transition-colors"
                 >
-                  <MoreVertical className="w-4 h-4" />
+                  <MoreVertical className="w-3 h-3 md:w-4 md:h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-48 bg-white dark:bg-void-800 border-void-300 dark:border-void-600">
@@ -108,12 +108,16 @@ export default function Chat() {
       )}
 
       {/* Main Content */}
-      <main className="pt-20 pb-24 max-w-4xl mx-auto px-4">
+      <main className="pt-20 pb-28 max-w-4xl mx-auto px-3 md:px-4">
         <div className="min-h-screen">
           {/* Welcome Message */}
-          <div className="text-center py-8 text-void-500 dark:text-void-400 text-sm font-mono">
+          <div className="text-center py-6 md:py-8 text-void-500 dark:text-void-400 text-xs md:text-sm font-mono">
             <p>Welcome to the void. Messages vanish after 15 minutes.</p>
             <p className="mt-1">You are <span className="text-void-700 dark:text-void-300">{currentUser}</span></p>
+            {/* Online count for mobile */}
+            <p className="mt-1 sm:hidden text-xs">
+              {isConnected ? `${onlineCount} online` : 'Connecting...'}
+            </p>
           </div>
 
           {/* Chat Container */}

@@ -7,20 +7,20 @@ interface GuardianPanelProps {
 
 export default function GuardianPanel({ onEnableSlowMode }: GuardianPanelProps) {
   return (
-    <div className="fixed top-20 right-4 w-64 bg-white dark:bg-void-800 rounded-lg shadow-lg border border-void-300 dark:border-void-600 p-4 z-40">
-      <h3 className="font-medium text-sm mb-3 text-void-900 dark:text-void-100">Guardian Controls</h3>
+    <div className="fixed top-20 right-2 md:right-4 w-56 md:w-64 bg-white dark:bg-void-800 rounded-lg shadow-lg border border-void-300 dark:border-void-600 p-3 md:p-4 z-40">
+      <h3 className="font-medium text-xs md:text-sm mb-2 md:mb-3 text-void-900 dark:text-void-100">Guardian Controls</h3>
       <div className="space-y-2">
         <Button
           onClick={onEnableSlowMode}
           variant="outline"
           size="sm"
-          className="w-full text-left justify-start px-3 py-2 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800 hover:bg-yellow-200 dark:hover:bg-yellow-800 transition-colors"
+          className="w-full text-left justify-start px-2 md:px-3 py-2 text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800 hover:bg-yellow-200 dark:hover:bg-yellow-800 transition-colors"
         >
           <Clock className="w-3 h-3 mr-2" />
           Enable Slow Mode (10s)
         </Button>
         <div className="text-xs text-void-500 dark:text-void-400">
-          Right-click messages to moderate
+          Tap messages to moderate
         </div>
       </div>
     </div>

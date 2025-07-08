@@ -143,6 +143,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'initial_messages', data: recentMessages }));
       }
+    }).catch(error => {
+      console.error('Error sending initial messages:', error);
     });
     
     // Send guardian status
@@ -150,6 +152,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'guardian_status', data: { isGuardian } }));
       }
+    }).catch(error => {
+      console.error('Error checking guardian status:', error);
     });
     
     ws.on('message', async (data) => {
