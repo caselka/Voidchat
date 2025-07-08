@@ -86,33 +86,33 @@ export default function Chat() {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="p-2 rounded-lg hover:bg-void-200 dark:hover:bg-void-700 transition-colors"
+                  className="p-2 rounded-lg hover:bg-void-200 dark:hover:bg-void-700 transition-colors text-void-700 dark:text-void-300"
                 >
-                  <MoreVertical className="w-3 h-3 md:w-4 md:h-4" />
+                  <MoreVertical className="w-3 h-3 md:w-4 md:h-4 text-void-700 dark:text-void-300" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-48 bg-white dark:bg-void-800 border-void-300 dark:border-void-600">
+              <DropdownMenuContent className="w-48 bg-white dark:bg-void-800 border-void-300 dark:border-void-600 text-void-900 dark:text-void-100">
                 <DropdownMenuItem asChild>
-                  <Link href="/guardian" className="flex items-center">
+                  <Link href="/guardian" className="flex items-center text-void-700 dark:text-void-300 hover:text-void-900 dark:hover:text-void-100">
                     <Shield className="w-4 h-4 mr-2 text-green-500" />
                     Become Guardian ($2/day)
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/sponsor" className="flex items-center">
+                  <Link href="/sponsor" className="flex items-center text-void-700 dark:text-void-300 hover:text-void-900 dark:hover:text-void-100">
                     <Megaphone className="w-4 h-4 mr-2 text-blue-500" />
                     Sponsor the Room
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="border-void-300 dark:border-void-600" />
                 <DropdownMenuItem asChild>
-                  <Link href="/handle" className="flex items-center">
+                  <Link href="/handle" className="flex items-center text-void-700 dark:text-void-300 hover:text-void-900 dark:hover:text-void-100">
                     <User className="w-4 h-4 mr-2 text-purple-500" />
                     Custom Handle ($3)
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/themes" className="flex items-center">
+                  <Link href="/themes" className="flex items-center text-void-700 dark:text-void-300 hover:text-void-900 dark:hover:text-void-100">
                     <Palette className="w-4 h-4 mr-2 text-pink-500" />
                     Custom Themes ($5)
                   </Link>
