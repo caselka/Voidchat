@@ -1,0 +1,163 @@
+
+⸻
+
+🎨 Paid Feature: Custom Themes
+
+🔓 Unlocked by:
+	•	Paying for a custom handle ($3)
+	•	OR direct theme unlock ($2)
+	•	OR bundled into a “Drift Premium” pack ($5–$10)
+
+⸻
+
+🧰 What They Can Customize
+
+Keep it simple and aesthetic — think mood, not clutter.
+
+Element	Customization Options
+Background	Dark, Light, Midnight Blue, Vaporwave, Coffee Cream
+Font	Default (Monospace), Typewriter, Serif, Cyber
+Accent Color	Muted Pastels, Grey, Dust Red, Ocean
+Message Fade	Choose how fast messages vanish (5–30 mins)
+Background FX	Subtle noise, static, gradient drift (very light)
+
+
+⸻
+
+🧠 Philosophy
+
+“You paid for presence, now make it yours.”
+
+You’re not selling features — you’re selling control of the room’s emotional tone.
+
+⸻
+
+💸 Optional Bundles
+
+Pack Name	Price	Includes
+Handle Only	$3	Custom handle
+Theme Only	$2	Theme selection (fonts, backgrounds, mood colors)
+Drift Premium	$7	Handle + Themes + Extra message fade options
+Void Guardian	$10	All of above + mod powers (mute/flag/slow mode)
+
+
+⸻
+
+✍️ Add to Replit AI Prompt
+
+Here’s the section you’d add:
+
+⸻
+
+
+9. **Paid Theme Customization**
+   - Allow users who purchase a handle (or pay directly) to customize the UI theme.
+   - Customizable options include:
+     - Background: dark, light, midnight, vaporwave, cream
+     - Font style: monospace, typewriter, serif, cyberpunk
+     - Accent color: muted pastels, greys, rust red, ocean blue
+     - Message fade speed: user can choose 5 to 30 minutes
+
+
+Here's a complete **Voidchat revenue model** breakdown, along with **clear Replit implementation tasks** to build it. This will serve as your monetization + dev roadmap inside Replit.
+
+---
+
+## 💸 VOIDCHAT REVENUE STREAMS
+
+### 1. **Ambient Ads (Sponsorship Slots)**
+- 1-line poetic messages from indie creators, rotated into the chat stream every ~20 messages
+- Ads expire after a set time (daily, weekly)
+- Monetized via a simple Stripe payment flow or manual approval via Typeform + Replit DB
+
+**Pricing Suggestion:**
+- $5/day  
+- $20/week  
+- $50/month (priority rotation)
+
+---
+
+### 2. **Custom Anonymous Handles**
+- Default usernames are random (e.g. `anon2843`)
+- Users can pay to choose a unique anonymous handle (e.g. `//stillness`)
+
+**Pricing Suggestion:**
+- $3 one-time for permanent handle (stored in DB for 30 days)
+- $1 for temporary (7-day) handle
+- Stripe integration for payment
+
+---
+
+### 3. **Theme Customization (for Paid Users)**
+- Paid users unlock UI themes:
+  - Backgrounds (Dark, Vaporwave, Cream, Midnight)
+  - Font (Typewriter, Serif, Hacker)
+  - Accent colors
+  - Message expiration time (e.g. fade after 5–30 mins)
+
+**Pricing Suggestion:**
+- $2 standalone  
+- Included in $7 "Drift Premium" pack (with handle)
+
+---
+
+### 4. **Guardian Role (Paid Moderators)**
+- Pay to unlock mod powers (no free mods)
+- Powers include:
+  - Mute users for 10 minutes
+  - Flag/delete messages
+  - Activate room-wide slow mode
+
+**Pricing Suggestion:**
+- $2/day  
+- $10/week  
+- $50 lifetime Guardian
+
+---
+
+## 🧠 OPTIONAL FUTURE
+- In-app tipping system ("buy a coffee for the dev")
+- B2B sales: offer ephemeral rooms for schools, events, therapy groups
+
+---
+
+## 🛠️ WHAT REPLIT NEEDS TO DO TO IMPLEMENT IT
+
+---
+
+### 💬 Chat & Message Logic
+- [ ] Set up real-time WebSocket or polling backend
+- [ ] Store messages temporarily in Replit DB or Firebase
+- [ ] Auto-delete messages after X minutes
+- [ ] Generate random anon usernames per session/IP
+
+---
+
+### 🔐 Spam & Abuse Prevention
+- [ ] Rate limit: 1 message / 5 seconds / IP
+- [ ] Flood detection: block IP for 5 mins if 5+ msgs in <10 sec
+- [ ] Optional basic profanity filter
+- [ ] Log muted/flagged messages if Guardian feature is active
+
+---
+
+### 🧾 Ambient Ad System
+- [ ] `ambient_ads.json` file or DB table with:
+  - `text`, `link`, `start_time`, `end_time`
+- [ ] Inject ambient ad every 20 messages in stream
+- [ ] Ads styled in grey italics
+- [ ] Basic approval interface or JSON editor
+- [ ] "Sponsor the Room" form + Stripe one-time payment
+
+---
+
+### 👤 Custom Handle Purchase
+- [ ] Stripe payment for handle unlock
+- [ ] Store handle in Replit DB, mapped to session/IP/token
+- [ ] Reject duplicates
+- [ ] Show handle in chat with `//prefix`
+- [ ] Handle expires in 30 days unless renewed
+
+---
+
+### 🎨

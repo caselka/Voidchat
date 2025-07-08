@@ -1,0 +1,29 @@
+{
+  "defaultAds": [
+    {
+      "productName": "Midnight Coffee Co.",
+      "description": "Where insomniacs find their perfect brew",
+      "url": "https://midnight-coffee.com"
+    },
+    {
+      "productName": "Void Notebooks",
+      "description": "For thoughts that deserve to be written in darkness",
+      "url": "https://voidnotebooks.com"
+    },
+    {
+      "productName": "Silent Headphones",
+      "description": "Listen to the space between sounds",
+      "url": "https://silentheadphones.co"
+    },
+    {
+      "productName": "Ethereal Tea",
+      "description": "Blends that dissolve the boundary between waking and dreaming",
+      "url": "https://etherealtea.shop"
+    },
+    {
+      "productName": "Minimalist Desk",
+      "description": "Furniture for minds that think in empty spaces",
+      "url": "https://minimalistdesk.co"
+    }
+  ]
+}
