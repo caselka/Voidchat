@@ -184,7 +184,7 @@ export default function Chat() {
               title="Hide profanity"
               data-walkthrough="profanity-filter"
             >
-              {profanityFilter ? '🙊' : '🤬'}
+              {profanityFilter ? '***' : '@#$'}
             </Button>
 
 

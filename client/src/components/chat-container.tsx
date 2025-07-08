@@ -13,6 +13,10 @@ interface ChatContainerProps {
 
 // Simple profanity filter function
 function filterProfanity(text: string): string {
+  if (!text || typeof text !== 'string') {
+    return text || '';
+  }
+  
   const profanityWords = [
     'fuck', 'shit', 'damn', 'hell', 'ass', 'bitch', 'crap', 'piss', 'cock', 'dick',
     'bastard', 'whore', 'slut', 'cunt', 'fag', 'nigger', 'retard', 'gay', 'homo'

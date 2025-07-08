@@ -53,33 +53,47 @@ export default function Walkthrough({ isVisible, onComplete, onSkip }: Walkthrou
   const [highlightTarget, setHighlightTarget] = useState<Element | null>(null);
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible) {
+      // Clean up all highlights when walkthrough is hidden
+      const allHighlighted = document.querySelectorAll('.walkthrough-highlight');
+      allHighlighted.forEach(el => el.classList.remove('walkthrough-highlight'));
+      setHighlightTarget(null);
+      return;
+    }
 
     // Remove previous highlight
-    if (highlightTarget) {
-      highlightTarget.classList.remove('walkthrough-highlight');
-    }
+    const allHighlighted = document.querySelectorAll('.walkthrough-highlight');
+    allHighlighted.forEach(el => el.classList.remove('walkthrough-highlight'));
 
     const step = walkthroughSteps[currentStep];
     if (step.target) {
-      const element = document.querySelector(step.target);
-      setHighlightTarget(element);
-      
-      // Add highlighting and scroll into view
-      if (element) {
-        element.classList.add('walkthrough-highlight');
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      // Use timeout to ensure DOM is ready
+      setTimeout(() => {
+        const element = document.querySelector(step.target);
+        if (element) {
+          setHighlightTarget(element);
+          element.classList.add('walkthrough-highlight');
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
     } else {
       setHighlightTarget(null);
     }
 
+    // Cleanup function when component unmounts
     return () => {
-      // Cleanup highlight when unmounting
       const allHighlighted = document.querySelectorAll('.walkthrough-highlight');
       allHighlighted.forEach(el => el.classList.remove('walkthrough-highlight'));
     };
   }, [currentStep, isVisible]);
+
+  // Additional cleanup on component unmount
+  useEffect(() => {
+    return () => {
+      const allHighlighted = document.querySelectorAll('.walkthrough-highlight');
+      allHighlighted.forEach(el => el.classList.remove('walkthrough-highlight'));
+    };
+  }, []);
 
   if (!isVisible) return null;
 
