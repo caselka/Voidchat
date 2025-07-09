@@ -35,6 +35,7 @@ export function useWebSocket(): WebSocketHook {
   const [onlineCount, setOnlineCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [rateLimitTime, setRateLimitTime] = useState(0);
+  const [messagesLoaded, setMessagesLoaded] = useState(false);
 
   const connect = () => {
     // Use wss for secure connections (https) and ws for local dev
@@ -58,9 +59,14 @@ export function useWebSocket(): WebSocketHook {
           
           switch (message.type) {
             case 'initial_messages':
-              // Reverse to show oldest messages first (chronological order)
-              console.log('Received initial messages from WebSocket:', message.data.length, 'messages');
-              setMessages(message.data.reverse());
+              // Only use WebSocket messages if API messages haven't loaded yet
+              if (!messagesLoaded) {
+                console.log('Received initial messages from WebSocket:', message.data.length, 'messages');
+                setMessages(message.data.reverse());
+                setMessagesLoaded(true);
+              } else {
+                console.log('Skipping WebSocket initial messages - API messages already loaded');
+              }
               break;
               
             case 'message':
@@ -153,6 +159,7 @@ export function useWebSocket(): WebSocketHook {
             isAd: false,
           }));
           setMessages(formattedMessages);
+          setMessagesLoaded(true);
           console.log('Set messages state with:', formattedMessages.length, 'messages');
         }
       } catch (error) {

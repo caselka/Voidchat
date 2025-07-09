@@ -91,13 +91,20 @@ export default function ChatContainer({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Debug log for messages
+  console.log('ChatContainer rendering with messages:', messages);
+  
+  const filteredMessages = messages.filter(message => 
+    message.content && 
+    typeof message.content === 'string' && 
+    message.content.trim().length > 0
+  );
+  
+  console.log('Filtered messages for display:', filteredMessages);
+
   return (
     <div className="space-y-2 pb-4">
-      {messages.filter(message => 
-        message.content && 
-        typeof message.content === 'string' && 
-        message.content.trim().length > 0
-      ).map((message, index) => (
+      {filteredMessages.map((message, index) => (
         <div 
           key={message.id || `message-${index}-${Date.now()}`} 
           className="message-bubble group"
