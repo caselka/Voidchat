@@ -8,6 +8,7 @@ import MessageInput from "@/components/message-input";
 import GuardianPanel from "@/components/guardian-panel";
 import HumanVerification from "@/components/human-verification";
 import Walkthrough from "@/components/walkthrough";
+import DynamicHeader from "@/components/dynamic-header";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette, LogIn, LogOut, Users, Plus, Box } from "lucide-react";
 import {
@@ -119,13 +120,20 @@ export default function Chat() {
 
   return (
     <div className="font-sans bg-background text-foreground transition-colors duration-300 min-h-screen">
+      {/* Dynamic Header */}
+      <DynamicHeader 
+        title={`voidchat · ${onlineCount} online`}
+        showRooms={true}
+      />
+      
       {/* Human Verification Modal for Anonymous Users */}
       {needsVerification && (
         <HumanVerification onVerified={() => setIsHumanVerified(true)} />
       )}
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-[9999] bg-background border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      
+      {/* Chat Content */}
+      <div className="pt-14 pb-20">
+        <div className="max-w-2xl mx-auto px-3">
           <div className="flex items-center space-x-2 min-w-[120px]">
             <span className="text-xs px-2 py-1 bg-muted rounded text-muted-foreground hidden sm:inline">
               {isConnected ? `${onlineCount} online` : 'Connecting...'}
@@ -305,7 +313,7 @@ export default function Chat() {
             </DropdownMenu>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Guardian Panel */}
       {isGuardian && (

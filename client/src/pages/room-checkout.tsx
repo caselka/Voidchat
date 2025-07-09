@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { apiRequest } from "@/lib/queryClient";
+import DynamicHeader from "@/components/dynamic-header";
 import { ArrowLeft, Users } from "lucide-react";
 
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
@@ -161,8 +162,13 @@ export default function RoomCheckout() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4">
-      <div className="max-w-md mx-auto pt-20">
+    <div className="min-h-screen bg-background text-foreground">
+      <DynamicHeader 
+        title="Create Room"
+        showBack={true}
+        backUrl="/create-room"
+      />
+      <div className="max-w-md mx-auto pt-20 p-4">
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="flex items-center justify-center space-x-2">

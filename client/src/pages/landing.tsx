@@ -4,14 +4,17 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Shield, Palette, Clock, Star, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import DynamicHeader from "@/components/dynamic-header";
 
 export default function Landing() {
   const { isAuthenticated, user } = useAuth();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <DynamicHeader showHome={false} />
+      
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16 text-center">
+      <div className="container mx-auto px-4 py-16 pt-20 text-center">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-6xl md:text-8xl font-light mb-6 tracking-tight">
             voidchat

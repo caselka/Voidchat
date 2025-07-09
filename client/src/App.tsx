@@ -9,7 +9,7 @@ import { Moon, Sun, User, LogOut } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
-import Chat from "@/pages/chat";
+import Chat from "@/pages/chat-new";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import RegisterSimple from "@/pages/register-simple";
@@ -28,82 +28,31 @@ import MemberSettings from "@/pages/member-settings";
 import About from "@/pages/about";
 import NotFound from "@/pages/not-found";
 
-function Navigation() {
-  const { theme, toggleTheme } = useTheme();
-  const { isAuthenticated, user } = useAuth();
-
-  return (
-    <div className="fixed top-4 left-4 flex items-center gap-2 z-40">
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={toggleTheme}
-        className="bg-background/80"
-      >
-        {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-      </Button>
-      
-      {isAuthenticated ? (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="bg-background/80"
-            onClick={async () => {
-              try {
-                await fetch('/api/logout', { method: 'POST', credentials: 'include' });
-                window.location.href = '/';
-              } catch (error) {
-                console.error('Logout error:', error);
-                window.location.href = '/';
-              }
-            }}
-          >
-            <LogOut className="h-4 w-4 mr-1" />
-            Logout
-          </Button>
-        </div>
-      ) : (
-        <Button
-          variant="outline"
-          size="sm"
-          className="bg-background/80"
-          onClick={() => window.location.href = "/login"}
-        >
-          <User className="h-4 w-4 mr-1" />
-          Login
-        </Button>
-      )}
-    </div>
-  );
-}
+// Navigation is now handled by individual pages using DynamicHeader
 
 function Router() {
   return (
-    <>
-      <Navigation />
-      <Switch>
-        <Route path="/" component={Landing} />
-        <Route path="/chat" component={Chat} />
-        <Route path="/login" component={Login} />
-        <Route path="/register" component={Register} />
-        <Route path="/register-simple" component={RegisterSimple} />
-        <Route path="/guardian-checkout" component={GuardianCheckout} />
-        <Route path="/sponsor" component={Sponsor} />
-        <Route path="/handle" component={Handle} />
-        <Route path="/themes" component={Themes} />
-        <Route path="/create-room" component={CreateRoom} />
-        <Route path="/room-checkout" component={RoomCheckout} />
-        <Route path="/room/:name" component={Room} />
-        <Route path="/member-settings" component={MemberSettings} />
-        <Route path="/about" component={About} />
-        <Route path="/careers" component={Careers} />
-        <Route path="/contact" component={Contact} />
-        <Route path="/privacy" component={Privacy} />
-        <Route path="/terms" component={Terms} />
-        <Route component={NotFound} />
-      </Switch>
-    </>
+    <Switch>
+      <Route path="/" component={Landing} />
+      <Route path="/chat" component={Chat} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/register-simple" component={RegisterSimple} />
+      <Route path="/guardian-checkout" component={GuardianCheckout} />
+      <Route path="/sponsor" component={Sponsor} />
+      <Route path="/handle" component={Handle} />
+      <Route path="/themes" component={Themes} />
+      <Route path="/create-room" component={CreateRoom} />
+      <Route path="/room-checkout" component={RoomCheckout} />
+      <Route path="/room/:name" component={Room} />
+      <Route path="/member-settings" component={MemberSettings} />
+      <Route path="/about" component={About} />
+      <Route path="/careers" component={Careers} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/terms" component={Terms} />
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 

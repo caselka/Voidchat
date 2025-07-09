@@ -4,6 +4,57 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile viewport optimization */
+@viewport {
+  width: device-width;
+  initial-scale: 1;
+  maximum-scale: 1;
+  user-scalable: no;
+}
+
+/* Prevent zoom on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection for content */
+.selectable {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Reset and mobile-first typography */
+html {
+  font-size: 14px; /* Smaller base size for mobile */
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%; /* Prevent font scaling in iOS */
+  text-size-adjust: 100%; /* Prevent font scaling in other browsers */
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px; /* Normal size for desktop */
+  }
+}
+
+/* Force smaller text on mobile */
+@media screen and (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+  
+  .text-sm {
+    font-size: 12px;
+  }
+  
+  .text-xs {
+    font-size: 11px;
+  }
+}
+
 /* CSS Variables for clean theming */
 :root {
   /* Light theme colors */

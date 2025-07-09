@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import DynamicHeader from "@/components/dynamic-header";
 import { Home, Shield, Users } from "lucide-react";
 
 export default function CreateRoom() {
@@ -26,8 +27,13 @@ export default function CreateRoom() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background text-foreground p-4">
-        <div className="max-w-2xl mx-auto pt-20">
+      <div className="min-h-screen bg-background text-foreground">
+        <DynamicHeader 
+          title="Create Room"
+          showBack={true}
+          backUrl="/chat"
+        />
+        <div className="max-w-2xl mx-auto pt-20 p-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -99,8 +105,13 @@ export default function CreateRoom() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4">
-      <div className="max-w-2xl mx-auto pt-20">
+    <div className="min-h-screen bg-background text-foreground">
+      <DynamicHeader 
+        title="Create Room"
+        showBack={true}
+        backUrl="/chat"
+      />
+      <div className="max-w-2xl mx-auto pt-20 p-4">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">

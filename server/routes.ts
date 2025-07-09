@@ -186,7 +186,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -215,7 +215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Username status endpoint
   app.get('/api/username-status', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const status = await storage.getUsernameStatus(userId);
       res.json(status);
     } catch (error: any) {
@@ -227,7 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Guardian status endpoint
   app.get('/api/guardian-status', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
@@ -249,7 +249,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Renew username endpoint
   app.post('/api/renew-username', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       // Check if user is in grace period
       const status = await storage.getUsernameStatus(userId);
