@@ -9,7 +9,7 @@ import { Moon, Sun, User, LogOut } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
-import Chat from "@/pages/chat-new";
+import Chat from "@/pages/chat";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import RegisterSimple from "@/pages/register-simple";

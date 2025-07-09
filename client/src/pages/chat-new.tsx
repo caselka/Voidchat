@@ -30,8 +30,8 @@ export default function Chat() {
   const [isHumanVerified, setIsHumanVerified] = useState(false);
   const [showWalkthrough, setShowWalkthrough] = useState(false);
 
-  // Check if user needs human verification (anonymous users only)
-  const needsVerification = !isAuthenticated && !isHumanVerified;
+  // Check if user needs human verification (anonymous users only) - DISABLED
+  const needsVerification = false; // !isAuthenticated && !isHumanVerified;
 
   // Check if user is new (for walkthrough)
   useEffect(() => {
@@ -83,10 +83,10 @@ export default function Chat() {
         showRooms={true}
       />
       
-      {/* Human Verification Modal for Anonymous Users */}
-      {needsVerification && (
+      {/* Human Verification Modal for Anonymous Users - DISABLED */}
+      {/* {needsVerification && (
         <HumanVerification onVerified={() => setIsHumanVerified(true)} />
-      )}
+      )} */}
       
       {/* Guardian Panel */}
       {isGuardian && (
