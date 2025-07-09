@@ -128,14 +128,9 @@ export default function DynamicHeader({
               variant="ghost"
               size="sm"
               className="p-2"
-              onClick={async () => {
-                try {
-                  await fetch('/api/logout', { method: 'POST', credentials: 'include' });
-                  window.location.href = '/';
-                } catch (error) {
-                  console.error('Logout error:', error);
-                  window.location.href = '/';
-                }
+              onClick={() => {
+                // Direct redirect to logout endpoint - server handles the logout and redirect
+                window.location.href = '/api/logout';
               }}
             >
               <LogOut className="h-4 w-4" />
