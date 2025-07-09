@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DynamicHeader from "@/components/dynamic-header";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface RoomMessage {
   id: number;
@@ -66,6 +67,16 @@ export default function ModeratorDashboard() {
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [slowModeSeconds, setSlowModeSeconds] = useState(5);
   const [muteMinutes, setMuteMinutes] = useState(5);
+  const [isMobile, setIsMobile] = useState(false);
+  const [activeTab, setActiveTab] = useState("rooms");
+
+  // Check mobile screen size
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   if (!isAuthenticated) {
     return (
@@ -200,10 +211,31 @@ export default function ModeratorDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DynamicHeader />
+      <DynamicHeader 
+        title="Moderator Dashboard" 
+        showBack={true} 
+        backUrl="/chat"
+      />
       
-      <div className="max-w-7xl mx-auto p-4">
-        <div className="mb-6">
+      <div className="pt-16 pb-20">
+        {/* Mobile Header Info */}
+        <div className="px-4 py-4 bg-card border-b md:hidden">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Shield className="w-5 h-5 text-orange-500" />
+              <div>
+                <h2 className="font-semibold text-sm">Moderator</h2>
+                <p className="text-xs text-muted-foreground">{user?.username}</p>
+              </div>
+            </div>
+            <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700">
+              {userRooms.length} Rooms
+            </Badge>
+          </div>
+        </div>
+
+        {/* Desktop Header */}
+        <div className="hidden md:block p-6">
           <h1 className="text-3xl font-bold tracking-tight flex items-center space-x-2">
             <Shield className="w-8 h-8 text-orange-500" />
             <span>Moderator Dashboard</span>
@@ -213,58 +245,95 @@ export default function ModeratorDashboard() {
           </p>
         </div>
 
-        {/* Room Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Your Rooms</CardTitle>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{userRooms.length}</div>
-              <p className="text-xs text-muted-foreground">
-                Rooms you moderate
-              </p>
-            </CardContent>
-          </Card>
+        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
+          {/* Room Stats - Mobile Grid */}
+          <div className="grid grid-cols-3 md:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
+            <Card>
+              <CardContent className="pt-4 md:pt-6">
+                <div className="flex items-center space-x-2">
+                  <MessageSquare className="w-4 h-4 text-orange-500" />
+                  <span className="text-xs md:text-sm font-medium">Rooms</span>
+                </div>
+                <div className="text-lg md:text-2xl font-bold mt-2">{userRooms.length}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  You moderate
+                </div>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Messages</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {userRooms.reduce((acc, room) => acc + (room.messageCount || 0), 0)}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Across all your rooms
-              </p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardContent className="pt-4 md:pt-6">
+                <div className="flex items-center space-x-2">
+                  <Users className="w-4 h-4 text-blue-500" />
+                  <span className="text-xs md:text-sm font-medium">Messages</span>
+                </div>
+                <div className="text-lg md:text-2xl font-bold mt-2">
+                  {userRooms.reduce((acc, room) => acc + (room.messageCount || 0), 0)}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Total sent
+                </div>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Room</CardTitle>
-              <Settings className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {selectedRoom || "None"}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Currently viewing
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+            <Card>
+              <CardContent className="pt-4 md:pt-6">
+                <div className="flex items-center space-x-2">
+                  <Settings className="w-4 h-4 text-purple-500" />
+                  <span className="text-xs md:text-sm font-medium">Active</span>
+                </div>
+                <div className="text-lg md:text-2xl font-bold mt-2 truncate">
+                  {selectedRoom || "None"}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Current room
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-        <Tabs defaultValue="rooms" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="rooms">Room Management</TabsTrigger>
-            <TabsTrigger value="moderation">Message Moderation</TabsTrigger>
-            <TabsTrigger value="settings">Room Settings</TabsTrigger>
-          </TabsList>
+          {/* Main Content */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
+            {/* Mobile Tab List - Horizontal Scroll */}
+            {isMobile ? (
+              <ScrollArea className="w-full whitespace-nowrap">
+                <div className="flex space-x-2 pb-2">
+                  <Button 
+                    variant={activeTab === 'rooms' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setActiveTab('rooms')}
+                    className="whitespace-nowrap"
+                  >
+                    <MessageSquare className="w-3 h-3 mr-1" />
+                    Rooms
+                  </Button>
+                  <Button 
+                    variant={activeTab === 'moderation' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setActiveTab('moderation')}
+                    className="whitespace-nowrap"
+                  >
+                    <Shield className="w-3 h-3 mr-1" />
+                    Moderate
+                  </Button>
+                  <Button 
+                    variant={activeTab === 'settings' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setActiveTab('settings')}
+                    className="whitespace-nowrap"
+                  >
+                    <Settings className="w-3 h-3 mr-1" />
+                    Settings
+                  </Button>
+                </div>
+              </ScrollArea>
+            ) : (
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="rooms">Room Management</TabsTrigger>
+                <TabsTrigger value="moderation">Message Moderation</TabsTrigger>
+                <TabsTrigger value="settings">Room Settings</TabsTrigger>
+              </TabsList>
+            )}
 
           {/* Room Management Tab */}
           <TabsContent value="rooms" className="space-y-4">
@@ -542,7 +611,8 @@ export default function ModeratorDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
+          </Tabs>
+        </div>
       </div>
     </div>
   );

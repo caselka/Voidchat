@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -40,6 +40,8 @@ import {
   Mail
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import DynamicHeader from "@/components/dynamic-header";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PendingSponsor {
   id: number;
@@ -80,6 +82,16 @@ export default function BackendDashboard() {
   const [activeTab, setActiveTab] = useState("sponsors");
   const [dateFormat, setDateFormat] = useState("relative"); // relative, full, short
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check mobile screen size
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Date formatting helper function
   const formatDate = (dateString: string) => {
@@ -246,145 +258,315 @@ export default function BackendDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <DynamicHeader 
+        title="Backend Dashboard" 
+        showBack={true} 
+        backUrl="/chat"
+      />
+      
+      <div className="pt-16 pb-20">
+        {/* Mobile Header Info */}
+        <div className="px-4 py-4 bg-card border-b md:hidden">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Shield className="w-6 h-6 text-blue-500" />
+            <div className="flex items-center space-x-2">
+              <Shield className="w-5 h-5 text-red-500" />
               <div>
-                <h1 className="text-xl font-semibold">Backend Dashboard</h1>
-                <p className="text-sm text-muted-foreground">
-                  Welcome back, {user?.username} - System Administration
-                </p>
+                <h2 className="font-semibold text-sm">Super User</h2>
+                <p className="text-xs text-muted-foreground">{user?.username}</p>
               </div>
             </div>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700">
-              Super User Access
+            <Badge variant="outline" className="text-xs bg-red-50 text-red-700">
+              Admin
             </Badge>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Real-Time System Statistics */}
-        {systemStats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('users')}>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <Users className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm font-medium">Total Users</span>
+        {/* Desktop Header */}
+        <div className="hidden md:block border-b bg-card">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Shield className="w-6 h-6 text-blue-500" />
+                <div>
+                  <h1 className="text-xl font-semibold">Backend Dashboard</h1>
+                  <p className="text-sm text-muted-foreground">
+                    Welcome back, {user?.username} - System Administration
+                  </p>
                 </div>
-                <div className="text-2xl font-bold mt-2">{systemStats.users.totalUsers}</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {systemStats.users.verifiedUsers} verified • {systemStats.users.recentSignups} new
-                </div>
-                <div className="text-xs text-blue-500 mt-1">Click to view details →</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('messages')}>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <MessageSquare className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm font-medium">Messages</span>
-                </div>
-                <div className="text-2xl font-bold mt-2">{systemStats.messages.totalMessages}</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {systemStats.messages.messagesLast24h} today
-                </div>
-                <div className="text-xs text-purple-500 mt-1">Click to view analytics →</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('sponsors')}>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <DollarSign className="w-4 h-4 text-green-500" />
-                  <span className="text-sm font-medium">Active Sponsors</span>
-                </div>
-                <div className="text-2xl font-bold mt-2">{systemStats.sponsors.activeSponsors}</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {systemStats.sponsors.totalSponsors} total • {systemStats.sponsors.pendingApprovals} pending
-                </div>
-                <div className="text-xs text-green-500 mt-1">Click to manage →</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('rooms')}>
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2">
-                  <Database className="w-4 h-4 text-indigo-500" />
-                  <span className="text-sm font-medium">Active Rooms</span>
-                </div>
-                <div className="text-2xl font-bold mt-2">{systemStats.messages.activeRooms}</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  Chat rooms created
-                </div>
-                <div className="text-xs text-indigo-500 mt-1">Click to view rooms →</div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Settings Bar */}
-        <div className="flex items-center justify-between mb-6 p-4 bg-card rounded-lg border">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4" />
-              <span className="text-sm font-medium">Date Format:</span>
-              <select
-                value={dateFormat}
-                onChange={(e) => setDateFormat(e.target.value)}
-                className="border rounded px-2 py-1 text-sm bg-background"
-              >
-                <option value="relative">Relative (2 hours ago)</option>
-                <option value="short">Short (Jan 9, 2:30 PM)</option>
-                <option value="full">Full (January 9, 2025 2:30:15 PM)</option>
-              </select>
+              </div>
+              <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                Super User Access
+              </Badge>
             </div>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" onClick={() => window.location.href = '/chat'}>
-              <MessageSquare className="w-4 h-4 mr-1" />
-              Chats
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => document.documentElement.classList.toggle('dark')}>
-              <Sun className="w-4 h-4 mr-1" />
-              Toggle Theme
-            </Button>
-            <Button variant="outline" size="sm" onClick={async () => {
-              try {
-                const response = await fetch('/api/logout', { 
-                  method: 'POST', 
-                  credentials: 'include',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({})
-                });
-                window.location.href = '/';
-              } catch (error) {
-                console.error('Logout error:', error);
-                window.location.href = '/';
-              }
-            }}>
-              <LogOut className="w-4 h-4 mr-1" />
-              Logout
-            </Button>
           </div>
         </div>
 
-        {/* Main Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="sponsors">Sponsor Approval</TabsTrigger>
-            <TabsTrigger value="users">User Management</TabsTrigger>
-            <TabsTrigger value="messages">Message Analytics</TabsTrigger>
-            <TabsTrigger value="rooms">Room Management</TabsTrigger>
-            <TabsTrigger value="reports">User Reports</TabsTrigger>
-            <TabsTrigger value="system">System Health</TabsTrigger>
-          </TabsList>
+        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
+          {/* System Statistics - Mobile Grid */}
+          {systemStats && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
+              <Card 
+                className={`cursor-pointer hover:shadow-md transition-all ${
+                  expandedCard === 'users' ? 'ring-2 ring-blue-500' : ''
+                }`} 
+                onClick={() => {
+                  setActiveTab('users');
+                  setExpandedCard(expandedCard === 'users' ? null : 'users');
+                }}
+              >
+                <CardContent className="pt-4 md:pt-6">
+                  <div className="flex items-center space-x-2">
+                    <Users className="w-4 h-4 text-blue-500" />
+                    <span className="text-xs md:text-sm font-medium">Users</span>
+                  </div>
+                  <div className="text-lg md:text-2xl font-bold mt-2">{systemStats.users.totalUsers}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {systemStats.users.verifiedUsers} verified
+                  </div>
+                  {isMobile && (
+                    <div className="text-xs text-blue-500 mt-1">Tap to expand</div>
+                  )}
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className={`cursor-pointer hover:shadow-md transition-all ${
+                  expandedCard === 'messages' ? 'ring-2 ring-purple-500' : ''
+                }`} 
+                onClick={() => {
+                  setActiveTab('messages');
+                  setExpandedCard(expandedCard === 'messages' ? null : 'messages');
+                }}
+              >
+                <CardContent className="pt-4 md:pt-6">
+                  <div className="flex items-center space-x-2">
+                    <MessageSquare className="w-4 h-4 text-purple-500" />
+                    <span className="text-xs md:text-sm font-medium">Messages</span>
+                  </div>
+                  <div className="text-lg md:text-2xl font-bold mt-2">{systemStats.messages.totalMessages}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {systemStats.messages.messagesLast24h} today
+                  </div>
+                  {isMobile && (
+                    <div className="text-xs text-purple-500 mt-1">Tap to expand</div>
+                  )}
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className={`cursor-pointer hover:shadow-md transition-all ${
+                  expandedCard === 'sponsors' ? 'ring-2 ring-green-500' : ''
+                }`} 
+                onClick={() => {
+                  setActiveTab('sponsors');
+                  setExpandedCard(expandedCard === 'sponsors' ? null : 'sponsors');
+                }}
+              >
+                <CardContent className="pt-4 md:pt-6">
+                  <div className="flex items-center space-x-2">
+                    <DollarSign className="w-4 h-4 text-green-500" />
+                    <span className="text-xs md:text-sm font-medium">Sponsors</span>
+                  </div>
+                  <div className="text-lg md:text-2xl font-bold mt-2">{systemStats.sponsors.activeSponsors}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {systemStats.sponsors.pendingApprovals} pending
+                  </div>
+                  {isMobile && (
+                    <div className="text-xs text-green-500 mt-1">Tap to expand</div>
+                  )}
+                </CardContent>
+              </Card>
+              
+              <Card 
+                className={`cursor-pointer hover:shadow-md transition-all ${
+                  expandedCard === 'rooms' ? 'ring-2 ring-indigo-500' : ''
+                }`} 
+                onClick={() => {
+                  setActiveTab('rooms');
+                  setExpandedCard(expandedCard === 'rooms' ? null : 'rooms');
+                }}
+              >
+                <CardContent className="pt-4 md:pt-6">
+                  <div className="flex items-center space-x-2">
+                    <Database className="w-4 h-4 text-indigo-500" />
+                    <span className="text-xs md:text-sm font-medium">Rooms</span>
+                  </div>
+                  <div className="text-lg md:text-2xl font-bold mt-2">{systemStats.messages.activeRooms}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Active rooms
+                  </div>
+                  {isMobile && (
+                    <div className="text-xs text-indigo-500 mt-1">Tap to expand</div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Mobile Settings */}
+          {isMobile && (
+            <Card className="mb-4">
+              <CardContent className="pt-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Date Format</span>
+                    <select
+                      value={dateFormat}
+                      onChange={(e) => setDateFormat(e.target.value)}
+                      className="border rounded px-2 py-1 text-xs bg-background"
+                    >
+                      <option value="relative">Relative</option>
+                      <option value="short">Short</option>
+                      <option value="full">Full</option>
+                    </select>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm" onClick={() => window.location.href = '/chat'} className="flex-1">
+                      <MessageSquare className="w-3 h-3 mr-1" />
+                      Chat
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => document.documentElement.classList.toggle('dark')} className="flex-1">
+                      <Sun className="w-3 h-3 mr-1" />
+                      Theme
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={async () => {
+                      try {
+                        const response = await fetch('/api/logout', { 
+                          method: 'POST', 
+                          credentials: 'include',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({})
+                        });
+                        window.location.href = '/';
+                      } catch (error) {
+                        console.error('Logout error:', error);
+                        window.location.href = '/';
+                      }
+                    }} className="flex-1">
+                      <LogOut className="w-3 h-3 mr-1" />
+                      Logout
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Desktop Settings Bar */}
+          {!isMobile && (
+            <div className="flex items-center justify-between mb-6 p-4 bg-card rounded-lg border">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-4 h-4" />
+                  <span className="text-sm font-medium">Date Format:</span>
+                  <select
+                    value={dateFormat}
+                    onChange={(e) => setDateFormat(e.target.value)}
+                    className="border rounded px-2 py-1 text-sm bg-background"
+                  >
+                    <option value="relative">Relative (2 hours ago)</option>
+                    <option value="short">Short (Jan 9, 2:30 PM)</option>
+                    <option value="full">Full (January 9, 2025 2:30:15 PM)</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" size="sm" onClick={() => window.location.href = '/chat'}>
+                  <MessageSquare className="w-4 h-4 mr-1" />
+                  Chats
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => document.documentElement.classList.toggle('dark')}>
+                  <Sun className="w-4 h-4 mr-1" />
+                  Toggle Theme
+                </Button>
+                <Button variant="outline" size="sm" onClick={async () => {
+                  try {
+                    const response = await fetch('/api/logout', { 
+                      method: 'POST', 
+                      credentials: 'include',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({})
+                    });
+                    window.location.href = '/';
+                  } catch (error) {
+                    console.error('Logout error:', error);
+                    window.location.href = '/';
+                  }
+                }}>
+                  <LogOut className="w-4 h-4 mr-1" />
+                  Logout
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Main Content */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
+            {/* Mobile Tab List - Horizontal Scroll */}
+            {isMobile ? (
+              <ScrollArea className="w-full whitespace-nowrap">
+                <div className="flex space-x-2 pb-2">
+                  <Button 
+                    variant={activeTab === 'sponsors' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setActiveTab('sponsors')}
+                    className="whitespace-nowrap"
+                  >
+                    Sponsors
+                  </Button>
+                  <Button 
+                    variant={activeTab === 'users' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setActiveTab('users')}
+                    className="whitespace-nowrap"
+                  >
+                    Users
+                  </Button>
+                  <Button 
+                    variant={activeTab === 'messages' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setActiveTab('messages')}
+                    className="whitespace-nowrap"
+                  >
+                    Messages
+                  </Button>
+                  <Button 
+                    variant={activeTab === 'rooms' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setActiveTab('rooms')}
+                    className="whitespace-nowrap"
+                  >
+                    Rooms
+                  </Button>
+                  <Button 
+                    variant={activeTab === 'reports' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setActiveTab('reports')}
+                    className="whitespace-nowrap"
+                  >
+                    Reports
+                  </Button>
+                  <Button 
+                    variant={activeTab === 'system' ? 'default' : 'outline'} 
+                    size="sm" 
+                    onClick={() => setActiveTab('system')}
+                    className="whitespace-nowrap"
+                  >
+                    System
+                  </Button>
+                </div>
+              </ScrollArea>
+            ) : (
+              <TabsList className="grid w-full grid-cols-6">
+                <TabsTrigger value="sponsors">Sponsor Approval</TabsTrigger>
+                <TabsTrigger value="users">User Management</TabsTrigger>
+                <TabsTrigger value="messages">Message Analytics</TabsTrigger>
+                <TabsTrigger value="rooms">Room Management</TabsTrigger>
+                <TabsTrigger value="reports">User Reports</TabsTrigger>
+                <TabsTrigger value="system">System Health</TabsTrigger>
+              </TabsList>
+            )}
 
           {/* Search and Filter */}
           <div className="flex items-center space-x-4">
@@ -1015,6 +1197,7 @@ export default function BackendDashboard() {
             </Card>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

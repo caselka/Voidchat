@@ -198,6 +198,191 @@ html {
     will-change: transform !important;
     backface-visibility: hidden !important;
     -webkit-backface-visibility: hidden !important;
+  }
+  
+  /* Mobile Dashboard Optimizations */
+  .dashboard-header {
+    /* Compact header for mobile dashboards */
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+  }
+  
+  .dashboard-stat-card {
+    /* Better stat cards on mobile */
+    padding: 12px !important;
+    min-height: auto !important;
+  }
+  
+  .dashboard-stat-card .text-2xl {
+    /* Smaller stat numbers on mobile */
+    font-size: 1.5rem !important;
+  }
+  
+  .dashboard-tab-button {
+    /* Touch-friendly tabs on mobile */
+    min-height: 40px !important;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+  }
+  
+  .dashboard-content {
+    /* Better spacing for mobile dashboard content */
+    padding: 16px !important;
+    margin-bottom: 80px !important; /* Space for fixed navigation */
+  }
+  
+  .dashboard-table {
+    /* Responsive tables */
+    font-size: 12px !important;
+  }
+  
+  .dashboard-table td,
+  .dashboard-table th {
+    padding: 8px 6px !important;
+  }
+  
+  /* Mobile form inputs in dashboards */
+  .dashboard-input {
+    font-size: 16px !important; /* Prevent zoom on iOS */
+  }
+  
+  /* Better mobile scrolling for dashboard lists */
+  .dashboard-scroll-area {
+    -webkit-overflow-scrolling: touch;
+    max-height: calc(100vh - 300px) !important;
+  }
+  
+  /* Compact cards for mobile */
+  .mobile-compact-card {
+    margin-bottom: 12px !important;
+    padding: 12px !important;
+  }
+  
+  /* Touch-friendly buttons */
+  .mobile-action-button {
+    min-height: 40px !important;
+    min-width: 40px !important;
+    font-size: 12px !important;
+  }
+  
+  /* Hide some desktop-only elements on mobile */
+  .desktop-only {
+    display: none !important;
+  }
+  
+  /* Show mobile-only elements */
+  .mobile-only {
+    display: block !important;
+  }
+  
+  /* Better spacing for mobile lists */
+  .mobile-list-item {
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #e5e7eb !important;
+  }
+  
+  /* Compact dropdown menus */
+  .mobile-dropdown {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Mobile form optimizations */
+  .mobile-form-container {
+    padding: 16px !important;
+    margin: 0 auto !important;
+    max-width: 100% !important;
+  }
+  
+  .mobile-form-card {
+    margin: 16px 0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  }
+  
+  /* Better mobile inputs */
+  .mobile-input {
+    font-size: 16px !important; /* Prevent zoom on iOS */
+    min-height: 44px !important; /* Touch target size */
+    padding: 12px 16px !important;
+  }
+  
+  /* Mobile button optimizations */
+  .mobile-button {
+    min-height: 44px !important;
+    font-size: 16px !important;
+    padding: 12px 24px !important;
+    width: 100% !important;
+    margin: 8px 0 !important;
+  }
+  
+  /* Mobile navigation and headers */
+  .mobile-header {
+    padding: 12px 16px !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+  
+  /* Mobile sidebar optimizations */
+  .mobile-sidebar {
+    width: 100% !important;
+    height: 100vh !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 50 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease !important;
+  }
+  
+  .mobile-sidebar.open {
+    transform: translateX(0) !important;
+  }
+  
+  /* Mobile modal optimizations */
+  .mobile-modal {
+    margin: 16px !important;
+    max-height: calc(100vh - 32px) !important;
+    overflow-y: auto !important;
+    border-radius: 16px !important;
+  }
+  
+  /* Mobile toast notifications */
+  .mobile-toast {
+    margin: 16px !important;
+    max-width: calc(100vw - 32px) !important;
+    font-size: 14px !important;
+  }
+  
+  /* Hide desktop-specific elements */
+  .hidden-mobile {
+    display: none !important;
+  }
+  
+  /* Show mobile-specific elements */
+  .visible-mobile {
+    display: block !important;
+  }
+  
+  /* Mobile spacing utilities */
+  .mobile-spacing-tight {
+    padding: 8px !important;
+    margin: 4px 0 !important;
+  }
+  
+  .mobile-spacing-normal {
+    padding: 12px !important;
+    margin: 8px 0 !important;
+  }
+  
+  .mobile-spacing-loose {
+    padding: 16px !important;
+    margin: 12px 0 !important;
+  }
+  
+  /* Additional mobile touch optimizations */
+  .mobile-touch-optimized {
     touch-action: none !important;
   }
   
