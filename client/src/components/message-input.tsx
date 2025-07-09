@@ -81,14 +81,15 @@ export default function MessageInput({
       className="message-input-container"
       style={{
         position: 'fixed',
-        bottom: '0px',
+        bottom: isKeyboardOpen ? `${keyboardHeight}px` : '0px',
         left: 0,
         right: 0,
         width: '100%',
         backgroundColor: 'var(--bg)',
         borderTop: '1px solid var(--input-border)',
         zIndex: 1000,
-        transition: 'bottom 0.2s ease-out'
+        transition: 'bottom 0.2s ease-out',
+        paddingBottom: 'env(safe-area-inset-bottom)'
       }}
     >
       <div className="max-w-4xl mx-auto" style={{ padding: '12px' }}>

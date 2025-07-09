@@ -509,3 +509,49 @@ html {
     opacity: 0;
   }
 }
+
+/* Mobile keyboard handling */
+@supports (height: 100dvh) {
+  .chat-main-container {
+    min-height: 100dvh;
+  }
+}
+
+/* iOS Safari keyboard fix */
+@supports (-webkit-touch-callout: none) {
+  .message-input-container {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Prevent viewport zoom on input focus */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* Better mobile scrolling */
+.chat-container {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Ensure proper mobile layout */
+@media (max-width: 768px) {
+  body {
+    overscroll-behavior: none;
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
+  }
+  
+  #root {
+    height: 100vh;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

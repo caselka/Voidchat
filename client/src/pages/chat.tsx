@@ -87,27 +87,53 @@ export default function Chat() {
   const needsVerification = false; // !isAuthenticated && !isHumanVerified;
 
   useEffect(() => {
-    // Check if user is at bottom
+    // Check if user is at bottom - improved for mobile
     const handleScroll = () => {
-      const threshold = 100;
-      const position = window.innerHeight + window.scrollY;
-      const height = document.documentElement.scrollHeight;
+      const threshold = 150; // Increased threshold for mobile
+      const container = document.getElementById('root') || window;
+      const scrollElement = container === window ? document.documentElement : container;
+      const position = (container === window ? window.innerHeight : container.clientHeight) + 
+                      (container === window ? window.scrollY : container.scrollTop);
+      const height = scrollElement.scrollHeight;
       setIsAtBottom(position >= height - threshold);
     };
 
+    // Use both window and root container for better mobile support
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+      rootElement.addEventListener('scroll', handleScroll);
+    }
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rootElement) {
+        rootElement.removeEventListener('scroll', handleScroll);
+      }
+    };
   }, []);
 
   useEffect(() => {
-    // Auto-scroll to bottom when new messages arrive - simple approach
-    if (isConnected && messages.length > 0) {
-      // Use instant scroll to avoid input movement during animation
-      requestAnimationFrame(() => {
-        window.scrollTo(0, document.body.scrollHeight);
-      });
+    // Auto-scroll when new messages arrive and user is at bottom - improved for mobile
+    if (isAtBottom && messages.length > 0) {
+      setTimeout(() => {
+        const rootElement = document.getElementById('root');
+        if (rootElement && rootElement.scrollHeight > rootElement.clientHeight) {
+          // Mobile: scroll the root container
+          rootElement.scrollTo({ 
+            top: rootElement.scrollHeight, 
+            behavior: 'smooth' 
+          });
+        } else {
+          // Desktop: scroll the window
+          window.scrollTo({ 
+            top: document.documentElement.scrollHeight, 
+            behavior: 'smooth' 
+          });
+        }
+      }, 100);
     }
-  }, [messages, isConnected]);
+  }, [messages, isAtBottom]);
 
   // Show connection status
   if (!isConnected) {
@@ -121,7 +147,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="font-sans bg-background text-foreground transition-colors duration-300 min-h-screen">
+    <div className="font-sans bg-background text-foreground transition-colors duration-300 min-h-screen chat-main-container">
       {/* Dynamic Header */}
       <DynamicHeader 
         title={`voidchat · ${onlineCount} online`}
@@ -196,7 +222,7 @@ export default function Chat() {
       )}
 
       {/* Chat Container */}
-      <div className="max-w-2xl mx-auto px-3 pb-20">
+      <div className="max-w-2xl mx-auto px-3 pb-24 min-h-screen">
         <ChatContainer 
           messages={messages}
           isGuardian={isGuardian}
