@@ -19,11 +19,11 @@ export function useIOSKeyboard() {
         const heightDiff = initialViewportHeight - currentHeight;
         
         if (heightDiff > 150) {
-          // Keyboard is open
+          // Keyboard is open - smooth transition
           setKeyboardHeight(heightDiff);
           setIsKeyboardOpen(true);
           
-          // Position input above keyboard
+          // Position input above keyboard with smooth transition
           if (inputRef.current) {
             inputRef.current.style.position = 'fixed';
             inputRef.current.style.bottom = `${heightDiff}px`;
@@ -31,27 +31,35 @@ export function useIOSKeyboard() {
             inputRef.current.style.width = '100%';
             inputRef.current.style.left = '0';
             inputRef.current.style.right = '0';
+            inputRef.current.style.transition = 'bottom 0.2s ease-out';
           }
           
-          // Prevent body scroll but maintain layout
-          document.body.style.overflow = 'hidden';
-          document.body.style.height = '100vh';
+          // Adjust viewport smoothly
+          const mainContainer = document.querySelector('.chat-main-container') as HTMLElement;
+          if (mainContainer) {
+            mainContainer.style.paddingBottom = `${heightDiff + 65}px`;
+            mainContainer.style.transition = 'padding-bottom 0.2s ease-out';
+          }
           
         } else {
-          // Keyboard is closed
+          // Keyboard is closed - smooth transition back
           setKeyboardHeight(0);
           setIsKeyboardOpen(false);
           
-          // Reset input position
+          // Reset input position smoothly
           if (inputRef.current) {
             inputRef.current.style.position = 'fixed';
             inputRef.current.style.bottom = '0px';
             inputRef.current.style.zIndex = '1000';
+            inputRef.current.style.transition = 'bottom 0.2s ease-out';
           }
           
-          // Reset body
-          document.body.style.overflow = '';
-          document.body.style.height = '';
+          // Reset main container
+          const mainContainer = document.querySelector('.chat-main-container') as HTMLElement;
+          if (mainContainer) {
+            mainContainer.style.paddingBottom = '65px';
+            mainContainer.style.transition = 'padding-bottom 0.2s ease-out';
+          }
         }
       }
     };
@@ -76,6 +84,14 @@ export function useIOSKeyboard() {
         inputRef.current.style.position = 'fixed';
         inputRef.current.style.bottom = '0px';
         inputRef.current.style.zIndex = '1000';
+        inputRef.current.style.transition = '';
+      }
+      
+      // Reset main container
+      const mainContainer = document.querySelector('.chat-main-container') as HTMLElement;
+      if (mainContainer) {
+        mainContainer.style.paddingBottom = '65px';
+        mainContainer.style.transition = '';
       }
     };
   }, []);

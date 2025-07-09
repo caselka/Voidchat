@@ -87,7 +87,8 @@ export default function MessageInput({
         width: '100%',
         backgroundColor: 'var(--bg)',
         borderTop: '1px solid var(--input-border)',
-        zIndex: 1000
+        zIndex: 1000,
+        transition: 'bottom 0.2s ease-out'
       }}
     >
       <div className="max-w-4xl mx-auto" style={{ padding: '12px' }}>

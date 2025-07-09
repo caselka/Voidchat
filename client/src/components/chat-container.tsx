@@ -115,7 +115,7 @@ export default function ChatContainer({
           onMouseLeave={handleLongPressEnd}
         >
           {/* Message Header: Username and Timestamp */}
-          <div className="flex justify-between items-center mb-2">
+          <div className="flex justify-between items-center mb-1">
             <div className="flex items-center gap-2">
               {/* Username - Bold Green */}
               <span 
@@ -168,7 +168,7 @@ export default function ChatContainer({
           {/* Expiry Notice - Below Username */}
           {message.expiresAt && (
             <div 
-              className="font-mono mb-2"
+              className="font-mono mb-1"
               style={{ 
                 color: 'var(--expiry-color)',
                 fontSize: '11px'
