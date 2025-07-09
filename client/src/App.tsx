@@ -26,6 +26,7 @@ import About from "@/pages/about";
 import NotFound from "@/pages/not-found";
 import BackendDashboard from "@/pages/backend-dashboard";
 import ModeratorDashboard from "@/pages/moderator-dashboard";
+import DirectMessages from "@/pages/direct-messages";
 
 // Role-based home page component
 function RoleBasedHome() {
@@ -73,6 +74,7 @@ function Router() {
       <Route path="/terms" component={Terms} />
       <Route path="/backend" component={BackendDashboard} />
       <Route path="/moderator" component={ModeratorDashboard} />
+      <Route path="/messages" component={DirectMessages} />
       <Route component={NotFound} />
     </Switch>
   );

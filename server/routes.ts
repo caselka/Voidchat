@@ -272,6 +272,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Direct Messages API (paid accounts only)
+  app.post('/api/direct-messages', isAuthenticated, async (req: any, res) => {
+    try {
+      const fromUserId = req.user.id;
+      const { toUserId, content } = req.body;
+      
+      if (!toUserId || !content) {
+        return res.status(400).json({ message: 'toUserId and content are required' });
+      }
+      
+      // Validate content
+      if (content.length > 500) {
+        return res.status(400).json({ message: 'Message content too long (max 500 characters)' });
+      }
+      
+      // Verify recipient exists
+      const recipient = await storage.getUser(toUserId);
+      if (!recipient) {
+        return res.status(404).json({ message: 'Recipient not found' });
+      }
+      
+      const message = await storage.sendDirectMessage(fromUserId, toUserId, content);
+      res.json(message);
+    } catch (error) {
+      console.error('Error sending direct message:', error);
+      res.status(500).json({ message: 'Failed to send message' });
+    }
+  });
+
+  app.get('/api/direct-messages/:userId', isAuthenticated, async (req: any, res) => {
+    try {
+      const currentUserId = req.user.id;
+      const { userId } = req.params;
+      
+      const messages = await storage.getDirectMessages(currentUserId, userId);
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching direct messages:', error);
+      res.status(500).json({ message: 'Failed to fetch messages' });
+    }
+  });
+
+  app.get('/api/conversations', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const conversations = await storage.getUserConversations(userId);
+      
+      // Enrich conversations with user info
+      const enrichedConversations = await Promise.all(
+        conversations.map(async (conv) => {
+          const otherUserId = conv.user1Id === userId ? conv.user2Id : conv.user1Id;
+          const otherUser = await storage.getUser(otherUserId);
+          return {
+            ...conv,
+            otherUser: {
+              id: otherUser?.id,
+              username: otherUser?.username,
+              email: otherUser?.email
+            }
+          };
+        })
+      );
+      
+      res.json(enrichedConversations);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+      res.status(500).json({ message: 'Failed to fetch conversations' });
+    }
+  });
+
+  app.post('/api/conversations/:conversationId/read', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { conversationId } = req.params;
+      
+      await storage.markMessagesAsRead(userId, parseInt(conversationId));
+      res.json({ message: 'Messages marked as read' });
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+      res.status(500).json({ message: 'Failed to mark messages as read' });
+    }
+  });
+
+  app.get('/api/unread-count', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const count = await storage.getUnreadMessageCount(userId);
+      res.json({ count });
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+      res.status(500).json({ message: 'Failed to fetch unread count' });
+    }
+  });
+
+  app.delete('/api/direct-messages/:messageId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { messageId } = req.params;
+      
+      await storage.deleteDirectMessage(parseInt(messageId), userId);
+      res.json({ message: 'Message deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      res.status(500).json({ message: 'Failed to delete message' });
+    }
+  });
+
   const httpServer = createServer(app);
   
   // WebSocket server
@@ -1156,7 +1263,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
               content: msg.content,
               username: msg.username,
               timestamp: msg.createdAt.toISOString(),
-              expiresAt: msg.expiresAt.toISOString(),
               roomId: msg.roomId,
             }
           }));
@@ -1184,7 +1290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             content: msg.content,
             username: msg.username,
             timestamp: msg.createdAt.toISOString(),
-            expiresAt: msg.expiresAt.toISOString(),
+            expiresAt: msg.expiresAt?.toISOString() || new Date(Date.now() + 15 * 60 * 1000).toISOString(),
             replyToId: msg.replyToId,
           }
         }));

@@ -9,7 +9,7 @@ export const messages = pgTable("messages", {
   ipAddress: text("ip_address").notNull(),
   replyToId: integer("reply_to_id").references(() => messages.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  // Removed expiresAt - messages are now permanent
+  expiresAt: timestamp("expires_at").notNull(),
 });
 
 export const guardians = pgTable("guardians", {
@@ -170,6 +170,7 @@ export const users = pgTable("users", {
   stripeCustomerId: text("stripe_customer_id"),
   stripePaymentMethodId: text("stripe_payment_method_id"),
   isSuperUser: boolean("is_super_user").default(false).notNull(), // For caselka account
+  isGlobalModerator: boolean("is_global_moderator").default(false).notNull(), // For global chat moderation
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -261,3 +262,36 @@ export type HelpRequest = typeof helpRequests.$inferSelect;
 export type InsertHelpRequest = z.infer<typeof insertHelpRequestSchema>;
 export type SponsorAnalytics = typeof sponsorAnalytics.$inferSelect;
 export type InsertSponsorAnalytics = z.infer<typeof insertSponsorAnalyticsSchema>;
+
+// Direct Messages for paid accounts only
+export const directMessages = pgTable("direct_messages", {
+  id: serial("id").primaryKey(),
+  fromUserId: text("from_user_id").notNull().references(() => users.id),
+  toUserId: text("to_user_id").notNull().references(() => users.id),
+  content: text("content").notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Direct Message conversations for organization
+export const directMessageConversations = pgTable("direct_message_conversations", {
+  id: serial("id").primaryKey(),
+  user1Id: text("user1_id").notNull().references(() => users.id),
+  user2Id: text("user2_id").notNull().references(() => users.id),
+  lastMessageId: integer("last_message_id").references(() => directMessages.id),
+  lastMessageAt: timestamp("last_message_at").defaultNow().notNull(),
+  user1UnreadCount: integer("user1_unread_count").default(0).notNull(),
+  user2UnreadCount: integer("user2_unread_count").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  unique().on(table.user1Id, table.user2Id),
+]);
+
+export const insertDirectMessageSchema = createInsertSchema(directMessages).pick({
+  toUserId: true,
+  content: true,
+});
+
+export type DirectMessage = typeof directMessages.$inferSelect;
+export type InsertDirectMessage = z.infer<typeof insertDirectMessageSchema>;
+export type DirectMessageConversation = typeof directMessageConversations.$inferSelect;

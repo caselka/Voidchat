@@ -73,8 +73,9 @@ app.use((req, res, next) => {
     try {
       const { storage } = await import('./storage');
       await storage.processExpiredUsernames();
+      await storage.deleteExpiredMessages();
     } catch (error) {
-      console.error('Error processing expired usernames:', error);
+      console.error('Error processing expired usernames or messages:', error);
     }
   }, 5 * 60 * 1000);
 })();

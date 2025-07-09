@@ -14,6 +14,8 @@ import {
   roomMessages,
   helpRequests,
   sponsorAnalytics,
+  directMessages,
+  directMessageConversations,
   type Message, 
   type InsertMessage,
   type Guardian,
@@ -38,17 +40,20 @@ import {
   type HelpRequest,
   type InsertHelpRequest,
   type SponsorAnalytics,
-  type InsertSponsorAnalytics
+  type InsertSponsorAnalytics,
+  type DirectMessage,
+  type InsertDirectMessage,
+  type DirectMessageConversation
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, lt, desc, asc, sql, or } from "drizzle-orm";
+import { eq, and, gte, lte, lt, gt, desc, asc, sql, or, count } from "drizzle-orm";
 import { checkProfanity, validateUsernameFormat } from "./profanity-filter";
 
 export interface IStorage {
-  // Messages (now permanent storage)
+  // Messages (15-minute expiration)
   createMessage(message: InsertMessage & { username: string; ipAddress: string }): Promise<Message>;
   getRecentMessages(limit?: number): Promise<Message[]>;
-  deleteExpiredMessages(): Promise<void>; // Legacy method - no longer deletes anything
+  deleteExpiredMessages(): Promise<void>; // Deletes messages older than 15 minutes
   deleteMessage(id: number): Promise<void>;
   
   // Rate limiting
@@ -98,6 +103,10 @@ export interface IStorage {
   getUserByUsernameOrEmail(usernameOrEmail: string): Promise<User | undefined>;
   createUser(user: UpsertUser): Promise<User>;
   verifyUser(id: string): Promise<void>;
+  
+  // Global Moderation
+  isGlobalModerator(userId: string): Promise<boolean>;
+  setGlobalModerator(userId: string, isModerator: boolean): Promise<void>;
   updateUserAutoRenewal(userId: string, autoRenewal: boolean): Promise<void>;
   updateUserPaymentMethod(userId: string, stripeCustomerId: string, paymentMethodId: string): Promise<void>;
   
@@ -200,12 +209,24 @@ export interface IStorage {
   recordSponsorEvent(analytics: InsertSponsorAnalytics): Promise<SponsorAnalytics>;
   getSponsorAnalytics(adId: number): Promise<SponsorAnalytics[]>;
   updateSponsorFunds(adId: number, spent: number): Promise<void>;
+  
+  // Direct Messages (paid accounts only)
+  sendDirectMessage(fromUserId: string, toUserId: string, content: string): Promise<DirectMessage>;
+  getDirectMessages(userId1: string, userId2: string, limit?: number): Promise<DirectMessage[]>;
+  getUserConversations(userId: string): Promise<DirectMessageConversation[]>;
+  markMessagesAsRead(userId: string, conversationId: number): Promise<void>;
+  getUnreadMessageCount(userId: string): Promise<number>;
+  createOrUpdateConversation(user1Id: string, user2Id: string, lastMessageId: number): Promise<DirectMessageConversation>;
+  deleteDirectMessage(messageId: number, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
   async createMessage(messageData: InsertMessage & { username: string; ipAddress: string; replyToId?: number }): Promise<Message> {
     // Additional security check: Ensure content and username are clean
     const { sanitizeMessageContent, sanitizeUsername } = await import('./security');
+    
+    // Set expiration to 15 minutes from now
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
     
     const [message] = await db
       .insert(messages)
@@ -214,13 +235,14 @@ export class DatabaseStorage implements IStorage {
         username: sanitizeUsername(messageData.username),
         ipAddress: messageData.ipAddress,
         replyToId: messageData.replyToId || null,
+        expiresAt,
       })
       .returning();
     return message;
   }
 
   async getRecentMessages(limit = 50): Promise<Message[]> {
-    // Get all recent messages - no expiration filtering since messages are permanent
+    // Get recent messages that haven't expired yet
     return await db
       .select({
         id: messages.id,
@@ -228,17 +250,20 @@ export class DatabaseStorage implements IStorage {
         username: messages.username,
         ipAddress: messages.ipAddress,
         createdAt: messages.createdAt,
+        expiresAt: messages.expiresAt,
         replyToId: messages.replyToId,
       })
       .from(messages)
+      .where(gt(messages.expiresAt, new Date()))
       .orderBy(desc(messages.createdAt))
       .limit(limit);
   }
 
   async deleteExpiredMessages(): Promise<void> {
-    // Messages are now permanent - no automatic deletion
-    // This method is kept for backward compatibility but does nothing
-    return;
+    // Delete messages that have expired (older than 15 minutes)
+    await db
+      .delete(messages)
+      .where(lt(messages.expiresAt, new Date()));
   }
 
   async deleteMessage(id: number): Promise<void> {
@@ -1448,6 +1473,177 @@ export class DatabaseStorage implements IStorage {
     }
 
     return analytics.sort((a, b) => b.engagementScore - a.engagementScore);
+  }
+
+  // Direct Messages implementation (paid accounts only)
+  async sendDirectMessage(fromUserId: string, toUserId: string, content: string): Promise<DirectMessage> {
+    const [message] = await db
+      .insert(directMessages)
+      .values({
+        fromUserId,
+        toUserId,
+        content,
+        isRead: false,
+        createdAt: new Date(),
+      })
+      .returning();
+
+    // Update or create conversation
+    await this.createOrUpdateConversation(fromUserId, toUserId, message.id);
+    
+    return message;
+  }
+
+  async getDirectMessages(userId1: string, userId2: string, limit = 50): Promise<DirectMessage[]> {
+    return await db
+      .select()
+      .from(directMessages)
+      .where(
+        or(
+          and(eq(directMessages.fromUserId, userId1), eq(directMessages.toUserId, userId2)),
+          and(eq(directMessages.fromUserId, userId2), eq(directMessages.toUserId, userId1))
+        )
+      )
+      .orderBy(desc(directMessages.createdAt))
+      .limit(limit);
+  }
+
+  async getUserConversations(userId: string): Promise<DirectMessageConversation[]> {
+    return await db
+      .select()
+      .from(directMessageConversations)
+      .where(
+        or(
+          eq(directMessageConversations.user1Id, userId),
+          eq(directMessageConversations.user2Id, userId)
+        )
+      )
+      .orderBy(desc(directMessageConversations.lastMessageAt));
+  }
+
+  async markMessagesAsRead(userId: string, conversationId: number): Promise<void> {
+    const [conversation] = await db
+      .select()
+      .from(directMessageConversations)
+      .where(eq(directMessageConversations.id, conversationId));
+
+    if (!conversation) return;
+
+    // Mark messages as read
+    const otherUserId = conversation.user1Id === userId ? conversation.user2Id : conversation.user1Id;
+    await db
+      .update(directMessages)
+      .set({ isRead: true })
+      .where(
+        and(
+          eq(directMessages.fromUserId, otherUserId),
+          eq(directMessages.toUserId, userId),
+          eq(directMessages.isRead, false)
+        )
+      );
+
+    // Update conversation unread count
+    if (conversation.user1Id === userId) {
+      await db
+        .update(directMessageConversations)
+        .set({ user1UnreadCount: 0 })
+        .where(eq(directMessageConversations.id, conversationId));
+    } else {
+      await db
+        .update(directMessageConversations)
+        .set({ user2UnreadCount: 0 })
+        .where(eq(directMessageConversations.id, conversationId));
+    }
+  }
+
+  async getUnreadMessageCount(userId: string): Promise<number> {
+    const conversations = await this.getUserConversations(userId);
+    return conversations.reduce((total, conv) => {
+      return total + (conv.user1Id === userId ? conv.user1UnreadCount : conv.user2UnreadCount);
+    }, 0);
+  }
+
+  async createOrUpdateConversation(user1Id: string, user2Id: string, lastMessageId: number): Promise<DirectMessageConversation> {
+    // Ensure consistent ordering: smaller userId first
+    const orderedUser1 = user1Id < user2Id ? user1Id : user2Id;
+    const orderedUser2 = user1Id < user2Id ? user2Id : user1Id;
+
+    const [existingConversation] = await db
+      .select()
+      .from(directMessageConversations)
+      .where(
+        and(
+          eq(directMessageConversations.user1Id, orderedUser1),
+          eq(directMessageConversations.user2Id, orderedUser2)
+        )
+      );
+
+    if (existingConversation) {
+      // Update existing conversation
+      const isUser1Sender = user1Id === orderedUser1;
+      const [updated] = await db
+        .update(directMessageConversations)
+        .set({
+          lastMessageId,
+          lastMessageAt: new Date(),
+          user1UnreadCount: isUser1Sender ? 
+            existingConversation.user1UnreadCount : 
+            existingConversation.user1UnreadCount + 1,
+          user2UnreadCount: isUser1Sender ? 
+            existingConversation.user2UnreadCount + 1 : 
+            existingConversation.user2UnreadCount,
+        })
+        .where(eq(directMessageConversations.id, existingConversation.id))
+        .returning();
+      return updated;
+    } else {
+      // Create new conversation
+      const isUser1Sender = user1Id === orderedUser1;
+      const [newConversation] = await db
+        .insert(directMessageConversations)
+        .values({
+          user1Id: orderedUser1,
+          user2Id: orderedUser2,
+          lastMessageId,
+          lastMessageAt: new Date(),
+          user1UnreadCount: isUser1Sender ? 0 : 1,
+          user2UnreadCount: isUser1Sender ? 1 : 0,
+          createdAt: new Date(),
+        })
+        .returning();
+      return newConversation;
+    }
+  }
+
+  async deleteDirectMessage(messageId: number, userId: string): Promise<void> {
+    // Only allow deletion if user is the sender
+    await db
+      .delete(directMessages)
+      .where(
+        and(
+          eq(directMessages.id, messageId),
+          eq(directMessages.fromUserId, userId)
+        )
+      );
+  }
+
+  // Global Moderation methods
+  async isGlobalModerator(userId: string): Promise<boolean> {
+    const [user] = await db
+      .select({ isGlobalModerator: users.isGlobalModerator })
+      .from(users)
+      .where(eq(users.id, userId));
+    return user?.isGlobalModerator || false;
+  }
+
+  async setGlobalModerator(userId: string, isModerator: boolean): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        isGlobalModerator: isModerator,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
   }
 }
 
