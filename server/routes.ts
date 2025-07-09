@@ -555,30 +555,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Check for authenticated user first, then custom handle, then anon username
           let username: string;
           
-          // Try to get authenticated user from session cookie
+          // Try to get authenticated user via session store
           let authenticatedUser = null;
           const cookies = req.headers.cookie;
+          
           if (cookies) {
             try {
               const sessionMatch = cookies.match(/connect\.sid=([^;]+)/);
               if (sessionMatch) {
-                // Query active sessions to find authenticated user
                 const sessionId = decodeURIComponent(sessionMatch[1]);
-                const sessionQuery = await db.select()
-                  .from(sessions)
-                  .where(eq(sessions.sid, sessionId))
-                  .limit(1);
                 
-                if (sessionQuery.length > 0) {
-                  const sessionData = sessionQuery[0].sess as any;
-                  if (sessionData?.passport?.user?.id) {
-                    const userId = sessionData.passport.user.id;
-                    authenticatedUser = await storage.getUser(userId);
+                // Check all sessions to find the matching one
+                const allSessions = await db.select().from(sessions);
+                console.log(`Found ${allSessions.length} total sessions`);
+                
+                for (const session of allSessions) {
+                  // Try different matching approaches for the session ID
+                  const sessionKey = sessionId.split('.')[0]; // Get the part before the signature
+                  
+                  if (session.sid === sessionKey || session.sid === sessionId) {
+                    console.log('Found matching session:', session.sid);
+                    const sessionData = session.sess as any;
+                    console.log('Session data:', sessionData);
+                    
+                    if (sessionData?.user?.id) {
+                      const userId = sessionData.user.id;
+                      authenticatedUser = await storage.getUser(userId);
+                      console.log('Found authenticated user:', authenticatedUser?.username);
+                      break;
+                    }
                   }
+                }
+                
+                if (!authenticatedUser) {
+                  console.log('No authenticated user found for session:', sessionId);
                 }
               }
             } catch (error) {
-              console.log('Session parsing error:', error);
+              console.log('Session authentication error:', error);
             }
           }
 
