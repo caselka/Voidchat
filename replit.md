@@ -110,7 +110,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 8, 2025)
 
-### Input Positioning Fix and UI Finalization (Latest)
+### Account Settings and Message Persistence Fix (Latest)
+- **Fixed account settings access**: Added Users icon in header when logged in to access member settings
+- **Corrected user display logic**: Landing page now shows actual username instead of email prefix (fixed "caselka" vs "rob" issue)
+- **Enhanced message persistence**: Messages now load from database before WebSocket connection to prevent loss on refresh
+- **Verified message storage**: Database is properly storing and retrieving messages with 15-minute expiration
+- **Improved WebSocket reconnection**: Better error handling and connection stability
+- **Fixed all navigation icons**: Replaced missing Cube icon with Box icon throughout app
+- **Mobile optimizations maintained**: Viewport settings and responsive design preserved
+
+### Input Positioning Fix and UI Finalization
 - **Fixed input movement**: Input now stays locked in place during auto-scroll after sending messages
 - **Stable positioning**: Using translate3d(0,0,0) and will-change:transform for hardware acceleration
 - **Window scroll method**: Auto-scroll uses window.scrollTo instead of container scroll to prevent input movement

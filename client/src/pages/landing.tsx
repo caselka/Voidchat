@@ -64,7 +64,7 @@ export default function Landing() {
             ) : (
               <div className="flex flex-col gap-4 items-center">
                 <div className="text-lg text-muted-foreground">
-                  Welcome back, {user?.firstName || user?.email?.split('@')[0] || 'user'}!
+                  Welcome back, {user?.username || user?.firstName || user?.email?.split('@')[0] || 'user'}!
                 </div>
                 <Link href="/handle">
                   <Button variant="outline" size="lg" className="text-lg px-8 py-6">
