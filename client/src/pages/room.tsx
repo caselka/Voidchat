@@ -11,6 +11,7 @@ import { useWebSocket } from "@/hooks/use-room-websocket";
 import ChatContainer from "@/components/chat-container";
 import MessageInput from "@/components/message-input";
 import DynamicHeader from "@/components/dynamic-header";
+import RoomsSidebar from "@/components/rooms-sidebar";
 import VLoading from "@/components/v-loading";
 
 interface Room {
@@ -37,6 +38,7 @@ export default function Room() {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [showSettings, setShowSettings] = useState(false);
+  const [showRoomsSidebar, setShowRoomsSidebar] = useState(false);
   const [messages, setMessages] = useState<RoomMessage[]>([]);
   const [rateLimitTime, setRateLimitTime] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -193,6 +195,14 @@ export default function Room() {
         showBack={true}
         backUrl="/chat"
         showHome={true}
+        showRooms={true}
+        onRoomsClick={() => setShowRoomsSidebar(true)}
+      />
+      
+      {/* Rooms Sidebar */}
+      <RoomsSidebar 
+        isOpen={showRoomsSidebar}
+        onClose={() => setShowRoomsSidebar(false)}
       />
       
       <div className="max-w-6xl mx-auto pt-16 pb-20 px-2">

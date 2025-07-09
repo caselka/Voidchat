@@ -10,6 +10,7 @@ interface DynamicHeaderProps {
   backUrl?: string;
   showHome?: boolean;
   showRooms?: boolean;
+  onRoomsClick?: () => void;
 }
 
 export default function DynamicHeader({ 
@@ -17,7 +18,8 @@ export default function DynamicHeader({
   showBack = false, 
   backUrl = "/", 
   showHome = false,
-  showRooms = false 
+  showRooms = false,
+  onRoomsClick
 }: DynamicHeaderProps) {
   const { theme, toggleTheme } = useTheme();
   const { isAuthenticated, user } = useAuth();
@@ -52,9 +54,9 @@ export default function DynamicHeader({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setLocation("/create-room")}
+              onClick={onRoomsClick}
               className="p-2 text-purple-600 dark:text-purple-400"
-              title="Create Room"
+              title="Rooms"
             >
               <Box className="h-4 w-4" />
             </Button>
