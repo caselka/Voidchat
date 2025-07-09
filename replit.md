@@ -110,7 +110,7 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 9, 2025)
 
-### Navigation and Hacker Animations Implementation (Latest)
+### Hacker Animations and VLoading Component Implementation (Latest)
 - **Fixed navigation buttons**: Home and back buttons now correctly redirect to main chat (/chat) instead of homepage (/)
 - **Added V-shaped loading icon**: Created custom VLoading component with edgy square hacker style and scanning animation
 - **Implemented hacker animations**: Added CSS animations for user interactions including:
@@ -124,8 +124,9 @@ Preferred communication style: Simple, everyday language.
   - Payment processing with V loading icon
   - Room entrance with matrix background
   - Button interactions with pulse effects
-- **Room WebSocket improvements**: Fixed WebSocket connection handling for room-specific chat functionality
+- **Fixed VLoading component**: Resolved JSX attribute warning and moved animations from styled-jsx to global CSS
 - **Mobile-optimized animations**: All animations work smoothly across devices without performance impact
+- **Room WebSocket debugging**: Investigating WebSocket connection issues for room-specific chat functionality
 
 ### WebSocket Authentication and User Identification Fix (Latest)
 - **Fixed WebSocket authentication**: Resolved session parsing issue where 's:' prefix in cookies wasn't properly stripped
