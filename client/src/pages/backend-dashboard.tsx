@@ -27,7 +27,8 @@ import {
   DollarSign,
   Search,
   Filter,
-  Settings
+  Settings,
+  Database
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 

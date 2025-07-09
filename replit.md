@@ -117,9 +117,11 @@ Preferred communication style: Simple, everyday language.
 - **User management interface**: Real-time user listing with role management, verification status, and account details
 - **Guardian action tracking**: Moderation history with detailed logs of all guardian activities
 - **System health monitoring**: Live alerts based on actual system performance and usage metrics
-- **Role-based access control**: Shield icon in header for super users with proper authentication verification
+- **Role-based landing pages**: Super users redirect to /backend dashboard, regular users to /chat after login
+- **Moderator dashboard**: Complete room management interface at /moderator for all authenticated users
+- **Fixed Database icon import**: Resolved "Database is not defined" error in backend dashboard
 - **Database-driven insights**: All dashboard data comes from live database queries, no mock data
-- **Accurate user statistics**: 6 total users, 3 verified, 5 active rooms, 5 sponsor ads currently running
+- **Accurate user statistics**: 6 total users, 3 verified, 5 active rooms, 4 sponsor ads currently running
 
 ### VLoading Component Removal and UI Cleanup (Latest)
 - **VLoading component removed**: Replaced all broken VLoading components with Lucide React Loader2 icons
