@@ -110,6 +110,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 9, 2025)
 
+### Permanent Message Storage Implementation (Latest)
+- **Removed message expiration system**: Messages are now stored permanently in the backend instead of the previous 15-minute TTL
+- **Updated database schema**: Removed `expires_at` column from messages table to reflect permanent storage
+- **Fixed cleanup processes**: Removed expired message deletion from scheduled cleanup jobs
+- **Enhanced data persistence**: All chat messages now persist permanently for better user experience and data accuracy
+- **Updated storage interface**: Modified message retrieval to work with permanent storage, maintaining backward compatibility
+
 ### Enhanced Backend Dashboard with User Preferences and Sponsor Management (Latest)
 - **Date format customization**: Users can choose between relative (2h ago), short (Jan 9, 2:30 PM), or full format display
 - **Comprehensive user menu**: Theme toggle, chats navigation, and logout functionality integrated into dashboard header

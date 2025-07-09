@@ -45,10 +45,10 @@ import { eq, and, gte, lte, lt, desc, asc, sql, or } from "drizzle-orm";
 import { checkProfanity, validateUsernameFormat } from "./profanity-filter";
 
 export interface IStorage {
-  // Messages
+  // Messages (now permanent storage)
   createMessage(message: InsertMessage & { username: string; ipAddress: string }): Promise<Message>;
   getRecentMessages(limit?: number): Promise<Message[]>;
-  deleteExpiredMessages(): Promise<void>;
+  deleteExpiredMessages(): Promise<void>; // Legacy method - no longer deletes anything
   deleteMessage(id: number): Promise<void>;
   
   // Rate limiting
@@ -192,8 +192,6 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async createMessage(messageData: InsertMessage & { username: string; ipAddress: string; replyToId?: number }): Promise<Message> {
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
-    
     // Additional security check: Ensure content and username are clean
     const { sanitizeMessageContent, sanitizeUsername } = await import('./security');
     
@@ -203,7 +201,6 @@ export class DatabaseStorage implements IStorage {
         content: sanitizeMessageContent(messageData.content),
         username: sanitizeUsername(messageData.username),
         ipAddress: messageData.ipAddress,
-        expiresAt,
         replyToId: messageData.replyToId || null,
       })
       .returning();
@@ -211,8 +208,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRecentMessages(limit = 50): Promise<Message[]> {
-    const now = new Date();
-    // Get messages from the last 15 minutes that haven't expired yet
+    // Get all recent messages - no expiration filtering since messages are permanent
     return await db
       .select({
         id: messages.id,
@@ -220,18 +216,17 @@ export class DatabaseStorage implements IStorage {
         username: messages.username,
         ipAddress: messages.ipAddress,
         createdAt: messages.createdAt,
-        expiresAt: messages.expiresAt,
         replyToId: messages.replyToId,
       })
       .from(messages)
-      .where(gte(messages.expiresAt, now)) // Only non-expired messages
       .orderBy(desc(messages.createdAt))
       .limit(limit);
   }
 
   async deleteExpiredMessages(): Promise<void> {
-    const now = new Date();
-    await db.delete(messages).where(lte(messages.expiresAt, now));
+    // Messages are now permanent - no automatic deletion
+    // This method is kept for backward compatibility but does nothing
+    return;
   }
 
   async deleteMessage(id: number): Promise<void> {

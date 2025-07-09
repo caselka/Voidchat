@@ -2162,10 +2162,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Cleanup expired messages and ads every minute
+  // Cleanup expired items every minute (messages are now permanent)
   setInterval(async () => {
     try {
-      await storage.deleteExpiredMessages();
+      // Messages are now permanent - no cleanup needed
       await storage.deleteExpiredAds();
       await storage.deleteExpiredHandles();
       await storage.deleteExpiredThemes();

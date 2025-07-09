@@ -9,7 +9,7 @@ export const messages = pgTable("messages", {
   ipAddress: text("ip_address").notNull(),
   replyToId: integer("reply_to_id").references(() => messages.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
+  // Removed expiresAt - messages are now permanent
 });
 
 export const guardians = pgTable("guardians", {
