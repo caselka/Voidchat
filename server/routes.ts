@@ -222,7 +222,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   
   // WebSocket server
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  const wss = new WebSocketServer({ 
+    server: httpServer,
+    verifyClient: (info) => {
+      // Allow both /ws and /ws/room/* paths
+      const pathname = info.req.url;
+      return pathname === '/ws' || pathname?.startsWith('/ws/room/');
+    }
+  });
   
   // Room management routes
   // Username status endpoint
@@ -663,6 +670,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (roomMatch) {
       ws.roomName = roomMatch[1];
       console.log(`Room WebSocket connected to /${ws.roomName} from ${ipAddress}`);
+      
+      // Verify room exists immediately
+      storage.getRoom(ws.roomName).then(room => {
+        if (!room) {
+          console.log(`Room ${ws.roomName} not found, closing connection`);
+          ws.close(1008, 'Room not found');
+          return;
+        }
+        console.log(`Room ${ws.roomName} verified, connection established`);
+      }).catch(error => {
+        console.error(`Error verifying room ${ws.roomName}:`, error);
+        ws.close(1011, 'Server error');
+      });
     }
     
     clients.add(ws);
@@ -676,30 +696,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Send recent messages to new client
     if (ws.roomName) {
       // For room connections, send room messages
-      storage.getRoom(ws.roomName).then(room => {
-        if (room) {
-          return storage.getRoomMessages(room.id, 50);
-        }
-        return [];
-      }).then(messages => {
-        const recentMessages = messages.map(msg => ({
-          type: 'room_message',
-          data: {
-            id: msg.id,
-            content: msg.content,
-            username: msg.username,
-            timestamp: msg.createdAt.toISOString(),
-            expiresAt: msg.expiresAt.toISOString(),
-            roomId: msg.roomId,
+      setTimeout(() => {
+        storage.getRoom(ws.roomName).then(room => {
+          if (room) {
+            console.log(`Loading messages for room ${ws.roomName} (id: ${room.id})`);
+            return storage.getRoomMessages(room.id, 50);
           }
-        }));
-        
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: 'initial_room_messages', data: recentMessages }));
-        }
-      }).catch(error => {
-        console.error('Error sending initial room messages:', error);
-      });
+          console.log(`Room ${ws.roomName} not found when loading messages`);
+          return [];
+        }).then(messages => {
+          console.log(`Found ${messages.length} messages for room ${ws.roomName}`);
+          const recentMessages = messages.map(msg => ({
+            type: 'room_message',
+            data: {
+              id: msg.id,
+              content: msg.content,
+              username: msg.username,
+              timestamp: msg.createdAt.toISOString(),
+              expiresAt: msg.expiresAt.toISOString(),
+              roomId: msg.roomId,
+            }
+          }));
+          
+          if (ws.readyState === WebSocket.OPEN) {
+            console.log(`Sending ${recentMessages.length} initial messages to room ${ws.roomName}`);
+            ws.send(JSON.stringify({ type: 'initial_room_messages', data: recentMessages }));
+          } else {
+            console.log(`WebSocket closed before sending messages to room ${ws.roomName}`);
+          }
+        }).catch(error => {
+          console.error('Error sending initial room messages:', error);
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.close(1011, 'Server error loading messages');
+          }
+        });
+      }, 100); // Small delay to ensure connection is fully established
     } else {
       // For global chat connections, send global messages
       storage.getRecentMessages(100).then(messages => {
