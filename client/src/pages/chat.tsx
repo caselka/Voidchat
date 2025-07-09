@@ -172,7 +172,49 @@ export default function Chat() {
           
           <h1 className="text-lg md:text-xl font-light tracking-wider text-foreground">voidchat</h1>
           
-          <div className="flex items-center space-x-2 min-w-[120px] justify-end">
+          <div className="flex items-center space-x-1 min-w-[120px] justify-end">
+            {/* Test Messages Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const testMessages = [
+                  'Hey everyone! How is your day going?',
+                  'Just testing out this chat, looks pretty cool',
+                  'Anyone else here from the beta testing?',
+                  'Love the minimalist design of this chat',
+                  'This is a longer message to test how text wrapping works in the chat interface',
+                  'Quick question - how long do messages stay up?',
+                  'The keyboard behavior feels smooth now',
+                  'Testing some special characters: !@#$%^&*()',
+                  'Another test message to see the flow',
+                  'Final test message for now'
+                ];
+                
+                const usernames = ['alice42', 'bob_dev', 'charlie99', 'dana_test', 'eve_user'];
+                
+                // Send random messages with slight delays
+                testMessages.forEach((content, index) => {
+                  setTimeout(() => {
+                    const mockMessage = {
+                      id: Date.now() + index,
+                      content,
+                      username: usernames[index % usernames.length],
+                      timestamp: new Date().toISOString(),
+                      createdAt: new Date().toISOString(),
+                      expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+                      isAd: false
+                    };
+                    setMessages(prev => [...prev, mockMessage]);
+                  }, index * 800); // 800ms delay between messages
+                });
+              }}
+              className="p-2 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-200 dark:hover:bg-yellow-900/40"
+              title="Simulate test messages"
+            >
+              Test
+            </Button>
+
             {/* Profanity Filter Toggle */}
             <Button
               variant="ghost"
