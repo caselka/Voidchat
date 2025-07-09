@@ -494,3 +494,81 @@ html {
     opacity: 0;
   }
 }
+
+/* V Loading Component Animations */
+@keyframes v-draw-left {
+  0%, 20% { 
+    height: 0; 
+    opacity: 0;
+  }
+  50% { 
+    opacity: 1;
+  }
+  70%, 100% { 
+    opacity: 0.3;
+  }
+}
+
+@keyframes v-draw-right {
+  0%, 20% { 
+    height: 0; 
+    opacity: 0;
+  }
+  50% { 
+    opacity: 1;
+  }
+  70%, 100% { 
+    opacity: 0.3;
+  }
+}
+
+@keyframes v-scan-dot {
+  0%, 30% { 
+    opacity: 0; 
+    transform: scale(0);
+  }
+  60% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  80%, 100% { 
+    opacity: 0; 
+    transform: scale(0);
+  }
+}
+
+/* V Loading size and animation classes */
+.v-line-left {
+  animation: v-draw-left 1.5s ease-in-out infinite;
+}
+
+.v-line-right {
+  animation: v-draw-right 1.5s ease-in-out infinite 0.2s;
+}
+
+.v-line-sm {
+  height: 12px;
+}
+
+.v-line-md {
+  height: 24px;
+}
+
+.v-line-lg {
+  height: 36px;
+}
+
+.v-dot {
+  animation: v-scan-dot 2s ease-in-out infinite;
+  border-radius: 50%;
+}
+
+.v-dot-sm {
+  width: 2px;
+  height: 2px;
+}
+
+.v-dot-md {
+  width: 3px;
+  height: 3px;
+}

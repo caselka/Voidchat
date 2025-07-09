@@ -20,24 +20,26 @@ export default function VLoading({ className, size = "md" }: VLoadingProps) {
           <div className="relative">
             {/* Left line of V */}
             <div 
-              className="absolute bg-current origin-bottom transform rotate-[20deg]"
+              className={cn(
+                "absolute bg-current origin-bottom transform rotate-[20deg] v-line-left",
+                size === 'sm' ? 'v-line-sm' : size === 'md' ? 'v-line-md' : 'v-line-lg'
+              )}
               style={{
                 width: '2px',
-                height: size === 'sm' ? '12px' : size === 'md' ? '24px' : '36px',
                 left: size === 'sm' ? '4px' : size === 'md' ? '8px' : '12px',
-                top: '0',
-                animation: 'v-draw-left 1.5s ease-in-out infinite'
+                top: '0'
               }}
             />
             {/* Right line of V */}
             <div 
-              className="absolute bg-current origin-bottom transform rotate-[-20deg]"
+              className={cn(
+                "absolute bg-current origin-bottom transform rotate-[-20deg] v-line-right",
+                size === 'sm' ? 'v-line-sm' : size === 'md' ? 'v-line-md' : 'v-line-lg'
+              )}
               style={{
                 width: '2px',
-                height: size === 'sm' ? '12px' : size === 'md' ? '24px' : '36px',
                 right: size === 'sm' ? '4px' : size === 'md' ? '8px' : '12px',
-                top: '0',
-                animation: 'v-draw-right 1.5s ease-in-out infinite 0.2s'
+                top: '0'
               }}
             />
           </div>
@@ -49,11 +51,12 @@ export default function VLoading({ className, size = "md" }: VLoadingProps) {
             {[0, 1, 2].map(i => (
               <div
                 key={i}
-                className="bg-current opacity-0"
+                className={cn(
+                  "bg-current opacity-0 v-dot",
+                  size === 'sm' ? 'v-dot-sm' : 'v-dot-md'
+                )}
                 style={{
-                  width: size === 'sm' ? '2px' : '3px',
-                  height: size === 'sm' ? '2px' : '3px',
-                  animation: `v-scan-dot 2s ease-in-out infinite ${i * 0.3}s`
+                  animationDelay: `${i * 0.3}s`
                 }}
               />
             ))}
@@ -61,52 +64,7 @@ export default function VLoading({ className, size = "md" }: VLoadingProps) {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes v-draw-left {
-          0%, 20% { 
-            height: 0; 
-            opacity: 0;
-          }
-          50% { 
-            height: ${size === 'sm' ? '12px' : size === 'md' ? '24px' : '36px'}; 
-            opacity: 1;
-          }
-          70%, 100% { 
-            height: ${size === 'sm' ? '12px' : size === 'md' ? '24px' : '36px'}; 
-            opacity: 0.3;
-          }
-        }
-        
-        @keyframes v-draw-right {
-          0%, 20% { 
-            height: 0; 
-            opacity: 0;
-          }
-          50% { 
-            height: ${size === 'sm' ? '12px' : size === 'md' ? '24px' : '36px'}; 
-            opacity: 1;
-          }
-          70%, 100% { 
-            height: ${size === 'sm' ? '12px' : size === 'md' ? '24px' : '36px'}; 
-            opacity: 0.3;
-          }
-        }
-        
-        @keyframes v-scan-dot {
-          0%, 30% { 
-            opacity: 0; 
-            transform: scale(0);
-          }
-          60% { 
-            opacity: 1; 
-            transform: scale(1);
-          }
-          80%, 100% { 
-            opacity: 0; 
-            transform: scale(0);
-          }
-        }
-      `}</style>
+
     </div>
   );
 }
