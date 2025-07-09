@@ -36,7 +36,7 @@ export default function Login() {
 
       if (response.ok) {
         await refetch();
-        setLocation('/');
+        setLocation('/chat');
       } else {
         // Handle specific error messages
         if (response.status === 401) {
