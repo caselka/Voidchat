@@ -81,6 +81,19 @@ export default function DynamicHeader({
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           
+          {/* Account Settings - only show when authenticated */}
+          {isAuthenticated && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation("/member-settings")}
+              className="p-2"
+              title="Account Settings"
+            >
+              <Users className="h-4 w-4" />
+            </Button>
+          )}
+          
           {isAuthenticated ? (
             <Button
               variant="ghost"

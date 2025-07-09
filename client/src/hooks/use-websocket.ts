@@ -134,6 +134,29 @@ export function useWebSocket(): WebSocketHook {
   };
 
   useEffect(() => {
+    // Load messages from API first, then connect to WebSocket
+    const loadInitialMessages = async () => {
+      try {
+        const response = await fetch('/api/recent-messages');
+        if (response.ok) {
+          const apiMessages = await response.json();
+          setMessages(apiMessages.map((msg: any) => ({
+            id: msg.id,
+            content: msg.content,
+            username: msg.username,
+            timestamp: msg.createdAt,
+            createdAt: msg.createdAt,
+            expiresAt: msg.expiresAt,
+            replyToId: msg.replyToId,
+            isAd: false,
+          })));
+        }
+      } catch (error) {
+        console.error('Error loading initial messages:', error);
+      }
+    };
+
+    loadInitialMessages();
     connect();
 
     return () => {
