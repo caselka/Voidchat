@@ -12,6 +12,7 @@ import Landing from "@/pages/landing";
 import Chat from "@/pages/chat";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
+import RegisterSimple from "@/pages/register-simple";
 import GuardianCheckout from "@/pages/guardian-checkout";
 import Sponsor from "@/pages/sponsor";
 import Handle from "@/pages/handle";
@@ -84,7 +85,8 @@ function Router() {
         <Route path="/" component={Landing} />
         <Route path="/chat" component={Chat} />
         <Route path="/login" component={Login} />
-        <Route path="/register" component={Register} />
+        <Route path="/register" component={RegisterSimple} />
+        <Route path="/register-full" component={Register} />
         <Route path="/guardian-checkout" component={GuardianCheckout} />
         <Route path="/sponsor" component={Sponsor} />
         <Route path="/handle" component={Handle} />

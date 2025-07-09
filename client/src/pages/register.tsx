@@ -9,10 +9,11 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import { loadStripe } from '@stripe/stripe-js';
 import { apiRequest } from "@/lib/queryClient";
 
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+if (!stripeKey) {
+  console.error('Missing VITE_STRIPE_PUBLIC_KEY');
 }
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
 
 const RegistrationForm = () => {
   const [, setLocation] = useLocation();
@@ -263,6 +264,24 @@ const RegistrationForm = () => {
 };
 
 export default function Register() {
+  if (!stripePromise) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-6 text-center">
+            <h2 className="text-xl font-semibold mb-4">Registration Unavailable</h2>
+            <p className="text-muted-foreground">
+              Payment processing is currently unavailable. Please try again later.
+            </p>
+            <Link href="/login" className="mt-4 inline-block">
+              <Button variant="outline">Back to Login</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
@@ -285,7 +304,9 @@ export default function Register() {
           </div>
         </CardHeader>
         <CardContent>
-          <RegistrationForm />
+          <Elements stripe={stripePromise}>
+            <RegistrationForm />
+          </Elements>
         </CardContent>
       </Card>
     </div>
