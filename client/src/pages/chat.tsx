@@ -135,7 +135,10 @@ export default function Chat() {
       {/* Rooms Sidebar */}
       <RoomsSidebar 
         isOpen={showRoomsSidebar}
-        onClose={() => setShowRoomsSidebar(false)}
+        onClose={() => {
+          console.log('Closing rooms sidebar');
+          setShowRoomsSidebar(false);
+        }}
       />
       
       {/* Human Verification Modal for Anonymous Users */}
