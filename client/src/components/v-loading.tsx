@@ -7,62 +7,31 @@ interface VLoadingProps {
 
 export default function VLoading({ className, size = "md" }: VLoadingProps) {
   const sizeClasses = {
-    sm: "w-4 h-4",
+    sm: "w-6 h-6",
     md: "w-8 h-8", 
     lg: "w-12 h-12"
   };
 
-  const lineHeight = {
-    sm: 12,
-    md: 24,
-    lg: 36
-  };
-
   return (
-    <div className={cn("flex items-center justify-center", className)}>
+    <div className={cn("inline-flex items-center justify-center", className)}>
       <div className={cn("relative", sizeClasses[size])}>
-        {/* Main V shape */}
+        {/* Simple V shape with green pulse animation */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative">
-            {/* Left line of V */}
-            <div 
-              className="absolute bg-green-400 origin-bottom transform rotate-[20deg] animate-pulse"
-              style={{
-                width: '2px',
-                height: `${lineHeight[size]}px`,
-                left: size === 'sm' ? '4px' : size === 'md' ? '8px' : '12px',
-                top: '0'
-              }}
-            />
-            {/* Right line of V */}
-            <div 
-              className="absolute bg-green-400 origin-bottom transform rotate-[-20deg] animate-pulse"
-              style={{
-                width: '2px',
-                height: `${lineHeight[size]}px`,
-                right: size === 'sm' ? '4px' : size === 'md' ? '8px' : '12px',
-                top: '0'
-              }}
-            />
-          </div>
+          <svg
+            className="w-full h-full text-green-400 animate-pulse"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M8 2 L12 18 L16 2" />
+          </svg>
         </div>
         
-        {/* Scanning dots */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex gap-1">
-            {[0, 1, 2].map(i => (
-              <div
-                key={i}
-                className="bg-green-400 animate-ping"
-                style={{
-                  width: size === 'sm' ? '2px' : '3px',
-                  height: size === 'sm' ? '2px' : '3px',
-                  animationDelay: `${i * 0.3}s`
-                }}
-              />
-            ))}
-          </div>
-        </div>
+        {/* Pulsing green ring */}
+        <div className="absolute inset-0 border-2 border-green-400/30 rounded-full animate-ping" />
       </div>
     </div>
   );

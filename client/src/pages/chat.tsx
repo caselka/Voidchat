@@ -61,10 +61,15 @@ export default function Chat() {
 
   const RoomsList = () => {
     if (roomsLoading) {
-      return <DropdownMenuItem disabled>Loading rooms...</DropdownMenuItem>;
+      return (
+        <DropdownMenuItem disabled className="flex items-center">
+          <VLoading size="sm" className="mr-2" />
+          Loading rooms...
+        </DropdownMenuItem>
+      );
     }
     
-    if (rooms.length === 0) {
+    if (!rooms || rooms.length === 0) {
       return <DropdownMenuItem disabled>No rooms available</DropdownMenuItem>;
     }
     
@@ -72,9 +77,12 @@ export default function Chat() {
       <>
         {rooms.map((room: Room) => (
           <DropdownMenuItem key={room.id} asChild>
-            <Link href={`/room/${room.name}`} className="flex items-center">
-              <Box className="w-4 h-4 mr-2" />
-              {room.name}
+            <Link href={`/room/${room.name}`} className="flex items-center w-full">
+              <Box className="w-4 h-4 mr-2 text-purple-500" />
+              <span className="flex-1">{room.name}</span>
+              <span className="text-xs text-muted-foreground ml-2">
+                {room.name === 'founders-lounge' ? '👑' : ''}
+              </span>
             </Link>
           </DropdownMenuItem>
         ))}
