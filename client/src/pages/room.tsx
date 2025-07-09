@@ -5,8 +5,12 @@ import { apiRequest } from "@/lib/queryClient";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Home, Users, Crown } from "lucide-react";
+import { Home, Users, Crown, Settings, Shield, Volume, Trash2, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useWebSocket } from "@/hooks/use-room-websocket";
+import ChatContainer from "@/components/chat-container";
+import MessageInput from "@/components/message-input";
+import DynamicHeader from "@/components/dynamic-header";
 
 interface Room {
   id: number;
@@ -16,20 +20,123 @@ interface Room {
   isActive: boolean;
 }
 
+interface RoomMessage {
+  id: number;
+  content: string;
+  username: string;
+  ipAddress: string;
+  createdAt: string;
+  expiresAt: string;
+  roomId: number;
+}
+
 export default function Room() {
   const { name } = useParams();
   const [, setLocation] = useLocation();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const [showSettings, setShowSettings] = useState(false);
+  const [messages, setMessages] = useState<RoomMessage[]>([]);
+  const [rateLimitTime, setRateLimitTime] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
-  const { data: roomData, isLoading, error } = useQuery({
+  const { data: roomData, isLoading, error: roomError } = useQuery({
     queryKey: [`/api/rooms/${name}`],
     enabled: !!name,
   });
 
-  const room: Room | undefined = roomData?.room;
+  const { data: roomMessages, isLoading: messagesLoading } = useQuery({
+    queryKey: [`/api/rooms/${name}/messages`],
+    enabled: !!name && !!roomData?.room,
+  });
 
-  if (isLoading) {
+  const room: Room | undefined = roomData?.room;
+  
+  // Initialize WebSocket connection for room-specific messages
+  const { isConnected } = useWebSocket(`/ws/room/${name}`, {
+    onMessage: (data) => {
+      if (data.type === 'room_message') {
+        setMessages(prev => [...prev, data.data]);
+      } else if (data.type === 'initial_room_messages') {
+        setMessages(data.data.reverse()); // Reverse to show oldest first
+      } else if (data.type === 'rate_limit') {
+        setRateLimitTime(data.data.resetTime - Date.now());
+      } else if (data.type === 'error') {
+        setError(data.data.message);
+        setTimeout(() => setError(null), 5000);
+      } else if (data.type === 'room_message_deleted') {
+        setMessages(prev => prev.filter(msg => msg.id !== data.data.messageId));
+      }
+    },
+    onConnect: () => {
+      setError(null);
+    },
+    onDisconnect: () => {
+      setError("Connection lost. Reconnecting...");
+    }
+  });
+
+  // Load initial messages
+  useEffect(() => {
+    if (roomMessages && Array.isArray(roomMessages)) {
+      setMessages(roomMessages);
+    }
+  }, [roomMessages]);
+
+  const sendMessage = async (content: string) => {
+    if (!room) return;
+    
+    try {
+      await apiRequest("POST", `/api/rooms/${name}/messages`, {
+        content: content.trim(),
+        roomId: room.id
+      });
+      setError(null);
+    } catch (err: any) {
+      console.error('Error sending message:', err);
+      const errorMessage = err.message || 'Failed to send message';
+      setError(errorMessage);
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleMuteUser = async (messageId: string | number) => {
+    if (!room || !isOwner) return;
+    
+    try {
+      await apiRequest("POST", `/api/rooms/${name}/mute`, { messageId });
+      toast({
+        title: "User Muted",
+        description: "User has been muted in this room for 5 minutes.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to mute user",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: string | number) => {
+    if (!room || !isOwner) return;
+    
+    try {
+      await apiRequest("DELETE", `/api/rooms/${name}/messages/${messageId}`);
+      toast({
+        title: "Message Deleted",
+        description: "Message has been removed.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to delete message",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (isLoading || messagesLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
@@ -37,7 +144,7 @@ export default function Room() {
     );
   }
 
-  if (error || !room) {
+  if (roomError || !room) {
     return (
       <div className="min-h-screen bg-background text-foreground p-4">
         <div className="max-w-2xl mx-auto pt-20">
@@ -76,83 +183,95 @@ export default function Room() {
   const isOwner = isAuthenticated && user?.id === room.creatorId;
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4">
-      <div className="max-w-4xl mx-auto pt-20">
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Users className="w-5 h-5" />
-              <span>/{room.name}</span>
-              {isOwner && <Crown className="w-4 h-4 text-yellow-500" title="You own this room" />}
-            </CardTitle>
-            <CardDescription>
-              Private chat room • Created {new Date(room.createdAt).toLocaleDateString()}
-              {isOwner && " • You are the moderator"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg mb-4">
-              <p className="text-sm text-blue-700 dark:text-blue-400">
-                <strong>Coming Soon:</strong> Real-time chat functionality for this room will be available in the next update.
-              </p>
-            </div>
-            
-            <div className="flex space-x-2">
-              <Button onClick={() => setLocation("/chat")} variant="outline" className="flex-1">
-                <Home className="w-4 h-4 mr-2" />
-                Global Chat
-              </Button>
-              {isAuthenticated && (
-                <Button 
-                  onClick={() => setLocation("/create-room")} 
-                  variant="outline" 
-                  className="flex-1"
-                >
-                  <Users className="w-4 h-4 mr-2" />
-                  Create Another Room
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+    <div className="min-h-screen bg-background text-foreground">
+      <DynamicHeader 
+        title={`/${room.name}`}
+        showBack={true}
+        backUrl="/chat"
+        showHome={true}
+      />
+      
+      <div className="max-w-6xl mx-auto pt-16 pb-20 px-2">
+        {/* Room Header */}
+        <div className="flex items-center justify-between mb-4 px-2">
+          <div className="flex items-center space-x-2">
+            <MessageSquare className="w-5 h-5 text-purple-500" />
+            <h1 className="text-lg font-medium">/{room.name}</h1>
+            {isOwner && <Crown className="w-4 h-4 text-yellow-500" title="You own this room" />}
+            <span className="text-xs text-muted-foreground">
+              {isConnected ? '• Connected' : '• Connecting...'}
+            </span>
+          </div>
+          
+          {isOwner && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSettings(!showSettings)}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
 
-        {/* Room Statistics */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Room Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-muted-foreground">Room ID:</span>
-                <p className="font-mono">#{room.id}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Status:</span>
-                <p className={room.isActive ? "text-green-600" : "text-red-600"}>
-                  {room.isActive ? "Active" : "Inactive"}
-                </p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Created:</span>
-                <p>{new Date(room.createdAt).toLocaleString()}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Global Mention:</span>
-                <p className="font-mono text-blue-600">/{room.name}</p>
-              </div>
-            </div>
-            
-            {isOwner && (
-              <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded-lg mt-4">
+        {/* Room Settings Panel */}
+        {isOwner && showSettings && (
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Shield className="w-4 h-4" />
+                <span>Room Moderation</span>
+              </CardTitle>
+              <CardDescription>
+                You have full moderation powers as the room owner
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded-lg">
                 <p className="text-sm text-green-700 dark:text-green-400">
                   <Crown className="w-4 h-4 inline mr-1" />
-                  As the room owner, you have full moderation powers when chat functionality is enabled.
+                  <strong>Owner Powers:</strong> Delete any message, mute users, control room settings
                 </p>
               </div>
-            )}
-          </CardContent>
-        </Card>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <p>• Hover over messages to see moderation controls</p>
+                <p>• Users can be muted for 5 minutes per action</p>
+                <p>• All moderation actions are logged</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Chat Container */}
+        <div className="relative">
+          <ChatContainer
+            messages={messages.map(msg => ({
+              id: msg.id,
+              content: msg.content,
+              username: msg.username,
+              timestamp: msg.createdAt,
+              expiresAt: msg.expiresAt,
+              ipAddress: msg.ipAddress,
+            }))}
+            isGuardian={isOwner}
+            onMuteUser={handleMuteUser}
+            onDeleteMessage={handleDeleteMessage}
+            onReplyToMessage={() => {}} // Rooms don't support replies yet
+            profanityFilter={false}
+          />
+        </div>
+      </div>
+
+      {/* Message Input */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4">
+        <div className="max-w-6xl mx-auto">
+          <MessageInput
+            onSendMessage={sendMessage}
+            rateLimitTime={rateLimitTime}
+            error={error}
+          />
+        </div>
       </div>
     </div>
   );

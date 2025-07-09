@@ -114,6 +114,7 @@ export interface IStorage {
   createRoomMessage(message: InsertRoomMessage & { username: string; ipAddress: string }): Promise<RoomMessage>;
   getRoomMessages(roomId: number, limit?: number): Promise<RoomMessage[]>;
   deleteExpiredRoomMessages(): Promise<void>;
+  deleteRoomMessage(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -632,18 +633,27 @@ export class DatabaseStorage implements IStorage {
 
   // Room messages methods
   async createRoomMessage(messageData: InsertRoomMessage & { username: string; ipAddress: string }): Promise<RoomMessage> {
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+    
     const [message] = await db
       .insert(roomMessages)
-      .values(messageData)
+      .values({
+        ...messageData,
+        expiresAt,
+      })
       .returning();
     return message;
   }
 
   async getRoomMessages(roomId: number, limit = 50): Promise<RoomMessage[]> {
+    const now = new Date();
     return await db
       .select()
       .from(roomMessages)
-      .where(eq(roomMessages.roomId, roomId))
+      .where(and(
+        eq(roomMessages.roomId, roomId),
+        gte(roomMessages.expiresAt, now) // Only non-expired messages
+      ))
       .orderBy(desc(roomMessages.createdAt))
       .limit(limit);
   }
@@ -652,6 +662,10 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(roomMessages)
       .where(lt(roomMessages.expiresAt, new Date()));
+  }
+
+  async deleteRoomMessage(id: number): Promise<void> {
+    await db.delete(roomMessages).where(eq(roomMessages.id, id));
   }
 
   // Username expiration management

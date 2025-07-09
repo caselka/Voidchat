@@ -199,9 +199,6 @@ export const insertRoomSchema = createInsertSchema(rooms).pick({
 export const insertRoomMessageSchema = createInsertSchema(roomMessages).pick({
   roomId: true,
   content: true,
-  username: true,
-  ipAddress: true,
-  expiresAt: true,
 });
 
 export type Room = typeof rooms.$inferSelect;

@@ -20,6 +20,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 interface WebSocketClient extends WebSocket {
   ipAddress?: string;
+  roomName?: string;
 }
 
 const clients = new Set<WebSocketClient>();
@@ -126,7 +127,17 @@ async function broadcastMessage(message: any, excludeIp?: string) {
   const messageData = JSON.stringify(message);
   
   clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN && client.ipAddress !== excludeIp) {
+    if (client.readyState === WebSocket.OPEN && client.ipAddress !== excludeIp && !client.roomName) {
+      client.send(messageData);
+    }
+  });
+}
+
+async function broadcastRoomMessage(roomName: string, message: any, excludeIp?: string) {
+  const messageData = JSON.stringify(message);
+  
+  clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN && client.roomName === roomName && client.ipAddress !== excludeIp) {
       client.send(messageData);
     }
   });
@@ -429,9 +440,231 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Room messages endpoints
+  app.get('/api/rooms/:name/messages', async (req, res) => {
+    try {
+      const { name } = req.params;
+      const room = await storage.getRoom(name);
+      
+      if (!room) {
+        return res.status(404).json({ message: 'Room not found' });
+      }
+
+      const messages = await storage.getRoomMessages(room.id, 50);
+      res.json(messages);
+    } catch (error) {
+      console.error('Room messages fetch error:', error);
+      res.status(500).json({ message: 'Failed to fetch room messages' });
+    }
+  });
+
+  app.post('/api/rooms/:name/messages', async (req, res) => {
+    try {
+      const { name } = req.params;
+      const { content } = req.body;
+      const ipAddress = getClientIp(req);
+      
+      // Validate content
+      if (!content || typeof content !== 'string' || content.trim().length === 0) {
+        return res.status(400).json({ message: 'Message content is required' });
+      }
+
+      // Get room
+      const room = await storage.getRoom(name);
+      if (!room) {
+        return res.status(404).json({ message: 'Room not found' });
+      }
+
+      // Check rate limit
+      const { allowed } = await checkRateLimit(ipAddress);
+      if (!allowed) {
+        return res.status(429).json({ message: 'Rate limited' });
+      }
+
+      // Check if user is muted in this room
+      const isMuted = await storage.isMuted(ipAddress);
+      if (isMuted) {
+        return res.status(403).json({ message: 'You are muted in this room' });
+      }
+
+      // Check profanity
+      const profanityCheck = checkProfanity(content);
+      if (!profanityCheck.isClean) {
+        return res.status(400).json({ message: 'Message contains inappropriate content' });
+      }
+
+      // Get username (authenticated user, custom handle, or anonymous)
+      let username = generateUsername();
+      try {
+        // Check for authenticated user
+        const cookies = req.headers.cookie;
+        if (cookies) {
+          const sessionMatch = cookies.match(/connect\.sid=([^;]+)/);
+          if (sessionMatch) {
+            const sessionId = decodeURIComponent(sessionMatch[1]);
+            let sessionKey = sessionId;
+            if (sessionKey.startsWith('s:')) {
+              sessionKey = sessionKey.substring(2);
+            }
+            sessionKey = sessionKey.split('.')[0];
+            
+            const allSessions = await db.select().from(sessions);
+            for (const session of allSessions) {
+              if (session.sid === sessionKey) {
+                const sessionData = session.sess as any;
+                if (sessionData?.user?.id) {
+                  const user = await storage.getUser(sessionData.user.id);
+                  if (user?.username) {
+                    username = user.username;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        // Fallback to custom handle or anonymous
+        if (username.startsWith('anon')) {
+          const customHandle = await storage.getCustomHandle(ipAddress);
+          if (customHandle) {
+            username = customHandle.handle;
+          } else {
+            const sessionKey = cookies ? 
+              cookies.match(/connect\.sid=([^;]+)/)?.[1]?.replace('s:', '')?.split('.')[0] : 
+              `anon_${ipAddress}`;
+            username = await storage.getAnonUsername(sessionKey || `anon_${ipAddress}`);
+          }
+        }
+      } catch (error) {
+        // Use fallback username
+      }
+
+      // Create room message
+      const message = await storage.createRoomMessage({
+        roomId: room.id,
+        content: sanitizeMessageContent(content.trim()),
+        username: sanitizeUsername(username),
+        ipAddress,
+      });
+
+      // Broadcast to room WebSocket clients
+      broadcastRoomMessage(room.name, {
+        type: 'room_message',
+        data: {
+          id: message.id,
+          content: message.content,
+          username: message.username,
+          timestamp: message.createdAt.toISOString(),
+          expiresAt: message.expiresAt.toISOString(),
+          roomId: message.roomId,
+        }
+      });
+
+      res.json({ message, success: true });
+    } catch (error: any) {
+      console.error('Room message creation error:', error);
+      res.status(500).json({ message: 'Failed to send message' });
+    }
+  });
+
+  // Room moderation endpoints
+  app.post('/api/rooms/:name/mute', isAuthenticated, async (req, res) => {
+    try {
+      const { name } = req.params;
+      const { messageId } = req.body;
+      const userId = (req as any).user.id;
+      
+      // Get room and verify ownership
+      const room = await storage.getRoom(name);
+      if (!room) {
+        return res.status(404).json({ message: 'Room not found' });
+      }
+      
+      if (room.creatorId !== userId) {
+        return res.status(403).json({ message: 'Only room owner can mute users' });
+      }
+
+      // Get message to find IP to mute
+      const messages = await storage.getRoomMessages(room.id, 1000);
+      const targetMessage = messages.find(msg => msg.id === parseInt(messageId));
+      
+      if (!targetMessage) {
+        return res.status(404).json({ message: 'Message not found' });
+      }
+
+      // Mute the IP for 5 minutes
+      await storage.muteIp(targetMessage.ipAddress, userId, 5 * 60 * 1000);
+      
+      // Log the action
+      await storage.logGuardianAction(
+        userId, 
+        'mute_user', 
+        targetMessage.ipAddress, 
+        targetMessage.id,
+        { roomName: name, duration: '5 minutes' }
+      );
+
+      res.json({ success: true, message: 'User muted for 5 minutes' });
+    } catch (error: any) {
+      console.error('Room mute error:', error);
+      res.status(500).json({ message: 'Failed to mute user' });
+    }
+  });
+
+  app.delete('/api/rooms/:name/messages/:messageId', isAuthenticated, async (req, res) => {
+    try {
+      const { name, messageId } = req.params;
+      const userId = (req as any).user.id;
+      
+      // Get room and verify ownership
+      const room = await storage.getRoom(name);
+      if (!room) {
+        return res.status(404).json({ message: 'Room not found' });
+      }
+      
+      if (room.creatorId !== userId) {
+        return res.status(403).json({ message: 'Only room owner can delete messages' });
+      }
+
+      // Delete the message
+      const messageIdInt = parseInt(messageId);
+      await storage.deleteRoomMessage(messageIdInt);
+      
+      // Broadcast deletion to room clients
+      broadcastRoomMessage(name, {
+        type: 'room_message_deleted',
+        data: { messageId: messageIdInt }
+      });
+      
+      // Log the action
+      await storage.logGuardianAction(
+        userId, 
+        'delete_message', 
+        undefined, 
+        messageIdInt,
+        { roomName: name }
+      );
+
+      res.json({ success: true, message: 'Message deleted' });
+    } catch (error: any) {
+      console.error('Room message deletion error:', error);
+      res.status(500).json({ message: 'Failed to delete message' });
+    }
+  });
+
   wss.on('connection', (ws: WebSocketClient, req) => {
     const ipAddress = getClientIp(req);
     ws.ipAddress = ipAddress;
+    
+    // Check if this is a room-specific connection
+    const url = req.url || '';
+    const roomMatch = url.match(/\/ws\/room\/([^/?]+)/);
+    if (roomMatch) {
+      ws.roomName = roomMatch[1];
+      console.log(`Room WebSocket connected to /${ws.roomName} from ${ipAddress}`);
+    }
+    
     clients.add(ws);
     broadcastOnlineCount();
     
@@ -440,27 +673,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
       url: req.url
     });
     
-    // Send recent messages from past 15 minutes to new client
-    storage.getRecentMessages(100).then(messages => {
-      // Get all messages from past 15 minutes, most recent first
-      const recentMessages = messages.map(msg => ({
-        type: 'message',
-        data: {
-          id: msg.id,
-          content: msg.content,
-          username: msg.username,
-          timestamp: msg.createdAt.toISOString(),
-          expiresAt: msg.expiresAt.toISOString(),
-          replyToId: msg.replyToId,
+    // Send recent messages to new client
+    if (ws.roomName) {
+      // For room connections, send room messages
+      storage.getRoom(ws.roomName).then(room => {
+        if (room) {
+          return storage.getRoomMessages(room.id, 50);
         }
-      }));
-      
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: 'initial_messages', data: recentMessages }));
-      }
-    }).catch(error => {
-      console.error('Error sending initial messages:', error);
-    });
+        return [];
+      }).then(messages => {
+        const recentMessages = messages.map(msg => ({
+          type: 'room_message',
+          data: {
+            id: msg.id,
+            content: msg.content,
+            username: msg.username,
+            timestamp: msg.createdAt.toISOString(),
+            expiresAt: msg.expiresAt.toISOString(),
+            roomId: msg.roomId,
+          }
+        }));
+        
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'initial_room_messages', data: recentMessages }));
+        }
+      }).catch(error => {
+        console.error('Error sending initial room messages:', error);
+      });
+    } else {
+      // For global chat connections, send global messages
+      storage.getRecentMessages(100).then(messages => {
+        const recentMessages = messages.map(msg => ({
+          type: 'message',
+          data: {
+            id: msg.id,
+            content: msg.content,
+            username: msg.username,
+            timestamp: msg.createdAt.toISOString(),
+            expiresAt: msg.expiresAt.toISOString(),
+            replyToId: msg.replyToId,
+          }
+        }));
+        
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'initial_messages', data: recentMessages }));
+        }
+      }).catch(error => {
+        console.error('Error sending initial messages:', error);
+      });
+    }
     
     // Send guardian status and current user info
     const sendUserInfo = async () => {
