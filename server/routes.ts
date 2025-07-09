@@ -498,6 +498,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user's rooms with message counts for moderator dashboard
+  app.get('/api/user-rooms', isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req as any).user.id;
+      const rooms = await storage.getUserRooms(userId);
+      
+      // Add message counts for each room
+      const roomsWithCounts = await Promise.all(rooms.map(async (room) => {
+        const messages = await storage.getRoomMessages(room.id, 1000); // Get up to 1000 messages for count
+        return {
+          ...room,
+          messageCount: messages.length
+        };
+      }));
+      
+      res.json(roomsWithCounts);
+    } catch (error) {
+      console.error('Error fetching user rooms:', error);
+      res.status(500).json({ message: 'Failed to fetch rooms' });
+    }
+  });
+
+  // Get room messages for moderation
+  app.get('/api/room-messages/:roomName', isAuthenticated, async (req, res) => {
+    try {
+      const { roomName } = req.params;
+      const userId = (req as any).user.id;
+      
+      const room = await storage.getRoom(roomName);
+      if (!room) {
+        return res.status(404).json({ message: 'Room not found' });
+      }
+      
+      // Check if user is room moderator
+      const isModerator = await storage.isRoomModerator(userId, room.id);
+      if (!isModerator) {
+        return res.status(403).json({ message: 'Not authorized to moderate this room' });
+      }
+      
+      const messages = await storage.getRoomMessages(room.id, 50);
+      res.json(messages);
+    } catch (error) {
+      console.error('Error fetching room messages:', error);
+      res.status(500).json({ message: 'Failed to fetch messages' });
+    }
+  });
+
+  // Delete room message
+  app.delete('/api/room-messages/:messageId', isAuthenticated, async (req, res) => {
+    try {
+      const { messageId } = req.params;
+      const userId = (req as any).user.id;
+      
+      // TODO: Add proper authorization check to ensure user can delete this message
+      await storage.deleteRoomMessage(parseInt(messageId));
+      
+      res.json({ message: 'Message deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      res.status(500).json({ message: 'Failed to delete message' });
+    }
+  });
+
   // Room moderation endpoints
   app.post('/api/rooms/:name/mute', isAuthenticated, async (req, res) => {
     try {

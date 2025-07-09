@@ -164,15 +164,15 @@ export default function BackendDashboard() {
   });
 
   const filteredSponsors = pendingSponsors.filter((sponsor: PendingSponsor) => {
-    const matchesSearch = sponsor.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sponsor.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = sponsor.productName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         sponsor.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === 'all' || sponsor.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
   const filteredReports = userReports.filter((report: UserReport) => {
-    const matchesSearch = report.reportedUser.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         report.reason.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = report.reportedUser?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         report.reason?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === 'all' || report.status === filterStatus;
     return matchesSearch && matchesFilter;
   });

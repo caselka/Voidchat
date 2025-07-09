@@ -1,12 +1,9 @@
-import { Switch, Route, Link } from "wouter";
+import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Button } from "@/components/ui/button";
-import { Moon, Sun, User, LogOut } from "lucide-react";
-import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Chat from "@/pages/chat";
@@ -28,13 +25,35 @@ import MemberSettings from "@/pages/member-settings";
 import About from "@/pages/about";
 import NotFound from "@/pages/not-found";
 import BackendDashboard from "@/pages/backend-dashboard";
+import ModeratorDashboard from "@/pages/moderator-dashboard";
+
+// Role-based home page component
+function RoleBasedHome() {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <Landing />;
+  }
+  
+  if (!isAuthenticated) {
+    return <Landing />;
+  }
+  
+  // Super users go to backend dashboard
+  if (user?.username === 'voidteam' || user?.username === 'caselka') {
+    return <Redirect to="/backend" />;
+  }
+  
+  // Regular authenticated users go to chat
+  return <Chat />;
+}
 
 // Navigation is now handled by individual pages using DynamicHeader
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Landing} />
+      <Route path="/" component={RoleBasedHome} />
       <Route path="/chat" component={Chat} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
@@ -53,6 +72,7 @@ function Router() {
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
       <Route path="/backend" component={BackendDashboard} />
+      <Route path="/moderator" component={ModeratorDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

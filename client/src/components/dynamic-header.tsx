@@ -96,6 +96,19 @@ export default function DynamicHeader({
               <Shield className="h-4 w-4" />
             </Button>
           )}
+
+          {/* Moderator Dashboard - show for all authenticated users */}
+          {isAuthenticated && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation("/moderator")}
+              className="p-2 text-orange-600 dark:text-orange-400"
+              title="Moderator Dashboard"
+            >
+              <Shield className="h-4 w-4" />
+            </Button>
+          )}
           
           {/* Account Settings - only show when authenticated */}
           {isAuthenticated && (
