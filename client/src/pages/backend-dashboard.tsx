@@ -28,7 +28,16 @@ import {
   Search,
   Filter,
   Settings,
-  Database
+  Database,
+  Calendar,
+  Sun,
+  LogOut,
+  TrendingUp,
+  Activity,
+  BarChart3,
+  UserCheck,
+  User,
+  Mail
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -68,6 +77,49 @@ export default function BackendDashboard() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [activeTab, setActiveTab] = useState("sponsors");
+  const [dateFormat, setDateFormat] = useState("relative"); // relative, full, short
+
+  // Date formatting helper function
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    
+    switch (dateFormat) {
+      case "relative":
+        const diffInMs = now.getTime() - date.getTime();
+        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        const diffInDays = Math.floor(diffInHours / 24);
+        
+        if (diffInMinutes < 1) return "Just now";
+        if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+        if (diffInHours < 24) return `${diffInHours}h ago`;
+        if (diffInDays < 7) return `${diffInDays}d ago`;
+        return date.toLocaleDateString();
+        
+      case "short":
+        return date.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric', 
+          hour: 'numeric', 
+          minute: '2-digit' 
+        });
+        
+      case "full":
+        return date.toLocaleDateString('en-US', { 
+          year: 'numeric',
+          month: 'long', 
+          day: 'numeric', 
+          hour: 'numeric', 
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        
+      default:
+        return date.toLocaleDateString();
+    }
+  };
 
   // Check if user has backend access
   const isBackendUser = user?.username === 'voidteam' || user?.username === 'caselka';
@@ -204,7 +256,7 @@ export default function BackendDashboard() {
         {/* Real-Time System Statistics */}
         {systemStats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('users')}>
               <CardContent className="pt-6">
                 <div className="flex items-center space-x-2">
                   <Users className="w-4 h-4 text-blue-500" />
@@ -214,10 +266,11 @@ export default function BackendDashboard() {
                 <div className="text-xs text-muted-foreground mt-1">
                   {systemStats.users.verifiedUsers} verified • {systemStats.users.recentSignups} new
                 </div>
+                <div className="text-xs text-blue-500 mt-1">Click to view details →</div>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('messages')}>
               <CardContent className="pt-6">
                 <div className="flex items-center space-x-2">
                   <MessageSquare className="w-4 h-4 text-purple-500" />
@@ -227,10 +280,11 @@ export default function BackendDashboard() {
                 <div className="text-xs text-muted-foreground mt-1">
                   {systemStats.messages.messagesLast24h} today
                 </div>
+                <div className="text-xs text-purple-500 mt-1">Click to view analytics →</div>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('sponsors')}>
               <CardContent className="pt-6">
                 <div className="flex items-center space-x-2">
                   <DollarSign className="w-4 h-4 text-green-500" />
@@ -238,12 +292,13 @@ export default function BackendDashboard() {
                 </div>
                 <div className="text-2xl font-bold mt-2">{systemStats.sponsors.activeSponsors}</div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  {systemStats.sponsors.totalSponsors} total
+                  {systemStats.sponsors.totalSponsors} total • {systemStats.sponsors.pendingApprovals} pending
                 </div>
+                <div className="text-xs text-green-500 mt-1">Click to manage →</div>
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab('rooms')}>
               <CardContent className="pt-6">
                 <div className="flex items-center space-x-2">
                   <Database className="w-4 h-4 text-indigo-500" />
@@ -253,17 +308,54 @@ export default function BackendDashboard() {
                 <div className="text-xs text-muted-foreground mt-1">
                   Chat rooms created
                 </div>
+                <div className="text-xs text-indigo-500 mt-1">Click to view rooms →</div>
               </CardContent>
             </Card>
           </div>
         )}
 
+        {/* Settings Bar */}
+        <div className="flex items-center justify-between mb-6 p-4 bg-card rounded-lg border">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Calendar className="w-4 h-4" />
+              <span className="text-sm font-medium">Date Format:</span>
+              <select
+                value={dateFormat}
+                onChange={(e) => setDateFormat(e.target.value)}
+                className="border rounded px-2 py-1 text-sm bg-background"
+              >
+                <option value="relative">Relative (2 hours ago)</option>
+                <option value="short">Short (Jan 9, 2:30 PM)</option>
+                <option value="full">Full (January 9, 2025 2:30:15 PM)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" size="sm" onClick={() => window.location.href = '/chat'}>
+              <MessageSquare className="w-4 h-4 mr-1" />
+              Chats
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => document.documentElement.classList.toggle('dark')}>
+              <Sun className="w-4 h-4 mr-1" />
+              Toggle Theme
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => window.location.href = '/api/logout'}>
+              <LogOut className="w-4 h-4 mr-1" />
+              Logout
+            </Button>
+          </div>
+        </div>
+
         {/* Main Content */}
-        <Tabs defaultValue="sponsors" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="sponsors">Sponsor Approval</TabsTrigger>
-            <TabsTrigger value="reports">User Reports</TabsTrigger>
             <TabsTrigger value="users">User Management</TabsTrigger>
+            <TabsTrigger value="messages">Message Analytics</TabsTrigger>
+            <TabsTrigger value="rooms">Room Management</TabsTrigger>
+            <TabsTrigger value="reports">User Reports</TabsTrigger>
             <TabsTrigger value="system">System Health</TabsTrigger>
           </TabsList>
 
@@ -293,11 +385,124 @@ export default function BackendDashboard() {
             </div>
           </div>
 
+          {/* User Management Tab */}
+          <TabsContent value="users" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Users className="w-5 h-5" />
+                  <span>User Management</span>
+                </CardTitle>
+                <CardDescription>Manage user accounts, verification status, and access levels</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {allUsers && allUsers.length > 0 ? (
+                  <div className="space-y-4">
+                    {allUsers.slice(0, 10).map((user: any) => (
+                      <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <UserCheck className="w-5 h-5 text-blue-500" />
+                          <div>
+                            <div className="font-medium">{user.username || 'Anonymous'}</div>
+                            <div className="text-sm text-muted-foreground">{user.email || 'No email'}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant={user.isVerified ? "default" : "secondary"}>
+                            {user.isVerified ? "Verified" : "Unverified"}
+                          </Badge>
+                          <Badge variant={user.isSuperUser ? "destructive" : "outline"}>
+                            {user.isSuperUser ? "Super User" : "Regular User"}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No users found
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Message Analytics Tab */}
+          <TabsContent value="messages" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <BarChart3 className="w-5 h-5" />
+                  <span>Message Analytics</span>
+                </CardTitle>
+                <CardDescription>Real-time message statistics and activity trends</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {systemStats && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <TrendingUp className="w-4 h-4 text-green-500" />
+                        <span className="text-sm font-medium">Total Messages</span>
+                      </div>
+                      <div className="text-2xl font-bold">{systemStats.messages?.totalMessages || 0}</div>
+                      <div className="text-xs text-muted-foreground">All time</div>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Activity className="w-4 h-4 text-blue-500" />
+                        <span className="text-sm font-medium">Today's Activity</span>
+                      </div>
+                      <div className="text-2xl font-bold">{systemStats.messages?.messagesLast24h || 0}</div>
+                      <div className="text-xs text-muted-foreground">Last 24 hours</div>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <MessageSquare className="w-4 h-4 text-purple-500" />
+                        <span className="text-sm font-medium">Active Rooms</span>
+                      </div>
+                      <div className="text-2xl font-bold">{systemStats.messages?.activeRooms || 0}</div>
+                      <div className="text-xs text-muted-foreground">Chat rooms</div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Room Management Tab */}
+          <TabsContent value="rooms" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Database className="w-5 h-5" />
+                  <span>Room Management</span>
+                </CardTitle>
+                <CardDescription>Monitor and manage chat rooms</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <Database className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">Room Analytics</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {systemStats?.messages?.activeRooms || 0} active rooms are currently running
+                  </p>
+                  <Button variant="outline">
+                    View Room Details
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Sponsor Approval Tab */}
           <TabsContent value="sponsors" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Sponsor Content Review</CardTitle>
+                <CardTitle className="flex items-center space-x-2">
+                  <DollarSign className="w-5 h-5" />
+                  <span>Sponsor Content Review & Approval</span>
+                </CardTitle>
                 <CardDescription>
                   Review and approve sponsor advertisements before they go live
                 </CardDescription>

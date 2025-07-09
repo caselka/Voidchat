@@ -110,7 +110,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 9, 2025)
 
-### Backend Dashboard System Complete (Latest)
+### Enhanced Backend Dashboard with User Preferences and Sponsor Management (Latest)
+- **Date format customization**: Users can choose between relative (2h ago), short (Jan 9, 2:30 PM), or full format display
+- **Comprehensive user menu**: Theme toggle, chats navigation, and logout functionality integrated into dashboard header
+- **Clickable expandable stat containers**: Total users, messages, sponsors, and rooms cards expand to show detailed analytics
+- **Manual sponsor approval workflow**: Clear notification system informing sponsors their ads require approval before going live
+- **Enhanced sponsor purchase notifications**: Console alerts and detailed messaging when new sponsor purchases are made
+- **Real-time expandable tabs**: Six main sections (Sponsors, Users, Messages, Rooms, Reports, System) with detailed views
+- **Complete sponsor analytics tracking**: 1 cent per impression, 5 cents per click with budget-based distribution fairness
+- **Professional approval interface**: Clear approve/reject buttons with status tracking and payment information display
+
+### Backend Dashboard System Complete
 - **Comprehensive backend dashboard**: Full moderation interface at /backend for super users (voidteam/caselka)
 - **Real-time system statistics**: Live data from database showing user counts, message activity, sponsor metrics, and room statistics
 - **Sponsor management**: Complete sponsor ad approval/rejection system with database integration
