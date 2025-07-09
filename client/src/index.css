@@ -497,78 +497,79 @@ html {
 
 /* V Loading Component Animations */
 @keyframes v-draw-left {
-  0%, 20% { 
-    height: 0; 
+  0% { 
     opacity: 0;
+    transform: rotate(20deg) scaleY(0);
   }
-  50% { 
-    opacity: 1;
-  }
-  70%, 100% { 
+  30% {
     opacity: 0.3;
+    transform: rotate(20deg) scaleY(0.5);
+  }
+  60% { 
+    opacity: 1;
+    transform: rotate(20deg) scaleY(1);
+  }
+  80% {
+    opacity: 0.7;
+    transform: rotate(20deg) scaleY(1);
+  }
+  100% { 
+    opacity: 0.2;
+    transform: rotate(20deg) scaleY(1);
   }
 }
 
 @keyframes v-draw-right {
-  0%, 20% { 
-    height: 0; 
+  0% { 
     opacity: 0;
+    transform: rotate(-20deg) scaleY(0);
   }
-  50% { 
-    opacity: 1;
-  }
-  70%, 100% { 
+  30% {
     opacity: 0.3;
+    transform: rotate(-20deg) scaleY(0.5);
+  }
+  60% { 
+    opacity: 1;
+    transform: rotate(-20deg) scaleY(1);
+  }
+  80% {
+    opacity: 0.7;
+    transform: rotate(-20deg) scaleY(1);
+  }
+  100% { 
+    opacity: 0.2;
+    transform: rotate(-20deg) scaleY(1);
   }
 }
 
 @keyframes v-scan-dot {
-  0%, 30% { 
+  0%, 20% { 
     opacity: 0; 
-    transform: scale(0);
+    transform: scale(0.3);
   }
-  60% { 
+  50% { 
     opacity: 1; 
+    transform: scale(1.2);
+  }
+  70% { 
+    opacity: 0.8; 
     transform: scale(1);
   }
-  80%, 100% { 
+  100% { 
     opacity: 0; 
-    transform: scale(0);
+    transform: scale(0.3);
   }
 }
 
-/* V Loading size and animation classes */
+/* V Loading animation classes */
 .v-line-left {
-  animation: v-draw-left 1.5s ease-in-out infinite;
+  animation: v-draw-left 2s ease-in-out infinite;
 }
 
 .v-line-right {
-  animation: v-draw-right 1.5s ease-in-out infinite 0.2s;
-}
-
-.v-line-sm {
-  height: 12px;
-}
-
-.v-line-md {
-  height: 24px;
-}
-
-.v-line-lg {
-  height: 36px;
+  animation: v-draw-right 2s ease-in-out infinite 0.3s;
 }
 
 .v-dot {
-  animation: v-scan-dot 2s ease-in-out infinite;
-  border-radius: 50%;
-}
-
-.v-dot-sm {
-  width: 2px;
-  height: 2px;
-}
-
-.v-dot-md {
-  width: 3px;
-  height: 3px;
+  animation: v-scan-dot 1.8s ease-in-out infinite;
 }

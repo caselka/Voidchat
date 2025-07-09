@@ -110,23 +110,22 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 9, 2025)
 
-### Hacker Animations and VLoading Component Implementation (Latest)
-- **Fixed navigation buttons**: Home and back buttons now correctly redirect to main chat (/chat) instead of homepage (/)
-- **Added V-shaped loading icon**: Created custom VLoading component with edgy square hacker style and scanning animation
-- **Implemented hacker animations**: Added CSS animations for user interactions including:
+### Room WebSocket Connection Fix and VLoading Improvements (Latest)
+- **CRITICAL FIX: Room WebSocket routing**: Removed path restriction from WebSocket server to accept both `/ws` and `/ws/room/*` connections
+- **Room functionality fully restored**: Room chat connections now work properly with real-time messaging
+- **VLoading component redesign**: Completely rebuilt with stable positioning and smooth animations:
+  - Fixed glitchy behavior with proper transform origins
+  - Improved V-shape drawing animation with scaleY transforms
+  - Smoother scanning dot animations without visual jumps
+  - Responsive sizing for sm/md/lg variants
+- **Enhanced hacker animations**: All user interaction animations working perfectly:
   - **hacker-glitch**: Color-shifting glitch effect for emphasis
   - **hacker-scan**: Scanning line effect for forms and containers
   - **hacker-pulse**: Pulsing border with green glow for buttons
   - **hacker-typewriter**: Text typing animation for headers
   - **matrix-bg**: Falling binary code background effect
-- **Enhanced user experience**: Applied animations to key interactions:
-  - Account creation forms with scanning effects
-  - Payment processing with V loading icon
-  - Room entrance with matrix background
-  - Button interactions with pulse effects
-- **Fixed VLoading component**: Resolved JSX attribute warning and moved animations from styled-jsx to global CSS
-- **Mobile-optimized animations**: All animations work smoothly across devices without performance impact
-- **Room WebSocket debugging**: Investigating WebSocket connection issues for room-specific chat functionality
+- **Room system validation**: Test room confirmed working with message persistence and real-time updates
+- **Anonymous user support**: Proper handling of 401 auth errors for anonymous users in rooms
 
 ### WebSocket Authentication and User Identification Fix (Latest)
 - **Fixed WebSocket authentication**: Resolved session parsing issue where 's:' prefix in cookies wasn't properly stripped

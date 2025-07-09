@@ -6,65 +6,67 @@ interface VLoadingProps {
 }
 
 export default function VLoading({ className, size = "md" }: VLoadingProps) {
-  const sizeClasses = {
-    sm: "w-4 h-4",
-    md: "w-8 h-8", 
-    lg: "w-12 h-12"
+  const dimensions = {
+    sm: { container: "w-6 h-6", line: "12px", dotSize: "2px", spacing: "6px" },
+    md: { container: "w-10 h-10", line: "20px", dotSize: "3px", spacing: "10px" },
+    lg: { container: "w-16 h-16", line: "32px", dotSize: "4px", spacing: "16px" }
   };
+  
+  const config = dimensions[size];
 
   return (
     <div className={cn("flex items-center justify-center", className)}>
-      <div className={cn("relative", sizeClasses[size])}>
-        {/* Main V shape */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative">
-            {/* Left line of V */}
-            <div 
-              className={cn(
-                "absolute bg-current origin-bottom transform rotate-[20deg] v-line-left",
-                size === 'sm' ? 'v-line-sm' : size === 'md' ? 'v-line-md' : 'v-line-lg'
-              )}
-              style={{
-                width: '2px',
-                left: size === 'sm' ? '4px' : size === 'md' ? '8px' : '12px',
-                top: '0'
-              }}
-            />
-            {/* Right line of V */}
-            <div 
-              className={cn(
-                "absolute bg-current origin-bottom transform rotate-[-20deg] v-line-right",
-                size === 'sm' ? 'v-line-sm' : size === 'md' ? 'v-line-md' : 'v-line-lg'
-              )}
-              style={{
-                width: '2px',
-                right: size === 'sm' ? '4px' : size === 'md' ? '8px' : '12px',
-                top: '0'
-              }}
-            />
-          </div>
+      <div className={cn("relative flex items-center justify-center", config.container)}>
+        {/* V Shape Container */}
+        <div className="relative" style={{ width: config.spacing, height: config.line }}>
+          {/* Left line of V */}
+          <div 
+            className="absolute bg-current v-line-left"
+            style={{
+              width: '2px',
+              height: config.line,
+              left: '0',
+              bottom: '0',
+              transformOrigin: 'bottom center',
+              transform: 'rotate(20deg)',
+            }}
+          />
+          {/* Right line of V */}
+          <div 
+            className="absolute bg-current v-line-right"
+            style={{
+              width: '2px', 
+              height: config.line,
+              right: '0',
+              bottom: '0',
+              transformOrigin: 'bottom center',
+              transform: 'rotate(-20deg)',
+            }}
+          />
         </div>
         
-        {/* Scanning dots */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex gap-1">
-            {[0, 1, 2].map(i => (
-              <div
-                key={i}
-                className={cn(
-                  "bg-current opacity-0 v-dot",
-                  size === 'sm' ? 'v-dot-sm' : 'v-dot-md'
-                )}
-                style={{
-                  animationDelay: `${i * 0.3}s`
-                }}
-              />
-            ))}
-          </div>
+        {/* Scanning dots positioned at bottom of V */}
+        <div 
+          className="absolute flex gap-1"
+          style={{ 
+            bottom: '0',
+            left: '50%',
+            transform: 'translateX(-50%)'
+          }}
+        >
+          {[0, 1, 2].map(i => (
+            <div
+              key={i}
+              className="bg-current rounded-full opacity-0 v-dot"
+              style={{
+                width: config.dotSize,
+                height: config.dotSize,
+                animationDelay: `${i * 0.3}s`
+              }}
+            />
+          ))}
         </div>
       </div>
-
-
     </div>
   );
 }
