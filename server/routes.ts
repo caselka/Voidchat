@@ -2004,6 +2004,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Deep user analytics endpoints
+  app.get('/api/backend/user-analytics/:userId', isAuthenticated, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      
+      if (!await storage.isSuperUser(user.id)) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+      
+      const { userId } = req.params;
+      const analytics = await storage.getUserAnalytics(userId);
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching user analytics:', error);
+      res.status(500).json({ message: 'Failed to fetch user analytics' });
+    }
+  });
+
+  app.get('/api/backend/all-user-analytics', isAuthenticated, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      
+      if (!await storage.isSuperUser(user.id)) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+      
+      const analytics = await storage.getAllUserAnalytics();
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching all user analytics:', error);
+      res.status(500).json({ message: 'Failed to fetch user analytics' });
+    }
+  });
+
   app.get('/api/backend/system-alerts', isAuthenticated, async (req, res) => {
     try {
       const user = (req as any).user;

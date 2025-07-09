@@ -104,6 +104,39 @@ export interface IStorage {
   // User stats for Guardian eligibility
   getUserStats?(ipAddress: string): Promise<{ messagesLast7Days: number; paidAccountSince?: Date } | undefined>;
   
+  // Deep user analytics like X.com/Facebook
+  getUserAnalytics(userId: string): Promise<{
+    totalMessages: number;
+    messagesLast7Days: number;
+    messagesLast30Days: number;
+    averageMessagesPerDay: number;
+    mostActiveHours: number[];
+    engagementScore: number;
+    accountAge: number;
+    lastActiveDate: Date | null;
+    roomsCreated: number;
+    roomsJoined: number;
+    moderationActions: number;
+    guardianHistory: boolean;
+    paymentHistory: { amount: number; date: Date; type: string }[];
+    activityTrend: 'increasing' | 'decreasing' | 'stable';
+    riskScore: number;
+    deviceFingerprint: string[];
+  }>;
+  
+  getAllUserAnalytics(): Promise<{
+    userId: string;
+    username: string;
+    email: string;
+    totalMessages: number;
+    lastActive: Date | null;
+    engagementScore: number;
+    riskScore: number;
+    accountAge: number;
+    isVerified: boolean;
+    guardian: boolean;
+  }[]>;
+  
   // Super user administration
   isSuperUser(userId: string): Promise<boolean>;
   getAllUsers(): Promise<User[]>;
@@ -966,19 +999,24 @@ export class DatabaseStorage implements IStorage {
     const totalSponsors = allAds.length;
     
     const now = new Date();
-    const activeSponsors = allAds.filter(ad => ad.expiresAt > now).length;
-    
-    // All current sponsors are considered approved since they're in the database
-    // In a real implementation, you'd have a status field
-    const pendingApprovals = 0;
+    const activeSponsors = allAds.filter(ad => ad.expiresAt > now && ad.status === 'approved').length;
+    const pendingApprovals = allAds.filter(ad => ad.status === 'pending').length;
 
     return { totalSponsors, activeSponsors, pendingApprovals };
   }
 
   async getPendingSponsorRequests(): Promise<any[]> {
-    // In a real implementation, you'd have a separate table for pending requests
-    // For now, return empty array since all sponsors in the database are approved
-    return [];
+    const pendingAds = await db.select().from(ambientAds).where(eq(ambientAds.status, 'pending'));
+    return pendingAds.map(ad => ({
+      id: ad.id,
+      productName: ad.productName,
+      description: ad.description,
+      url: ad.url,
+      submittedAt: ad.createdAt?.toISOString() || new Date().toISOString(),
+      status: ad.status,
+      paymentAmount: (ad.allocatedFunds || 0) / 100, // Convert from cents to dollars
+      duration: '7 days', // Default duration
+    }));
   }
 
   async getRecentGuardianActions(limit = 50): Promise<GuardianAction[]> {
@@ -1135,6 +1173,182 @@ export class DatabaseStorage implements IStorage {
   async updateSponsorFunds(adId: number, spent: number): Promise<void> {
     // Mock implementation - would update sponsor funds in real DB
     console.log(`Sponsor ad ${adId} spent ${spent} cents. Checking if budget exhausted...`);
+  }
+
+  // Deep user analytics implementation like X.com/Facebook
+  async getUserAnalytics(userId: string): Promise<{
+    totalMessages: number;
+    messagesLast7Days: number;
+    messagesLast30Days: number;
+    averageMessagesPerDay: number;
+    mostActiveHours: number[];
+    engagementScore: number;
+    accountAge: number;
+    lastActiveDate: Date | null;
+    roomsCreated: number;
+    roomsJoined: number;
+    moderationActions: number;
+    guardianHistory: boolean;
+    paymentHistory: { amount: number; date: Date; type: string }[];
+    activityTrend: 'increasing' | 'decreasing' | 'stable';
+    riskScore: number;
+    deviceFingerprint: string[];
+  }> {
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Get user messages from both global and room messages
+    const globalMessages = await db.select().from(messages).where(eq(messages.username, user.username || ''));
+    const userRoomMessages = await db.select().from(roomMessages).where(eq(roomMessages.username, user.username || ''));
+    
+    const allUserMessages = [...globalMessages, ...userRoomMessages];
+    const totalMessages = allUserMessages.length;
+
+    // Calculate time-based metrics
+    const now = new Date();
+    const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    
+    const messagesLast7Days = allUserMessages.filter(msg => msg.createdAt >= last7Days).length;
+    const messagesLast30Days = allUserMessages.filter(msg => msg.createdAt >= last30Days).length;
+    
+    // Calculate account age in days
+    const accountAge = user.createdAt ? Math.floor((now.getTime() - user.createdAt.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+    const averageMessagesPerDay = accountAge > 0 ? totalMessages / accountAge : 0;
+
+    // Most active hours analysis
+    const hourCounts = new Array(24).fill(0);
+    allUserMessages.forEach(msg => {
+      const hour = msg.createdAt.getHours();
+      hourCounts[hour]++;
+    });
+    const mostActiveHours = hourCounts
+      .map((count, hour) => ({ hour, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3)
+      .map(item => item.hour);
+
+    // Engagement score (0-100 based on activity)
+    const recentActivity = messagesLast7Days * 10;
+    const consistency = accountAge > 0 ? Math.min(100, (totalMessages / accountAge) * 20) : 0;
+    const engagementScore = Math.min(100, Math.round((recentActivity + consistency) / 2));
+
+    // Last active date
+    const lastActiveDate = allUserMessages.length > 0 ? 
+      allUserMessages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0].createdAt : null;
+
+    // Rooms created and joined
+    const userRooms = await db.select().from(rooms).where(eq(rooms.creatorId, userId));
+    const roomsCreated = userRooms.length;
+    
+    // For rooms joined, count distinct rooms where user has posted
+    const roomIds = [...new Set(userRoomMessages.map(msg => msg.roomId))];
+    const roomsJoined = roomIds.length;
+
+    // Moderation actions (guardian actions)
+    const guardianActionsCount = await db.select()
+      .from(guardianActions)
+      .where(eq(guardianActions.guardianIp, userId));
+    const moderationActions = guardianActionsCount.length;
+
+    // Guardian history
+    const guardianHistoryRecords = await db.select()
+      .from(guardians)
+      .where(eq(guardians.ipAddress, userId));
+    const hasGuardianHistory = guardianHistoryRecords.length > 0;
+
+    // Payment history (account creation + guardian subscriptions)
+    const paymentHistory = [
+      ...(user.stripeCustomerId ? [{ amount: 3, date: user.createdAt || new Date(), type: 'Account Creation' }] : []),
+      ...guardianHistoryRecords.map(g => ({ 
+        amount: 20, 
+        date: g.createdAt, 
+        type: 'Guardian Subscription' 
+      }))
+    ];
+
+    // Activity trend analysis
+    const messages30to15 = allUserMessages.filter(msg => 
+      msg.createdAt >= new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000) &&
+      msg.createdAt < new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000)
+    ).length;
+    const messages15to0 = messagesLast7Days;
+    
+    let activityTrend: 'increasing' | 'decreasing' | 'stable' = 'stable';
+    if (messages15to0 > messages30to15 * 1.2) {
+      activityTrend = 'increasing';
+    } else if (messages15to0 < messages30to15 * 0.8) {
+      activityTrend = 'decreasing';
+    }
+
+    // Risk score calculation (0-100, higher = more risky)
+    let riskScore = 0;
+    if (messagesLast7Days > 100) riskScore += 20; // Very high activity
+    if (averageMessagesPerDay > 50) riskScore += 15; // Spam potential
+    if (accountAge < 1) riskScore += 25; // New account
+    if (!user.isVerified) riskScore += 20; // Unverified
+    if (moderationActions === 0 && accountAge > 30) riskScore += 10; // No moderation engagement
+    riskScore = Math.min(100, riskScore);
+
+    return {
+      totalMessages,
+      messagesLast7Days,
+      messagesLast30Days,
+      averageMessagesPerDay: Math.round(averageMessagesPerDay * 100) / 100,
+      mostActiveHours,
+      engagementScore,
+      accountAge,
+      lastActiveDate,
+      roomsCreated,
+      roomsJoined,
+      moderationActions,
+      guardianHistory: hasGuardianHistory,
+      paymentHistory,
+      activityTrend,
+      riskScore,
+      deviceFingerprint: [user.id] // Simplified fingerprint
+    };
+  }
+
+  async getAllUserAnalytics(): Promise<{
+    userId: string;
+    username: string;
+    email: string;
+    totalMessages: number;
+    lastActive: Date | null;
+    engagementScore: number;
+    riskScore: number;
+    accountAge: number;
+    isVerified: boolean;
+    guardian: boolean;
+  }[]> {
+    const allUsers = await this.getAllUsers();
+    const analytics = [];
+
+    for (const user of allUsers) {
+      try {
+        const userAnalytics = await this.getUserAnalytics(user.id);
+        analytics.push({
+          userId: user.id,
+          username: user.username || 'Anonymous',
+          email: user.email || '',
+          totalMessages: userAnalytics.totalMessages,
+          lastActive: userAnalytics.lastActiveDate,
+          engagementScore: userAnalytics.engagementScore,
+          riskScore: userAnalytics.riskScore,
+          accountAge: userAnalytics.accountAge,
+          isVerified: user.isVerified || false,
+          guardian: userAnalytics.guardianHistory
+        });
+      } catch (error) {
+        // Skip users with analytics errors
+        console.warn(`Failed to get analytics for user ${user.id}:`, error);
+      }
+    }
+
+    return analytics.sort((a, b) => b.engagementScore - a.engagementScore);
   }
 }
 

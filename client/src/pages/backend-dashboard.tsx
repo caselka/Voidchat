@@ -79,6 +79,7 @@ export default function BackendDashboard() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [activeTab, setActiveTab] = useState("sponsors");
   const [dateFormat, setDateFormat] = useState("relative"); // relative, full, short
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
   // Date formatting helper function
   const formatDate = (dateString: string) => {
@@ -171,6 +172,19 @@ export default function BackendDashboard() {
   // Fetch system alerts
   const { data: systemAlerts = [] } = useQuery({
     queryKey: ['/api/backend/system-alerts'],
+    retry: false,
+  });
+
+  // Fetch comprehensive user analytics
+  const { data: allUserAnalytics = [] } = useQuery({
+    queryKey: ['/api/backend/all-user-analytics'],
+    retry: false,
+  });
+
+  // Fetch detailed user analytics for selected user
+  const { data: selectedUserAnalytics } = useQuery({
+    queryKey: ['/api/backend/user-analytics', selectedUser],
+    enabled: !!selectedUser,
     retry: false,
   });
 
@@ -396,24 +410,71 @@ export default function BackendDashboard() {
                 <CardDescription>Manage user accounts, verification status, and access levels</CardDescription>
               </CardHeader>
               <CardContent>
-                {allUsers && allUsers.length > 0 ? (
+                {allUserAnalytics && allUserAnalytics.length > 0 ? (
                   <div className="space-y-4">
-                    {allUsers.slice(0, 10).map((user: any) => (
-                      <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <UserCheck className="w-5 h-5 text-blue-500" />
-                          <div>
-                            <div className="font-medium">{user.username || 'Anonymous'}</div>
-                            <div className="text-sm text-muted-foreground">{user.email || 'No email'}</div>
+                    {allUserAnalytics.slice(0, 15).map((user: any) => (
+                      <div key={user.userId} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <UserCheck className="w-5 h-5 text-blue-500" />
+                            <div>
+                              <div className="font-medium flex items-center space-x-2">
+                                <span>{user.username}</span>
+                                {user.isVerified && <CheckCircle className="w-4 h-4 text-green-500" />}
+                                {user.guardian && <Shield className="w-4 h-4 text-purple-500" />}
+                              </div>
+                              <div className="text-sm text-muted-foreground">{user.email || 'No email'}</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant={user.engagementScore > 70 ? "default" : user.engagementScore > 40 ? "secondary" : "outline"}>
+                              {user.engagementScore}% engagement
+                            </Badge>
+                            <Badge variant={user.riskScore > 60 ? "destructive" : user.riskScore > 30 ? "secondary" : "default"}>
+                              {user.riskScore}% risk
+                            </Badge>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant={user.isVerified ? "default" : "secondary"}>
-                            {user.isVerified ? "Verified" : "Unverified"}
-                          </Badge>
-                          <Badge variant={user.isSuperUser ? "destructive" : "outline"}>
-                            {user.isSuperUser ? "Super User" : "Regular User"}
-                          </Badge>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <span className="font-medium text-muted-foreground">Total Messages:</span>
+                            <div className="font-semibold">{user.totalMessages}</div>
+                          </div>
+                          <div>
+                            <span className="font-medium text-muted-foreground">Account Age:</span>
+                            <div className="font-semibold">{user.accountAge} days</div>
+                          </div>
+                          <div>
+                            <span className="font-medium text-muted-foreground">Last Active:</span>
+                            <div className="font-semibold">
+                              {user.lastActive ? formatDate(user.lastActive.toString()) : 'Never'}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="font-medium text-muted-foreground">Status:</span>
+                            <div className="flex space-x-1">
+                              {user.isVerified && <Badge variant="outline" className="text-xs">Verified</Badge>}
+                              {user.guardian && <Badge variant="outline" className="text-xs">Guardian</Badge>}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-3 flex items-center justify-between">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUser(user.userId);
+                            }}
+                          >
+                            <Activity className="w-4 h-4 mr-1" />
+                            Deep Analytics
+                          </Button>
+                          <div className="text-xs text-muted-foreground">
+                            Risk factors: {user.riskScore > 60 ? 'High activity, New account' : 
+                                          user.riskScore > 30 ? 'Moderate activity' : 'Low risk'}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -775,6 +836,172 @@ export default function BackendDashboard() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Deep User Analytics Modal */}
+        {selectedUser && selectedUserAnalytics && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center space-x-2">
+                    <Activity className="w-5 h-5 text-blue-500" />
+                    <span>Deep User Analytics</span>
+                  </CardTitle>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setSelectedUser(null)}
+                  >
+                    <XCircle className="w-4 h-4" />
+                  </Button>
+                </div>
+                <CardDescription>
+                  Comprehensive analytics for user activity, engagement, and behavior patterns
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Overview Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">{selectedUserAnalytics.totalMessages}</div>
+                    <div className="text-sm text-muted-foreground">Total Messages</div>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">{selectedUserAnalytics.engagementScore}%</div>
+                    <div className="text-sm text-muted-foreground">Engagement Score</div>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-orange-600">{selectedUserAnalytics.accountAge}</div>
+                    <div className="text-sm text-muted-foreground">Account Age (days)</div>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-red-600">{selectedUserAnalytics.riskScore}%</div>
+                    <div className="text-sm text-muted-foreground">Risk Score</div>
+                  </div>
+                </div>
+
+                {/* Activity Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Activity Patterns</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Messages (Last 7 days):</span>
+                        <span className="font-semibold">{selectedUserAnalytics.messagesLast7Days}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Messages (Last 30 days):</span>
+                        <span className="font-semibold">{selectedUserAnalytics.messagesLast30Days}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Avg Messages/Day:</span>
+                        <span className="font-semibold">{selectedUserAnalytics.averageMessagesPerDay}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Activity Trend:</span>
+                        <Badge variant={
+                          selectedUserAnalytics.activityTrend === 'increasing' ? 'default' :
+                          selectedUserAnalytics.activityTrend === 'decreasing' ? 'destructive' : 'secondary'
+                        }>
+                          {selectedUserAnalytics.activityTrend}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">User Behavior</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Rooms Created:</span>
+                        <span className="font-semibold">{selectedUserAnalytics.roomsCreated}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Rooms Joined:</span>
+                        <span className="font-semibold">{selectedUserAnalytics.roomsJoined}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Moderation Actions:</span>
+                        <span className="font-semibold">{selectedUserAnalytics.moderationActions}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Guardian History:</span>
+                        <Badge variant={selectedUserAnalytics.guardianHistory ? "default" : "outline"}>
+                          {selectedUserAnalytics.guardianHistory ? "Yes" : "No"}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Most Active Hours */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Most Active Hours</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex space-x-4">
+                      {selectedUserAnalytics.mostActiveHours.map((hour, index) => (
+                        <div key={hour} className="text-center p-2 border rounded">
+                          <div className="font-bold">{hour}:00</div>
+                          <div className="text-xs text-muted-foreground">#{index + 1} most active</div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Payment History */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Payment History</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {selectedUserAnalytics.paymentHistory.length > 0 ? (
+                      <div className="space-y-2">
+                        {selectedUserAnalytics.paymentHistory.map((payment, index) => (
+                          <div key={index} className="flex justify-between p-2 border rounded">
+                            <span>{payment.type}</span>
+                            <div className="text-right">
+                              <div className="font-semibold">${payment.amount}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {formatDate(payment.date.toString())}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground">No payment history</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Last Activity */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Recent Activity</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between">
+                      <span>Last Active:</span>
+                      <span className="font-semibold">
+                        {selectedUserAnalytics.lastActiveDate ? 
+                          formatDate(selectedUserAnalytics.lastActiveDate.toString()) : 
+                          'Never'
+                        }
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
