@@ -502,9 +502,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
+        // Get session ID for anonymous username lookup
+        let sessionKey = null;
+        if (cookies) {
+          const sessionMatch = cookies.match(/connect\.sid=([^;]+)/);
+          if (sessionMatch) {
+            const sessionId = decodeURIComponent(sessionMatch[1]);
+            sessionKey = sessionId;
+            if (sessionKey.startsWith('s:')) {
+              sessionKey = sessionKey.substring(2); // Remove 's:' prefix
+            }
+            sessionKey = sessionKey.split('.')[0]; // Get the part before the signature
+          }
+        }
+        
         const [isGuardian, anonUsername, customHandle] = await Promise.all([
           storage.isGuardian(ipAddress),
-          storage.getAnonUsername(ipAddress),
+          storage.getAnonUsername(sessionKey || `anon_${ipAddress}`),
           storage.getCustomHandle(ipAddress)
         ]);
         
@@ -608,6 +622,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Try to get authenticated user via session store
           let authenticatedUser = null;
+          let sessionKey = null;
           const cookies = req.headers.cookie;
           
           if (cookies) {
@@ -619,13 +634,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 // Check all sessions to find the matching one
                 const allSessions = await db.select().from(sessions);
                 
+                // Extract session key properly - remove 's:' prefix and get part before signature
+                sessionKey = sessionId;
+                if (sessionKey.startsWith('s:')) {
+                  sessionKey = sessionKey.substring(2); // Remove 's:' prefix
+                }
+                sessionKey = sessionKey.split('.')[0]; // Get the part before the signature
+                
                 for (const session of allSessions) {
-                  // Extract session key properly - remove 's:' prefix and get part before signature
-                  let sessionKey = sessionId;
-                  if (sessionKey.startsWith('s:')) {
-                    sessionKey = sessionKey.substring(2); // Remove 's:' prefix
-                  }
-                  sessionKey = sessionKey.split('.')[0]; // Get the part before the signature
                   
                   if (session.sid === sessionKey) {
                     const sessionData = session.sess as any;
@@ -661,7 +677,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (customHandle) {
               username = sanitizeUsername(customHandle.handle);
             } else {
-              username = await storage.getAnonUsername(ipAddress);
+              username = await storage.getAnonUsername(sessionKey || `anon_${ipAddress}`);
             }
           }
           

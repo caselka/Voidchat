@@ -87,13 +87,13 @@ export const themeCustomizations = pgTable("theme_customizations", {
 
 export const anonUsernames = pgTable("anon_usernames", {
   id: serial("id").primaryKey(),
-  ipAddress: text("ip_address").notNull().unique(),
+  sessionId: text("session_id").notNull().unique(), // Use session ID instead of IP
   username: text("username").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   lastUsedAt: timestamp("last_used_at").defaultNow().notNull(),
 }, (table) => {
   return {
-    ipAddressIdx: index("anon_usernames_ip_address_idx").on(table.ipAddress),
+    sessionIdIdx: index("anon_usernames_session_id_idx").on(table.sessionId),
   };
 });
 

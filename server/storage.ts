@@ -81,9 +81,9 @@ export interface IStorage {
   deleteExpiredThemes(): Promise<void>;
 
   // Anonymous usernames
-  getAnonUsername(ipAddress: string): Promise<string>;
-  createAnonUsername(ipAddress: string, username: string): Promise<AnonUsername>;
-  updateAnonUsernameLastUsed(ipAddress: string): Promise<void>;
+  getAnonUsername(sessionId: string): Promise<string>;
+  createAnonUsername(sessionId: string, username: string): Promise<AnonUsername>;
+  updateAnonUsernameLastUsed(sessionId: string): Promise<void>;
   
   // Auth (Email/Password)
   getUser(id: string): Promise<User | undefined>;
@@ -492,15 +492,18 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id));
   }
 
-  async getAnonUsername(ipAddress: string): Promise<string> {
+  async getAnonUsername(sessionId: string): Promise<string> {
+    // For anonymous users without sessions, generate a temporary ID
+    const effectiveSessionId = sessionId || `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     const [existingUsername] = await db
       .select()
       .from(anonUsernames)
-      .where(eq(anonUsernames.ipAddress, ipAddress));
+      .where(eq(anonUsernames.sessionId, effectiveSessionId));
 
     if (existingUsername) {
       // Update last used timestamp
-      await this.updateAnonUsernameLastUsed(ipAddress);
+      await this.updateAnonUsernameLastUsed(effectiveSessionId);
       return existingUsername.username;
     }
 
@@ -517,7 +520,7 @@ export class DatabaseStorage implements IStorage {
 
       if (!existing) {
         // Create new username entry
-        const created = await this.createAnonUsername(ipAddress, newUsername);
+        const created = await this.createAnonUsername(effectiveSessionId, newUsername);
         return created.username;
       }
       attempts++;
@@ -527,11 +530,11 @@ export class DatabaseStorage implements IStorage {
     return `anon${Math.floor(1000 + Math.random() * 9000)}`;
   }
 
-  async createAnonUsername(ipAddress: string, username: string): Promise<AnonUsername> {
+  async createAnonUsername(sessionId: string, username: string): Promise<AnonUsername> {
     const [anonUsername] = await db
       .insert(anonUsernames)
       .values({
-        ipAddress,
+        sessionId,
         username,
         createdAt: new Date(),
         lastUsedAt: new Date(),
@@ -540,11 +543,11 @@ export class DatabaseStorage implements IStorage {
     return anonUsername;
   }
 
-  async updateAnonUsernameLastUsed(ipAddress: string): Promise<void> {
+  async updateAnonUsernameLastUsed(sessionId: string): Promise<void> {
     await db
       .update(anonUsernames)
       .set({ lastUsedAt: new Date() })
-      .where(eq(anonUsernames.ipAddress, ipAddress));
+      .where(eq(anonUsernames.sessionId, sessionId));
   }
 
   async getUserStats(ipAddress: string): Promise<{ messagesLast7Days: number; paidAccountSince?: Date } | undefined> {
