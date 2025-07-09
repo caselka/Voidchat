@@ -623,13 +623,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (authenticatedUser?.username) {
             // Use authenticated user's registered username
             username = sanitizeUsername(authenticatedUser.username);
+            console.log('Using authenticated username:', username);
           } else {
+            console.log('No authenticated user found, using fallback. authenticatedUser:', authenticatedUser);
             // Fallback to custom handle or anon username
             const customHandle = await storage.getCustomHandle(ipAddress);
             if (customHandle) {
               username = sanitizeUsername(customHandle.handle);
+              console.log('Using custom handle:', username);
             } else {
               username = await storage.getAnonUsername(ipAddress);
+              console.log('Using anon username:', username);
             }
           }
           
