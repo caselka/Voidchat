@@ -575,11 +575,6 @@ export class DatabaseStorage implements IStorage {
       console.error('Error getting user stats:', error);
       return undefined;
     }
-      };
-    } catch (error) {
-      console.error('getUserStats error:', error);
-      return undefined;
-    }
   }
 
   // Room management methods

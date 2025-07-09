@@ -3,10 +3,12 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { insertMessageSchema, insertAmbientAdSchema } from "@shared/schema";
+import { insertMessageSchema, insertAmbientAdSchema, sessions, users } from "@shared/schema";
 import { setupAuth, isAuthenticated } from "./emailAuth";
 import { sanitizeMessageContent, sanitizeUsername, blockBackendInteraction, checkValidationRateLimit } from "./security";
 import { checkProfanity, validateSponsorContent } from "./profanity-filter";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -550,15 +552,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
             return;
           }
           
-          // Check if user has a custom handle, otherwise use persistent anon username
+          // Check for authenticated user first, then custom handle, then anon username
           let username: string;
-          const customHandle = await storage.getCustomHandle(ipAddress);
-          if (customHandle) {
-            // Sanitize custom handle to prevent injection
-            username = sanitizeUsername(customHandle.handle);
+          
+          // Try to get authenticated user from session cookie
+          let authenticatedUser = null;
+          const cookies = req.headers.cookie;
+          if (cookies) {
+            try {
+              const sessionMatch = cookies.match(/connect\.sid=([^;]+)/);
+              if (sessionMatch) {
+                // Query active sessions to find authenticated user
+                const sessionId = decodeURIComponent(sessionMatch[1]);
+                const sessionQuery = await db.select()
+                  .from(sessions)
+                  .where(eq(sessions.sid, sessionId))
+                  .limit(1);
+                
+                if (sessionQuery.length > 0) {
+                  const sessionData = sessionQuery[0].sess as any;
+                  if (sessionData?.passport?.user?.id) {
+                    const userId = sessionData.passport.user.id;
+                    authenticatedUser = await storage.getUser(userId);
+                  }
+                }
+              }
+            } catch (error) {
+              console.log('Session parsing error:', error);
+            }
+          }
+
+          if (authenticatedUser?.username) {
+            // Use authenticated user's registered username
+            username = sanitizeUsername(authenticatedUser.username);
           } else {
-            // Get or create persistent anonymous username for this IP
-            username = await storage.getAnonUsername(ipAddress);
+            // Fallback to custom handle or anon username
+            const customHandle = await storage.getCustomHandle(ipAddress);
+            if (customHandle) {
+              username = sanitizeUsername(customHandle.handle);
+            } else {
+              username = await storage.getAnonUsername(ipAddress);
+            }
           }
           
           const newMessage = await storage.createMessage({
