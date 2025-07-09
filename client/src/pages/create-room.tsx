@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import DynamicHeader from "@/components/dynamic-header";
+import AnimatedGlowBox from "@/components/animated-glow-box";
 import { Loader2 } from "lucide-react";
 import { Home, Shield, Users } from "lucide-react";
 

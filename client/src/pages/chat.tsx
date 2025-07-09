@@ -5,6 +5,9 @@ import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import ChatContainer from "@/components/chat-container";
 import MessageInput from "@/components/message-input";
+import MobileNavigation from "@/components/mobile-navigation";
+import MobileSidebar from "@/components/mobile-sidebar";
+import AnimatedGlowBox from "@/components/animated-glow-box";
 
 import HumanVerification from "@/components/human-verification";
 import Walkthrough from "@/components/walkthrough";
@@ -33,6 +36,8 @@ export default function Chat() {
   const [replyingTo, setReplyingTo] = useState<{ id: number; content: string; username: string } | null>(null);
   const [globalCooldown, setGlobalCooldown] = useState<{ active: boolean; timeLeft: number; reason: string } | null>(null);
   const [showRoomsSidebar, setShowRoomsSidebar] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Fetch rooms for dropdown
   const { data: rooms = [], isLoading: roomsLoading } = useQuery({
@@ -40,7 +45,7 @@ export default function Chat() {
     enabled: true,
   });
 
-  // Check if user is new (for walkthrough)
+  // Check if user is new (for walkthrough) and detect mobile
   useEffect(() => {
     if (!isAuthenticated) {
       const hasSeenWalkthrough = localStorage.getItem('voidchat-walkthrough-seen');
@@ -48,6 +53,15 @@ export default function Chat() {
         setShowWalkthrough(true);
       }
     }
+
+    // Detect mobile device
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, [isAuthenticated]);
 
   const handleWalkthroughComplete = () => {
@@ -148,18 +162,28 @@ export default function Chat() {
 
   return (
     <div className="font-sans bg-background text-foreground transition-colors duration-300 min-h-screen chat-main-container">
-      {/* Dynamic Header */}
-      <DynamicHeader 
-        title={`voidchat · ${onlineCount} online`}
-        showRooms={true}
-        onRoomsClick={() => setShowRoomsSidebar(true)}
+      {/* Desktop Header */}
+      {!isMobile && (
+        <DynamicHeader 
+          title={`voidchat · ${onlineCount} online`}
+          showRooms={true}
+          onRoomsClick={() => setShowRoomsSidebar(true)}
+        />
+      )}
+      
+      {/* Mobile Sidebar */}
+      <MobileSidebar 
+        isOpen={showMobileSidebar} 
+        onClose={() => setShowMobileSidebar(false)} 
       />
       
-      {/* Rooms Sidebar */}
-      <RoomsSidebar 
-        isOpen={showRoomsSidebar}
-        onClose={() => setShowRoomsSidebar(false)}
-      />
+      {/* Desktop Rooms Sidebar */}
+      {!isMobile && (
+        <RoomsSidebar 
+          isOpen={showRoomsSidebar}
+          onClose={() => setShowRoomsSidebar(false)}
+        />
+      )}
       
       {/* Human Verification Modal for Anonymous Users - DISABLED */}
       {/* {needsVerification && (
@@ -224,12 +248,26 @@ export default function Chat() {
         />
       </div>
 
-      {/* Message Input - Fixed at bottom with proper keyboard handling */}
-      <MessageInput 
-        onSendMessage={sendMessage}
-        rateLimitTime={rateLimitTime}
-        error={error}
-      />
+      {/* Message Input - Wrapped in glow box with mention support */}
+      <AnimatedGlowBox 
+        glowColor="green" 
+        intensity="subtle" 
+        speed="normal"
+        className="fixed bottom-16 md:bottom-4 left-4 right-4 md:left-1/2 md:right-auto md:w-96 md:-translate-x-1/2 z-40"
+      >
+        <MessageInput 
+          onSendMessage={sendMessage}
+          rateLimitTime={rateLimitTime}
+          error={error}
+        />
+      </AnimatedGlowBox>
+
+      {/* Mobile Navigation */}
+      {isMobile && (
+        <MobileNavigation 
+          onSidebarToggle={() => setShowMobileSidebar(true)}
+        />
+      )}
 
       {/* Walkthrough */}
       <Walkthrough

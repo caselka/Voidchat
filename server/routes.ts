@@ -1210,6 +1210,145 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Search API endpoint
+  app.get('/api/search', async (req, res) => {
+    try {
+      const searchTerm = req.query.q as string;
+      if (!searchTerm || searchTerm.length < 3) {
+        return res.json([]);
+      }
+
+      // Simple mock search results for now - replace with actual search implementation
+      const mockResults = [
+        {
+          type: 'message',
+          id: '1',
+          content: `Test message containing "${searchTerm}"`,
+          username: 'testuser',
+          timestamp: '2h ago',
+        },
+        {
+          type: 'room',
+          id: '2',
+          content: 'general',
+        },
+        {
+          type: 'user',
+          id: '3',
+          content: 'testuser',
+          isOnline: true,
+        }
+      ].filter(result => 
+        result.content.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      res.json(mockResults);
+    } catch (error) {
+      console.error('Error searching:', error);
+      res.status(500).json({ message: 'Search failed' });
+    }
+  });
+
+  // Active users for mentions (global)
+  app.get('/api/active-users', async (req, res) => {
+    try {
+      // Mock active users - replace with actual implementation
+      const activeUsers = [
+        { id: '1', username: 'anon1234', isOnline: true },
+        { id: '2', username: 'testuser', isOnline: true, lastSeen: '5m ago' },
+      ];
+      res.json(activeUsers);
+    } catch (error) {
+      console.error('Error fetching active users:', error);
+      res.status(500).json({ message: 'Failed to fetch active users' });
+    }
+  });
+
+  // Room users for mentions (room-specific)
+  app.get('/api/room-users/:roomName', async (req, res) => {
+    try {
+      const { roomName } = req.params;
+      // Mock room users - replace with actual implementation
+      const roomUsers = [
+        { id: '1', username: 'roomuser1', isOnline: true },
+        { id: '2', username: 'roomuser2', isOnline: false, lastSeen: '1h ago' },
+      ];
+      res.json(roomUsers);
+    } catch (error) {
+      console.error('Error fetching room users:', error);
+      res.status(500).json({ message: 'Failed to fetch room users' });
+    }
+  });
+
+  // Notifications
+  app.get('/api/notifications', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      // Mock notifications - replace with actual implementation
+      const notifications = [
+        {
+          id: '1',
+          type: 'mention',
+          title: 'You were mentioned',
+          content: 'testuser mentioned you in general chat',
+          username: 'testuser',
+          roomName: 'general',
+          timestamp: new Date().toISOString(),
+          isRead: false,
+        }
+      ];
+      res.json(notifications);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      res.status(500).json({ message: 'Failed to fetch notifications' });
+    }
+  });
+
+  // Mark notification as read
+  app.post('/api/notifications/:id/read', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.claims.sub;
+      // Mock implementation - replace with actual notification marking
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      res.status(500).json({ message: 'Failed to mark notification as read' });
+    }
+  });
+
+  // Notification settings
+  app.get('/api/notification-settings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      // Mock settings - replace with actual implementation
+      const settings = {
+        mentions: true,
+        replies: true,
+        guardianActions: true,
+        systemAlerts: true,
+        directMessages: true,
+      };
+      res.json(settings);
+    } catch (error) {
+      console.error('Error fetching notification settings:', error);
+      res.status(500).json({ message: 'Failed to fetch notification settings' });
+    }
+  });
+
+  // Update notification settings
+  app.put('/api/notification-settings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const settings = req.body;
+      // Mock implementation - replace with actual settings update
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error updating notification settings:', error);
+      res.status(500).json({ message: 'Failed to update notification settings' });
+    }
+  });
+
   wss.on('connection', (ws: WebSocketClient, req) => {
     const ipAddress = getClientIp(req);
     ws.ipAddress = ipAddress;
