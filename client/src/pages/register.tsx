@@ -133,40 +133,47 @@ const RegistrationForm = () => {
     }
   };
 
-  if (step === 'payment') {
+  if (step === 'payment' && paymentIntent) {
     return (
-      <form onSubmit={handlePaymentSubmit} className="space-y-6">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold">Complete Your Registration</h3>
-          <p className="text-sm text-muted-foreground mt-2">
-            Username: <span className="font-medium">{formData.username}</span>
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Cost: <span className="font-medium">$3.00</span> (one-time username reservation fee)
-          </p>
-        </div>
-        
-        <PaymentElement />
-        
-        <div className="flex space-x-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setStep('details')}
-            disabled={isProcessing}
-            className="flex-1"
-          >
-            Back
-          </Button>
-          <Button
-            type="submit"
-            disabled={!stripe || isProcessing}
-            className="flex-1"
-          >
-            {isProcessing ? "Processing..." : "Complete Registration"}
-          </Button>
-        </div>
-      </form>
+      <Elements
+        stripe={stripePromise}
+        options={{
+          clientSecret: paymentIntent,
+        }}
+      >
+        <form onSubmit={handlePaymentSubmit} className="space-y-6">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold">Complete Your Registration</h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              Username: <span className="font-medium">{formData.username}</span>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Cost: <span className="font-medium">$3.00</span> (one-time username reservation fee)
+            </p>
+          </div>
+          
+          <PaymentElement />
+          
+          <div className="flex space-x-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setStep('details')}
+              disabled={isProcessing}
+              className="flex-1"
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              disabled={!stripe || isProcessing}
+              className="flex-1"
+            >
+              {isProcessing ? "Processing..." : "Complete Registration"}
+            </Button>
+          </div>
+        </form>
+      </Elements>
     );
   }
 
@@ -278,9 +285,7 @@ export default function Register() {
           </div>
         </CardHeader>
         <CardContent>
-          <Elements stripe={stripePromise}>
-            <RegistrationForm />
-          </Elements>
+          <RegistrationForm />
         </CardContent>
       </Card>
     </div>
