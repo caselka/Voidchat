@@ -565,9 +565,16 @@ export class DatabaseStorage implements IStorage {
         .orderBy(desc(guardians.createdAt))
         .limit(1);
 
+      console.log(`User stats for IP ${ipAddress}: messages=${messageCount[0]?.count || 0}, paidAccount=${!!paidAccount[0]}`);
+
       return {
         messagesLast7Days: messageCount[0]?.count || 0,
         paidAccountSince: paidAccount[0]?.createdAt
+      };
+    } catch (error) {
+      console.error('Error getting user stats:', error);
+      return undefined;
+    }
       };
     } catch (error) {
       console.error('getUserStats error:', error);
