@@ -85,8 +85,8 @@ function Router() {
         <Route path="/" component={Landing} />
         <Route path="/chat" component={Chat} />
         <Route path="/login" component={Login} />
-        <Route path="/register" component={RegisterSimple} />
-        <Route path="/register-full" component={Register} />
+        <Route path="/register" component={Register} />
+        <Route path="/register-simple" component={RegisterSimple} />
         <Route path="/guardian-checkout" component={GuardianCheckout} />
         <Route path="/sponsor" component={Sponsor} />
         <Route path="/handle" component={Handle} />

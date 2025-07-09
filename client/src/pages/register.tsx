@@ -15,11 +15,118 @@ if (!stripeKey) {
 }
 const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
 
-const RegistrationForm = () => {
-  const [, setLocation] = useLocation();
+const PaymentForm = ({ paymentIntent, formData, onBack, onSuccess }: {
+  paymentIntent: string;
+  formData: any;
+  onBack: () => void;
+  onSuccess: () => void;
+}) => {
   const { toast } = useToast();
   const stripe = useStripe();
   const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      toast({
+        title: "Error",
+        description: "Payment system not ready. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const { error, paymentIntent: confirmedPayment } = await stripe.confirmPayment({
+        elements,
+        redirect: 'if_required',
+      });
+
+      if (error) {
+        toast({
+          title: "Payment Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else if (confirmedPayment && confirmedPayment.status === 'succeeded') {
+        // Complete registration after successful payment
+        try {
+          await apiRequest("POST", "/api/complete-username-registration", {
+            payment_intent_id: confirmedPayment.id,
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
+          });
+          
+          toast({
+            title: "Registration Successful!",
+            description: "Your account has been created and is ready to use.",
+          });
+          
+          // Redirect after a short delay
+          setTimeout(onSuccess, 1500);
+        } catch (registrationError: any) {
+          toast({
+            title: "Registration Error",
+            description: registrationError.message || "Failed to complete registration",
+            variant: "destructive",
+          });
+        }
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Registration failed",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="text-center">
+        <h3 className="text-lg font-semibold">Complete Your Registration</h3>
+        <p className="text-sm text-muted-foreground mt-2">
+          Username: <span className="font-medium">{formData.username}</span>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Cost: <span className="font-medium">$3.00</span> (one-time username reservation fee)
+        </p>
+      </div>
+      
+      <PaymentElement />
+      
+      <div className="flex space-x-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onBack}
+          disabled={isProcessing}
+          className="flex-1"
+        >
+          Back
+        </Button>
+        <Button
+          type="submit"
+          disabled={!stripe || isProcessing}
+          className="flex-1"
+        >
+          {isProcessing ? "Processing..." : "Complete Registration"}
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+const RegistrationForm = () => {
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -75,64 +182,7 @@ const RegistrationForm = () => {
     }
   };
 
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        redirect: 'if_required',
-      });
-
-      if (error) {
-        toast({
-          title: "Payment Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Payment successful, complete registration
-        try {
-          await apiRequest("POST", "/api/complete-username-registration", {
-            payment_intent_id: paymentIntent.id,
-            username: formData.username,
-            email: formData.email,
-            password: formData.password,
-          });
-          
-          toast({
-            title: "Registration Successful!",
-            description: "Your account has been created and is ready to use.",
-          });
-          
-          // Redirect after a short delay to show the success message
-          setTimeout(() => {
-            setLocation("/login?registration=success");
-          }, 1500);
-        } catch (registrationError: any) {
-          toast({
-            title: "Registration Error",
-            description: registrationError.message || "Failed to complete registration",
-            variant: "destructive",
-          });
-        }
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Registration failed",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+  // Empty placeholder - payment form will handle its own submission
 
   if (step === 'payment' && paymentIntent) {
     return (
@@ -142,38 +192,12 @@ const RegistrationForm = () => {
           clientSecret: paymentIntent,
         }}
       >
-        <form onSubmit={handlePaymentSubmit} className="space-y-6">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold">Complete Your Registration</h3>
-            <p className="text-sm text-muted-foreground mt-2">
-              Username: <span className="font-medium">{formData.username}</span>
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Cost: <span className="font-medium">$3.00</span> (one-time username reservation fee)
-            </p>
-          </div>
-          
-          <PaymentElement />
-          
-          <div className="flex space-x-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setStep('details')}
-              disabled={isProcessing}
-              className="flex-1"
-            >
-              Back
-            </Button>
-            <Button
-              type="submit"
-              disabled={!stripe || isProcessing}
-              className="flex-1"
-            >
-              {isProcessing ? "Processing..." : "Complete Registration"}
-            </Button>
-          </div>
-        </form>
+        <PaymentForm 
+          paymentIntent={paymentIntent} 
+          formData={formData}
+          onBack={() => setStep('details')}
+          onSuccess={() => setLocation("/login?registration=success")}
+        />
       </Elements>
     );
   }
