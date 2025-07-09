@@ -59,6 +59,7 @@ export function useWebSocket(): WebSocketHook {
           switch (message.type) {
             case 'initial_messages':
               // Reverse to show oldest messages first (chronological order)
+              console.log('Received initial messages from WebSocket:', message.data.length, 'messages');
               setMessages(message.data.reverse());
               break;
               
@@ -140,7 +141,8 @@ export function useWebSocket(): WebSocketHook {
         const response = await fetch('/api/recent-messages');
         if (response.ok) {
           const apiMessages = await response.json();
-          setMessages(apiMessages.map((msg: any) => ({
+          console.log('Loaded initial messages from API:', apiMessages.length, 'messages');
+          const formattedMessages = apiMessages.map((msg: any) => ({
             id: msg.id,
             content: msg.content,
             username: msg.username,
@@ -149,7 +151,9 @@ export function useWebSocket(): WebSocketHook {
             expiresAt: msg.expiresAt,
             replyToId: msg.replyToId,
             isAd: false,
-          })));
+          }));
+          setMessages(formattedMessages);
+          console.log('Set messages state with:', formattedMessages.length, 'messages');
         }
       } catch (error) {
         console.error('Error loading initial messages:', error);
