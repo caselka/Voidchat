@@ -418,6 +418,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const room = await storage.createRoom({
           name: normalizedName,
           creatorId: userId,
+          description: "",
+          isPrivate: false,
+          maxUsers: 100,
+          roomRules: "",
         });
         return res.json({ 
           room, 
@@ -471,6 +475,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const room = await storage.createRoom({
           name: roomName,
           creatorId: userId,
+          description: "",
+          isPrivate: false,
+          maxUsers: 100,
+          roomRules: "",
         });
 
         res.json({ 
@@ -583,11 +591,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Room moderation endpoints
+  // Enhanced room moderation endpoints
   app.post('/api/rooms/:name/mute', isAuthenticated, async (req, res) => {
     try {
       const { name } = req.params;
-      const { messageId } = req.body;
+      const { messageId, duration = 5 } = req.body;
       const userId = (req as any).user.id;
       
       const room = await storage.getRoom(name);
@@ -595,13 +603,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Room not found' });
       }
 
-      // Check if user is room owner or super user
-      const user = await storage.getUser(userId);
-      const isSuperUser = await storage.isSuperUser(userId);
-      const isOwner = room.creatorId === userId;
-      
-      if (!isOwner && !isSuperUser) {
-        return res.status(403).json({ message: 'Only room owners can mute users' });
+      // Check if user is room moderator
+      const isModerator = await storage.isRoomModerator(userId, room.id);
+      if (!isModerator) {
+        return res.status(403).json({ message: 'Only room moderators can mute users' });
       }
 
       // Get the message to find the IP to mute
@@ -612,22 +617,116 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Message not found' });
       }
 
-      // Mute the IP for 5 minutes in this room
-      await storage.muteIp(targetMessage.ipAddress, user?.username || 'moderator', 5 * 60);
+      // Mute the IP for specified duration
+      await storage.muteIp(targetMessage.ipAddress, userId, duration * 60);
       
       // Log the action
       await storage.logGuardianAction(
-        user?.email || userId, 
+        userId, 
         'mute_user', 
         targetMessage.ipAddress, 
         parseInt(messageId), 
-        { roomName: name, duration: 5 }
+        { roomName: name, duration: duration }
       );
 
-      res.json({ success: true, message: 'User muted for 5 minutes' });
+      res.json({ success: true, message: `User muted for ${duration} minutes` });
     } catch (error) {
       console.error('Room mute error:', error);
       res.status(500).json({ message: 'Failed to mute user' });
+    }
+  });
+
+  app.post('/api/rooms/:name/ban', isAuthenticated, async (req, res) => {
+    try {
+      const { name } = req.params;
+      const { messageId } = req.body;
+      const userId = (req as any).user.id;
+      
+      const room = await storage.getRoom(name);
+      if (!room) {
+        return res.status(404).json({ message: 'Room not found' });
+      }
+
+      const isModerator = await storage.isRoomModerator(userId, room.id);
+      if (!isModerator) {
+        return res.status(403).json({ message: 'Only room moderators can ban users' });
+      }
+
+      // Get the message to find the user to ban
+      const messages = await storage.getRoomMessages(room.id, 100);
+      const targetMessage = messages.find(m => m.id === parseInt(messageId));
+      
+      if (!targetMessage) {
+        return res.status(404).json({ message: 'Message not found' });
+      }
+
+      // Ban the user from the room
+      await storage.banUserFromRoom(room.id, targetMessage.ipAddress);
+      
+      // Log the action
+      await storage.logGuardianAction(
+        userId, 
+        'ban_user', 
+        targetMessage.ipAddress, 
+        parseInt(messageId), 
+        { roomName: name }
+      );
+
+      res.json({ success: true, message: 'User banned from room' });
+    } catch (error) {
+      console.error('Room ban error:', error);
+      res.status(500).json({ message: 'Failed to ban user' });
+    }
+  });
+
+  app.post('/api/rooms/:name/slow-mode', isAuthenticated, async (req, res) => {
+    try {
+      const { name } = req.params;
+      const { seconds } = req.body;
+      const userId = (req as any).user.id;
+      
+      const room = await storage.getRoom(name);
+      if (!room) {
+        return res.status(404).json({ message: 'Room not found' });
+      }
+
+      const isModerator = await storage.isRoomModerator(userId, room.id);
+      if (!isModerator) {
+        return res.status(403).json({ message: 'Only room moderators can set slow mode' });
+      }
+
+      await storage.setRoomSlowMode(room.id, seconds);
+      
+      // Log the action
+      await storage.logGuardianAction(
+        userId, 
+        'slow_mode', 
+        undefined, 
+        undefined, 
+        { roomName: name, seconds: seconds }
+      );
+
+      res.json({ success: true, message: `Slow mode set to ${seconds} seconds` });
+    } catch (error) {
+      console.error('Room slow mode error:', error);
+      res.status(500).json({ message: 'Failed to set slow mode' });
+    }
+  });
+
+  app.get('/api/rooms/:name/stats', isAuthenticated, async (req, res) => {
+    try {
+      const { name } = req.params;
+      const room = await storage.getRoom(name);
+      
+      if (!room) {
+        return res.status(404).json({ message: 'Room not found' });
+      }
+
+      const stats = await storage.getRoomStatistics(room.id);
+      res.json(stats);
+    } catch (error) {
+      console.error('Room stats error:', error);
+      res.status(500).json({ message: 'Failed to get room statistics' });
     }
   });
 

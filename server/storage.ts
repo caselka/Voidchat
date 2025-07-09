@@ -155,13 +155,25 @@ export interface IStorage {
   isUsernameExpired(userId: string): Promise<boolean>;
   getUsernameStatus(userId: string): Promise<{ expired: boolean; inGracePeriod: boolean; daysUntilExpiration: number }>;
   
-  // Room management
+  // Enhanced room management
   createRoom(room: InsertRoom): Promise<Room>;
   getRoom(name: string): Promise<Room | undefined>;
   getRoomById(id: number): Promise<Room | undefined>;
   getUserRooms(userId: string): Promise<Room[]>;
   getAllRooms(): Promise<Room[]>;
   isRoomNameAvailable(name: string): Promise<boolean>;
+  updateRoomSettings(roomId: number, settings: Partial<Room>): Promise<void>;
+  banUserFromRoom(roomId: number, userId: string): Promise<void>;
+  unbanUserFromRoom(roomId: number, userId: string): Promise<void>;
+  isUserBannedFromRoom(roomId: number, userId: string): Promise<boolean>;
+  setRoomSlowMode(roomId: number, seconds: number): Promise<void>;
+  getRoomModerators(roomId: number): Promise<string[]>;
+  getRoomStatistics(roomId: number): Promise<{
+    messageCount: number;
+    activeUsers: number;
+    createdAt: Date;
+    moderatorCount: number;
+  }>;
   
   // Room messages
   createRoomMessage(message: InsertRoomMessage & { username: string; ipAddress: string }): Promise<RoomMessage>;
@@ -676,7 +688,13 @@ export class DatabaseStorage implements IStorage {
   async createRoom(roomData: InsertRoom): Promise<Room> {
     const [room] = await db
       .insert(rooms)
-      .values(roomData)
+      .values({
+        ...roomData,
+        description: roomData.description || "",
+        isPrivate: roomData.isPrivate || false,
+        maxUsers: roomData.maxUsers || 100,
+        roomRules: roomData.roomRules || "",
+      })
       .returning();
     return room;
   }
@@ -850,6 +868,92 @@ export class DatabaseStorage implements IStorage {
 
   async deleteRoomMessage(id: number): Promise<void> {
     await db.delete(roomMessages).where(eq(roomMessages.id, id));
+  }
+
+  // Enhanced room management methods
+  async updateRoomSettings(roomId: number, settings: Partial<Room>): Promise<void> {
+    await db
+      .update(rooms)
+      .set(settings)
+      .where(eq(rooms.id, roomId));
+  }
+
+  async banUserFromRoom(roomId: number, userId: string): Promise<void> {
+    const [room] = await db.select().from(rooms).where(eq(rooms.id, roomId));
+    if (!room) return;
+
+    const currentBanned = room.bannedUsers || [];
+    if (!currentBanned.includes(userId)) {
+      await db
+        .update(rooms)
+        .set({ bannedUsers: [...currentBanned, userId] })
+        .where(eq(rooms.id, roomId));
+    }
+  }
+
+  async unbanUserFromRoom(roomId: number, userId: string): Promise<void> {
+    const [room] = await db.select().from(rooms).where(eq(rooms.id, roomId));
+    if (!room) return;
+
+    const currentBanned = room.bannedUsers || [];
+    const newBanned = currentBanned.filter(id => id !== userId);
+    
+    await db
+      .update(rooms)
+      .set({ bannedUsers: newBanned })
+      .where(eq(rooms.id, roomId));
+  }
+
+  async isUserBannedFromRoom(roomId: number, userId: string): Promise<boolean> {
+    const [room] = await db.select().from(rooms).where(eq(rooms.id, roomId));
+    if (!room) return false;
+    
+    return (room.bannedUsers || []).includes(userId);
+  }
+
+  async setRoomSlowMode(roomId: number, seconds: number): Promise<void> {
+    await db
+      .update(rooms)
+      .set({ slowMode: seconds })
+      .where(eq(rooms.id, roomId));
+  }
+
+  async getRoomModerators(roomId: number): Promise<string[]> {
+    const [room] = await db.select().from(rooms).where(eq(rooms.id, roomId));
+    return room?.moderators || [];
+  }
+
+  async getRoomStatistics(roomId: number): Promise<{
+    messageCount: number;
+    activeUsers: number;
+    createdAt: Date;
+    moderatorCount: number;
+  }> {
+    const [room] = await db.select().from(rooms).where(eq(rooms.id, roomId));
+    if (!room) {
+      return { messageCount: 0, activeUsers: 0, createdAt: new Date(), moderatorCount: 0 };
+    }
+
+    const messageCount = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(roomMessages)
+      .where(eq(roomMessages.roomId, roomId));
+
+    // Count unique users from last 24 hours
+    const activeUsers = await db
+      .select({ count: sql<number>`count(DISTINCT ip_address)` })
+      .from(roomMessages)
+      .where(and(
+        eq(roomMessages.roomId, roomId),
+        gte(roomMessages.createdAt, new Date(Date.now() - 24 * 60 * 60 * 1000))
+      ));
+
+    return {
+      messageCount: messageCount[0]?.count || 0,
+      activeUsers: activeUsers[0]?.count || 0,
+      createdAt: room.createdAt || new Date(),
+      moderatorCount: (room.moderators || []).length,
+    };
   }
 
   // Username expiration management

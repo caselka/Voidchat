@@ -110,7 +110,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 9, 2025)
 
-### Permanent Message Storage Implementation (Latest)
+### Enhanced Room System with Advanced Moderation Features (Latest)
+- **Room categories, tags, and privacy settings**: Rooms now support descriptions, private/public settings, user limits, and custom rules
+- **Advanced moderation tools**: Mute users with custom durations, ban users from rooms, set slow mode with configurable delays
+- **Comprehensive moderator dashboard**: Three-tab interface for room management, message moderation, and settings configuration
+- **Room statistics tracking**: Real-time stats showing message counts, active users, and moderator counts
+- **Enhanced storage methods**: Database support for banned users, room settings, moderator management, and statistics
+- **Quick action buttons**: One-click slow mode settings, customizable mute durations, and ban functionality
+- **Room settings management**: Configure slow mode, set mute durations, and access detailed room analytics
+- **Database schema updates**: Added room features including privacy, user limits, rules, and moderation tracking
+
+### Permanent Message Storage Implementation
 - **Removed message expiration system**: Messages are now stored permanently in the backend instead of the previous 15-minute TTL
 - **Updated database schema**: Removed `expires_at` column from messages table to reflect permanent storage
 - **Fixed cleanup processes**: Removed expired message deletion from scheduled cleanup jobs

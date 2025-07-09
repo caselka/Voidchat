@@ -181,14 +181,20 @@ export type InsertAnonUsername = typeof anonUsernames.$inferInsert;
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
-// Room storage table
+// Enhanced Room storage table
 export const rooms = pgTable("rooms", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 20 }).unique().notNull(),
   creatorId: varchar("creator_id").notNull().references(() => users.id),
+  description: text("description").default("").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   isActive: boolean("is_active").default(true),
+  isPrivate: boolean("is_private").default(false).notNull(),
+  slowMode: integer("slow_mode").default(0).notNull(), // seconds between messages
+  maxUsers: integer("max_users").default(100).notNull(),
   moderators: text("moderators").array().default([]), // Array of user IDs who can moderate
+  bannedUsers: text("banned_users").array().default([]), // Array of user IDs who are banned
+  roomRules: text("room_rules").default("").notNull(),
 });
 
 export const roomMessages = pgTable("room_messages", {
@@ -204,6 +210,10 @@ export const roomMessages = pgTable("room_messages", {
 export const insertRoomSchema = createInsertSchema(rooms).pick({
   name: true,
   creatorId: true,
+  description: true,
+  isPrivate: true,
+  maxUsers: true,
+  roomRules: true,
 });
 
 export const insertRoomMessageSchema = createInsertSchema(roomMessages).pick({

@@ -12,13 +12,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Shield, 
   Users, 
   MessageSquare, 
   Settings,
   Clock,
-  Trash2
+  Trash2,
+  Ban,
+  Timer,
+  BarChart3,
+  UserX
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import DynamicHeader from "@/components/dynamic-header";
@@ -37,6 +44,19 @@ interface UserRoom {
   description: string;
   createdAt: string;
   messageCount: number;
+  isPrivate: boolean;
+  slowMode: number;
+  maxUsers: number;
+  moderators: string[];
+  bannedUsers: string[];
+  roomRules: string;
+}
+
+interface RoomStats {
+  messageCount: number;
+  activeUsers: number;
+  createdAt: string;
+  moderatorCount: number;
 }
 
 export default function ModeratorDashboard() {
@@ -44,6 +64,8 @@ export default function ModeratorDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+  const [slowModeSeconds, setSlowModeSeconds] = useState(5);
+  const [muteMinutes, setMuteMinutes] = useState(5);
 
   if (!isAuthenticated) {
     return (
@@ -79,6 +101,13 @@ export default function ModeratorDashboard() {
     enabled: !!selectedRoom
   });
 
+  // Fetch room stats
+  const { data: roomStats } = useQuery({
+    queryKey: ['/api/rooms', selectedRoom, 'stats'],
+    retry: false,
+    enabled: !!selectedRoom
+  });
+
   // Delete message mutation
   const deleteMessageMutation = useMutation({
     mutationFn: async (messageId: number) => {
@@ -102,13 +131,16 @@ export default function ModeratorDashboard() {
 
   // Mute user mutation
   const muteUserMutation = useMutation({
-    mutationFn: async ({ ipAddress, duration }: { ipAddress: string; duration: number }) => {
-      return await apiRequest("POST", "/api/mute-user", { ipAddress, duration });
+    mutationFn: async ({ messageId, duration }: { messageId: number; duration: number }) => {
+      return await apiRequest("POST", `/api/rooms/${selectedRoom}/mute`, {
+        messageId,
+        duration,
+      });
     },
     onSuccess: () => {
       toast({
         title: "User Muted",
-        description: "User has been muted successfully.",
+        description: `User has been muted for ${muteMinutes} minutes.`,
       });
     },
     onError: () => {
@@ -119,6 +151,52 @@ export default function ModeratorDashboard() {
       });
     },
   });
+
+  // Ban user mutation
+  const banUserMutation = useMutation({
+    mutationFn: async (messageId: number) => {
+      return await apiRequest("POST", `/api/rooms/${selectedRoom}/ban`, {
+        messageId,
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "User Banned",
+        description: "User has been banned from the room.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to ban user.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Set slow mode mutation
+  const setSlowModeMutation = useMutation({
+    mutationFn: async (seconds: number) => {
+      return await apiRequest("POST", `/api/rooms/${selectedRoom}/slow-mode`, {
+        seconds,
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Slow Mode Updated",
+        description: `Slow mode set to ${slowModeSeconds} seconds.`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update slow mode.",
+        variant: "destructive",
+      });
+    },
+  });
+
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -182,9 +260,10 @@ export default function ModeratorDashboard() {
         </div>
 
         <Tabs defaultValue="rooms" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="rooms">Room Management</TabsTrigger>
             <TabsTrigger value="moderation">Message Moderation</TabsTrigger>
+            <TabsTrigger value="settings">Room Settings</TabsTrigger>
           </TabsList>
 
           {/* Room Management Tab */}
@@ -272,12 +351,22 @@ export default function ModeratorDashboard() {
                             size="sm"
                             variant="outline"
                             onClick={() => muteUserMutation.mutate({ 
-                              ipAddress: message.ipAddress, 
-                              duration: 300 
+                              messageId: message.id, 
+                              duration: muteMinutes 
                             })}
                             disabled={muteUserMutation.isPending}
                           >
-                            Mute 5min
+                            <Clock className="w-4 h-4 mr-1" />
+                            Mute {muteMinutes}min
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => banUserMutation.mutate(message.id)}
+                            disabled={banUserMutation.isPending}
+                          >
+                            <Ban className="w-4 h-4 mr-1" />
+                            Ban
                           </Button>
                           <Button
                             size="sm"
@@ -295,6 +384,160 @@ export default function ModeratorDashboard() {
                       </div>
                     </div>
                   ))
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Room Settings Tab */}
+          <TabsContent value="settings" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Room Settings</CardTitle>
+                <CardDescription>
+                  {selectedRoom ? `Configure settings for ${selectedRoom}` : "Select a room to configure settings"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {!selectedRoom ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Settings className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>Select a room from the Room Management tab</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Room Statistics */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Card>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm">Messages</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold">{roomStats?.messageCount || 0}</div>
+                          <p className="text-xs text-muted-foreground">Total messages</p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm">Active Users</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold">{roomStats?.activeUsers || 0}</div>
+                          <p className="text-xs text-muted-foreground">Last 24 hours</p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm">Moderators</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold">{roomStats?.moderatorCount || 0}</div>
+                          <p className="text-xs text-muted-foreground">Active moderators</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Moderation Controls */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg">Slow Mode</CardTitle>
+                          <CardDescription>
+                            Set delay between messages
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="flex items-center space-x-2">
+                            <Label htmlFor="slowMode" className="text-sm">Seconds:</Label>
+                            <Input
+                              id="slowMode"
+                              type="number"
+                              value={slowModeSeconds}
+                              onChange={(e) => setSlowModeSeconds(parseInt(e.target.value))}
+                              className="w-20"
+                              min="0"
+                              max="300"
+                            />
+                          </div>
+                          <Button
+                            onClick={() => setSlowModeMutation.mutate(slowModeSeconds)}
+                            disabled={setSlowModeMutation.isPending}
+                            className="w-full"
+                          >
+                            <Timer className="w-4 h-4 mr-2" />
+                            {setSlowModeMutation.isPending ? "Setting..." : "Set Slow Mode"}
+                          </Button>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg">Mute Duration</CardTitle>
+                          <CardDescription>
+                            Default mute duration for quick actions
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="flex items-center space-x-2">
+                            <Label htmlFor="muteMinutes" className="text-sm">Minutes:</Label>
+                            <Select value={muteMinutes.toString()} onValueChange={(value) => setMuteMinutes(parseInt(value))}>
+                              <SelectTrigger className="w-20">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="1">1</SelectItem>
+                                <SelectItem value="5">5</SelectItem>
+                                <SelectItem value="10">10</SelectItem>
+                                <SelectItem value="30">30</SelectItem>
+                                <SelectItem value="60">60</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            This duration will be used for quick mute actions in message moderation.
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Quick Actions</CardTitle>
+                        <CardDescription>
+                          Common moderation actions for {selectedRoom}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <Button
+                            variant="outline"
+                            onClick={() => setSlowModeMutation.mutate(0)}
+                            disabled={setSlowModeMutation.isPending}
+                          >
+                            <Timer className="w-4 h-4 mr-2" />
+                            Disable Slow Mode
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setSlowModeMutation.mutate(10)}
+                            disabled={setSlowModeMutation.isPending}
+                          >
+                            <Timer className="w-4 h-4 mr-2" />
+                            10s Slow Mode
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setSlowModeMutation.mutate(30)}
+                            disabled={setSlowModeMutation.isPending}
+                          >
+                            <Timer className="w-4 h-4 mr-2" />
+                            30s Slow Mode
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
                 )}
               </CardContent>
             </Card>
