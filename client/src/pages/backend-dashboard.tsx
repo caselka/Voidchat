@@ -91,6 +91,18 @@ export default function BackendDashboard() {
     );
   }
 
+  // Fetch system statistics
+  const { data: systemStats } = useQuery({
+    queryKey: ['/api/backend/system-stats'],
+    retry: false,
+  });
+
+  // Fetch all users
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['/api/backend/all-users'],
+    retry: false,
+  });
+
   // Fetch pending sponsors
   const { data: pendingSponsors = [] } = useQuery({
     queryKey: ['/api/backend/pending-sponsors'],
@@ -188,52 +200,62 @@ export default function BackendDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2">
-                <DollarSign className="w-4 h-4 text-green-500" />
-                <span className="text-sm font-medium">Pending Sponsors</span>
-              </div>
-              <div className="text-2xl font-bold mt-2">
-                {pendingSponsors.filter((s: PendingSponsor) => s.status === 'pending').length}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2">
-                <AlertTriangle className="w-4 h-4 text-yellow-500" />
-                <span className="text-sm font-medium">Open Reports</span>
-              </div>
-              <div className="text-2xl font-bold mt-2">
-                {userReports.filter((r: UserReport) => r.status === 'pending').length}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2">
-                <Users className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-medium">Active Users</span>
-              </div>
-              <div className="text-2xl font-bold mt-2">127</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-2">
-                <MessageSquare className="w-4 h-4 text-purple-500" />
-                <span className="text-sm font-medium">Messages Today</span>
-              </div>
-              <div className="text-2xl font-bold mt-2">2,341</div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Real-Time System Statistics */}
+        {systemStats && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center space-x-2">
+                  <Users className="w-4 h-4 text-blue-500" />
+                  <span className="text-sm font-medium">Total Users</span>
+                </div>
+                <div className="text-2xl font-bold mt-2">{systemStats.users.totalUsers}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {systemStats.users.verifiedUsers} verified • {systemStats.users.recentSignups} new
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center space-x-2">
+                  <MessageSquare className="w-4 h-4 text-purple-500" />
+                  <span className="text-sm font-medium">Messages</span>
+                </div>
+                <div className="text-2xl font-bold mt-2">{systemStats.messages.totalMessages}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {systemStats.messages.messagesLast24h} today
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center space-x-2">
+                  <DollarSign className="w-4 h-4 text-green-500" />
+                  <span className="text-sm font-medium">Active Sponsors</span>
+                </div>
+                <div className="text-2xl font-bold mt-2">{systemStats.sponsors.activeSponsors}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {systemStats.sponsors.totalSponsors} total
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center space-x-2">
+                  <Database className="w-4 h-4 text-indigo-500" />
+                  <span className="text-sm font-medium">Active Rooms</span>
+                </div>
+                <div className="text-2xl font-bold mt-2">{systemStats.messages.activeRooms}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Chat rooms created
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Main Content */}
         <Tabs defaultValue="sponsors" className="space-y-6">
@@ -442,15 +464,69 @@ export default function BackendDashboard() {
               <CardHeader>
                 <CardTitle>User Management</CardTitle>
                 <CardDescription>
-                  Manage user accounts, usernames, and permissions
+                  Manage user accounts, usernames, and permissions • {allUsers.length} total users
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
-                  <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>User management features coming soon</p>
-                  <p className="text-sm">Direct database access available for urgent cases</p>
-                </div>
+              <CardContent className="space-y-4">
+                {allUsers.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No users found</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {allUsers.map((user: any) => (
+                      <div key={user.id} className="border rounded-lg p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div>
+                              <h3 className="font-semibold flex items-center space-x-2">
+                                <span>{user.username}</span>
+                                {user.isSuperUser && (
+                                  <Badge variant="destructive" className="text-xs">
+                                    Super User
+                                  </Badge>
+                                )}
+                                {user.isVerified && (
+                                  <Badge variant="default" className="text-xs">
+                                    Verified
+                                  </Badge>
+                                )}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">{user.email}</p>
+                            </div>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Joined: {new Date(user.createdAt).toLocaleDateString()}
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <span className="font-medium">User ID: </span>
+                            <span className="text-xs font-mono">{user.id}</span>
+                          </div>
+                          <div>
+                            <span className="font-medium">Status: </span>
+                            <span className={user.isVerified ? "text-green-600" : "text-yellow-600"}>
+                              {user.isVerified ? "Verified" : "Unverified"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="font-medium">Role: </span>
+                            <span className={user.isSuperUser ? "text-red-600" : "text-gray-600"}>
+                              {user.isSuperUser ? "Administrator" : "User"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="font-medium">Account Age: </span>
+                            <span>{Math.ceil((new Date().getTime() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24))} days</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

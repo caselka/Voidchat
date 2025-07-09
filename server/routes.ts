@@ -1694,29 +1694,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const user = (req as any).user;
       
-      // Check if user is super user (voidteam or caselka)
       if (!await storage.isSuperUser(user.id)) {
         return res.status(403).json({ message: 'Insufficient permissions' });
       }
 
-      // Get actual sponsor ads from database
+      // Get all sponsor ads from database with accurate data
       const sponsors = await storage.getActiveAmbientAds();
       
-      const sponsorData = sponsors.map(sponsor => ({
-        id: sponsor.id,
-        productName: sponsor.productName,
-        description: sponsor.description,
-        url: sponsor.url,
-        submittedAt: sponsor.createdAt,
-        status: 'approved', // All current ads are approved
-        paymentAmount: 100, // Default amount
-        duration: '7 days'
-      }));
+      const sponsorData = sponsors.map(sponsor => {
+        const daysRemaining = Math.ceil((sponsor.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+        return {
+          id: sponsor.id,
+          productName: sponsor.productName,
+          description: sponsor.description,
+          url: sponsor.url,
+          submittedAt: sponsor.createdAt,
+          expiresAt: sponsor.expiresAt,
+          status: 'active',
+          daysRemaining: Math.max(0, daysRemaining),
+          isExpired: daysRemaining <= 0
+        };
+      });
 
       res.json(sponsorData);
     } catch (error) {
-      console.error('Error fetching pending sponsors:', error);
+      console.error('Error fetching sponsors:', error);
       res.status(500).json({ message: 'Failed to fetch sponsors' });
+    }
+  });
+
+  app.get('/api/backend/system-stats', isAuthenticated, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      
+      if (!await storage.isSuperUser(user.id)) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+
+      const [userStats, messageStats, sponsorStats] = await Promise.all([
+        storage.getUserStatistics(),
+        storage.getMessageStatistics(),
+        storage.getSponsorStatistics()
+      ]);
+
+      res.json({
+        users: userStats,
+        messages: messageStats,
+        sponsors: sponsorStats,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error fetching system stats:', error);
+      res.status(500).json({ message: 'Failed to fetch system statistics' });
+    }
+  });
+
+  app.get('/api/backend/all-users', isAuthenticated, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      
+      if (!await storage.isSuperUser(user.id)) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+
+      const users = await storage.getAllUsers();
+      
+      const userData = users.map(u => ({
+        id: u.id,
+        username: u.username,
+        email: u.email,
+        isVerified: u.isVerified,
+        createdAt: u.createdAt,
+        isSuperUser: u.username === 'voidteam' || u.username === 'caselka'
+      }));
+
+      res.json(userData);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ message: 'Failed to fetch users' });
     }
   });
 
@@ -1728,20 +1783,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Insufficient permissions' });
       }
 
-      // Mock data for user reports - to be replaced with actual report system
-      const mockReports = [
-        {
-          id: 1,
-          reportedUser: "anon1234",
-          reporterIp: "192.168.1.100",
-          reason: "Spam",
-          description: "User is posting repetitive promotional messages",
-          submittedAt: new Date().toISOString(),
-          status: "pending"
-        }
-      ];
+      // Get recent guardian actions as moderation reports
+      const guardianActions = await storage.getRecentGuardianActions(20);
+      
+      const reportData = guardianActions.map(action => ({
+        id: action.id,
+        guardianUser: action.guardianIp,
+        action: action.action,
+        targetIp: action.targetIp,
+        messageId: action.messageId,
+        details: action.details,
+        timestamp: action.createdAt,
+        status: 'completed'
+      }));
 
-      res.json(mockReports);
+      res.json(reportData);
     } catch (error) {
       console.error('Error fetching user reports:', error);
       res.status(500).json({ message: 'Failed to fetch reports' });
@@ -1756,18 +1812,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Insufficient permissions' });
       }
 
-      // System health data
-      const mockAlerts = [
-        {
+      // Generate real system health alerts based on actual data
+      const [userStats, messageStats, sponsorStats] = await Promise.all([
+        storage.getUserStatistics(),
+        storage.getMessageStatistics(),
+        storage.getSponsorStatistics()
+      ]);
+
+      const alerts = [];
+      const now = new Date();
+
+      // High activity alert
+      if (messageStats.messagesLast24h > 100) {
+        alerts.push({
           id: 1,
           type: "info",
-          message: "System running normally - all services operational",
-          timestamp: new Date().toISOString(),
+          message: `High activity: ${messageStats.messagesLast24h} messages in last 24 hours`,
+          timestamp: now.toISOString(),
           resolved: true
-        }
-      ];
+        });
+      }
 
-      res.json(mockAlerts);
+      // New user signups
+      if (userStats.recentSignups > 0) {
+        alerts.push({
+          id: 2,
+          type: "info", 
+          message: `${userStats.recentSignups} new user signups in last 24 hours`,
+          timestamp: now.toISOString(),
+          resolved: true
+        });
+      }
+
+      // Active sponsors status
+      alerts.push({
+        id: 3,
+        type: "info",
+        message: `${sponsorStats.activeSponsors} active sponsors, ${sponsorStats.totalSponsors} total`,
+        timestamp: now.toISOString(),
+        resolved: true
+      });
+
+      // System operational status
+      alerts.push({
+        id: 4,
+        type: "success",
+        message: `System operational - ${userStats.totalUsers} total users, ${messageStats.activeRooms} active rooms`,
+        timestamp: now.toISOString(),
+        resolved: true
+      });
+
+      res.json(alerts);
     } catch (error) {
       console.error('Error fetching system alerts:', error);
       res.status(500).json({ message: 'Failed to fetch alerts' });
@@ -1787,7 +1882,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid action' });
       }
 
-      console.log(`Sponsor ${id} ${action}ed by ${user.username}`);
+      if (action === 'approve') {
+        await storage.approveSponsorAd(parseInt(id), user.id);
+        console.log(`Sponsor ${id} approved by ${user.username}`);
+      } else if (action === 'reject') {
+        await storage.rejectSponsorAd(parseInt(id), user.id, 'Rejected by super user');
+        console.log(`Sponsor ${id} rejected and removed by ${user.username}`);
+      }
       
       res.json({ 
         message: `Sponsor ${action}ed successfully`,

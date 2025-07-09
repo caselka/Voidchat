@@ -98,6 +98,18 @@ export interface IStorage {
   // User stats for Guardian eligibility
   getUserStats?(ipAddress: string): Promise<{ messagesLast7Days: number; paidAccountSince?: Date } | undefined>;
   
+  // Super user administration
+  isSuperUser(userId: string): Promise<boolean>;
+  getAllUsers(): Promise<User[]>;
+  getUserStatistics(): Promise<{ totalUsers: number; verifiedUsers: number; recentSignups: number }>;
+  getMessageStatistics(): Promise<{ totalMessages: number; messagesLast24h: number; activeRooms: number }>;
+  getSponsorStatistics(): Promise<{ totalSponsors: number; activeSponsors: number; pendingApprovals: number }>;
+  getPendingSponsorRequests(): Promise<any[]>;
+  getRecentGuardianActions(limit?: number): Promise<GuardianAction[]>;
+  deleteExpiredSponsorAds(): Promise<void>;
+  approveSponsorAd(adId: number, approvedBy: string): Promise<void>;
+  rejectSponsorAd(adId: number, rejectedBy: string, reason?: string): Promise<void>;
+  
   // Username expiration management
   processExpiredUsernames(): Promise<void>;
   renewUsername(userId: string): Promise<void>;
@@ -897,6 +909,97 @@ export class DatabaseStorage implements IStorage {
     }
     
     return { expired, inGracePeriod, daysUntilExpiration };
+  }
+
+  // Super user administration methods
+  async isSuperUser(userId: string): Promise<boolean> {
+    const user = await this.getUser(userId);
+    return user?.username === 'voidteam' || user?.username === 'caselka';
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async getUserStatistics(): Promise<{ totalUsers: number; verifiedUsers: number; recentSignups: number }> {
+    const allUsers = await db.select().from(users);
+    const totalUsers = allUsers.length;
+    const verifiedUsers = allUsers.filter(user => user.isVerified).length;
+    
+    const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const recentSignups = allUsers.filter(user => user.createdAt && user.createdAt >= last24h).length;
+
+    return { totalUsers, verifiedUsers, recentSignups };
+  }
+
+  async getMessageStatistics(): Promise<{ totalMessages: number; messagesLast24h: number; activeRooms: number }> {
+    const allMessages = await db.select().from(messages);
+    const totalMessages = allMessages.length;
+    
+    const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const messagesLast24h = allMessages.filter(msg => msg.createdAt >= last24h).length;
+    
+    const allRooms = await db.select().from(rooms);
+    const activeRooms = allRooms.length;
+
+    return { totalMessages, messagesLast24h, activeRooms };
+  }
+
+  async getSponsorStatistics(): Promise<{ totalSponsors: number; activeSponsors: number; pendingApprovals: number }> {
+    const allAds = await db.select().from(ambientAds);
+    const totalSponsors = allAds.length;
+    
+    const now = new Date();
+    const activeSponsors = allAds.filter(ad => ad.expiresAt > now).length;
+    
+    // All current sponsors are considered approved since they're in the database
+    // In a real implementation, you'd have a status field
+    const pendingApprovals = 0;
+
+    return { totalSponsors, activeSponsors, pendingApprovals };
+  }
+
+  async getPendingSponsorRequests(): Promise<any[]> {
+    // In a real implementation, you'd have a separate table for pending requests
+    // For now, return empty array since all sponsors in the database are approved
+    return [];
+  }
+
+  async getRecentGuardianActions(limit = 50): Promise<GuardianAction[]> {
+    return await db.select()
+      .from(guardianActions)
+      .orderBy(desc(guardianActions.createdAt))
+      .limit(limit);
+  }
+
+  async deleteExpiredSponsorAds(): Promise<void> {
+    const now = new Date();
+    await db.delete(ambientAds)
+      .where(lte(ambientAds.expiresAt, now));
+  }
+
+  async approveSponsorAd(adId: number, approvedBy: string): Promise<void> {
+    // Log the approval action
+    await this.logGuardianAction(
+      approvedBy,
+      'approve_sponsor_ad',
+      undefined,
+      undefined,
+      { adId, action: 'approved' }
+    );
+  }
+
+  async rejectSponsorAd(adId: number, rejectedBy: string, reason?: string): Promise<void> {
+    // Delete the sponsor ad and log the rejection
+    await db.delete(ambientAds).where(eq(ambientAds.id, adId));
+    
+    await this.logGuardianAction(
+      rejectedBy,
+      'reject_sponsor_ad',
+      undefined,
+      undefined,
+      { adId, action: 'rejected', reason }
+    );
   }
 }
 
