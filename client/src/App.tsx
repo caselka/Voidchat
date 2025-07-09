@@ -27,6 +27,7 @@ import Terms from "@/pages/terms";
 import MemberSettings from "@/pages/member-settings";
 import About from "@/pages/about";
 import NotFound from "@/pages/not-found";
+import BackendDashboard from "@/pages/backend-dashboard";
 
 // Navigation is now handled by individual pages using DynamicHeader
 
@@ -51,6 +52,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
+      <Route path="/backend" component={BackendDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

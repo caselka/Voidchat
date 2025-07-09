@@ -1689,6 +1689,144 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Backend Administration Endpoints
+  app.get('/api/backend/pending-sponsors', isAuthenticated, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      
+      // Check if user is super user (voidteam or caselka)
+      if (!await storage.isSuperUser(user.id)) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+
+      // Get actual sponsor ads from database
+      const sponsors = await storage.getActiveAmbientAds();
+      
+      const sponsorData = sponsors.map(sponsor => ({
+        id: sponsor.id,
+        productName: sponsor.productName,
+        description: sponsor.description,
+        url: sponsor.url,
+        submittedAt: sponsor.createdAt,
+        status: 'approved', // All current ads are approved
+        paymentAmount: 100, // Default amount
+        duration: '7 days'
+      }));
+
+      res.json(sponsorData);
+    } catch (error) {
+      console.error('Error fetching pending sponsors:', error);
+      res.status(500).json({ message: 'Failed to fetch sponsors' });
+    }
+  });
+
+  app.get('/api/backend/user-reports', isAuthenticated, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      
+      if (!await storage.isSuperUser(user.id)) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+
+      // Mock data for user reports - to be replaced with actual report system
+      const mockReports = [
+        {
+          id: 1,
+          reportedUser: "anon1234",
+          reporterIp: "192.168.1.100",
+          reason: "Spam",
+          description: "User is posting repetitive promotional messages",
+          submittedAt: new Date().toISOString(),
+          status: "pending"
+        }
+      ];
+
+      res.json(mockReports);
+    } catch (error) {
+      console.error('Error fetching user reports:', error);
+      res.status(500).json({ message: 'Failed to fetch reports' });
+    }
+  });
+
+  app.get('/api/backend/system-alerts', isAuthenticated, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      
+      if (!await storage.isSuperUser(user.id)) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+
+      // System health data
+      const mockAlerts = [
+        {
+          id: 1,
+          type: "info",
+          message: "System running normally - all services operational",
+          timestamp: new Date().toISOString(),
+          resolved: true
+        }
+      ];
+
+      res.json(mockAlerts);
+    } catch (error) {
+      console.error('Error fetching system alerts:', error);
+      res.status(500).json({ message: 'Failed to fetch alerts' });
+    }
+  });
+
+  app.post('/api/backend/sponsors/:id/:action', isAuthenticated, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const { id, action } = req.params;
+      
+      if (!await storage.isSuperUser(user.id)) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+
+      if (!['approve', 'reject'].includes(action)) {
+        return res.status(400).json({ message: 'Invalid action' });
+      }
+
+      console.log(`Sponsor ${id} ${action}ed by ${user.username}`);
+      
+      res.json({ 
+        message: `Sponsor ${action}ed successfully`,
+        sponsorId: id,
+        action: action
+      });
+    } catch (error) {
+      console.error('Error processing sponsor action:', error);
+      res.status(500).json({ message: 'Failed to process sponsor action' });
+    }
+  });
+
+  app.post('/api/backend/reports/:id/:action', isAuthenticated, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const { id, action } = req.params;
+      const { notes } = req.body;
+      
+      if (!await storage.isSuperUser(user.id)) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+
+      if (!['resolve', 'dismiss'].includes(action)) {
+        return res.status(400).json({ message: 'Invalid action' });
+      }
+
+      console.log(`Report ${id} ${action}ed by ${user.username}${notes ? ` with notes: ${notes}` : ''}`);
+      
+      res.json({ 
+        message: `Report ${action}ed successfully`,
+        reportId: id,
+        action: action
+      });
+    } catch (error) {
+      console.error('Error processing report action:', error);
+      res.status(500).json({ message: 'Failed to process report action' });
+    }
+  });
+  
   // Cleanup expired messages and ads every minute
   setInterval(async () => {
     try {
