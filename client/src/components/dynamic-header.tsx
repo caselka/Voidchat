@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home, Moon, Sun, User, LogOut, Users, MessageSquare } from "lucide-react";
+import { ArrowLeft, Home, Moon, Sun, User, LogOut, Users, MessageSquare, Shield } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
@@ -83,6 +83,19 @@ export default function DynamicHeader({
           >
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
+          
+          {/* Backend Dashboard - only show for super users */}
+          {isAuthenticated && (user?.username === 'voidteam' || user?.username === 'caselka') && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation("/backend")}
+              className="p-2 text-red-600 dark:text-red-400"
+              title="Backend Dashboard"
+            >
+              <Shield className="h-4 w-4" />
+            </Button>
+          )}
           
           {/* Account Settings - only show when authenticated */}
           {isAuthenticated && (
