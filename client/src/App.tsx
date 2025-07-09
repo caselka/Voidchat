@@ -18,6 +18,7 @@ import Sponsor from "@/pages/sponsor";
 import Handle from "@/pages/handle";
 import Themes from "@/pages/themes";
 import CreateRoom from "@/pages/create-room";
+import RoomCheckout from "@/pages/room-checkout";
 import Room from "@/pages/room";
 import Careers from "@/pages/careers";
 import Contact from "@/pages/contact";
@@ -92,6 +93,7 @@ function Router() {
         <Route path="/handle" component={Handle} />
         <Route path="/themes" component={Themes} />
         <Route path="/create-room" component={CreateRoom} />
+        <Route path="/room-checkout" component={RoomCheckout} />
         <Route path="/room/:name" component={Room} />
         <Route path="/member-settings" component={MemberSettings} />
         <Route path="/about" component={About} />

@@ -278,12 +278,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/rooms', isAuthenticated, async (req, res) => {
+  // Create room payment intent
+  app.post('/api/create-room-payment', isAuthenticated, async (req, res) => {
     try {
       const { name } = req.body;
       const userId = (req as any).user.id;
 
-      // Validate room name
+      // Validate room name first
       if (!name || typeof name !== 'string') {
         return res.status(400).json({ message: 'Room name is required' });
       }
@@ -315,25 +316,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Room name already taken' });
       }
 
-      // Check if user is super user (caselka)
+      // Check if user is super user (caselka) - they get free rooms
       const user = await storage.getUser(userId);
       const isSuperUser = user?.username === 'caselka';
       
-      // Create room (free for super users, $49 for others)
-      const room = await storage.createRoom({
-        name: normalizedName,
-        creatorId: userId,
+      if (isSuperUser) {
+        // Create room immediately for super user
+        const room = await storage.createRoom({
+          name: normalizedName,
+          creatorId: userId,
+        });
+        return res.json({ 
+          room, 
+          message: 'Room created successfully! Free for founder account.',
+          isFree: true 
+        });
+      }
+
+      // Create payment intent for $49 USD
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: 4900, // $49.00 in cents
+        currency: 'usd',
+        metadata: {
+          type: 'room_creation',
+          room_name: normalizedName,
+          user_id: userId,
+        },
       });
 
-      const message = isSuperUser 
-        ? 'Room created successfully! Free for founder account.'
-        : 'Room created successfully! Payment of $49 processed.';
-
-      res.json({ room, message });
-    } catch (error) {
-      console.error('Room creation error:', error);
-      res.status(500).json({ message: 'Failed to create room' });
+      res.json({ clientSecret: paymentIntent.client_secret, roomName: normalizedName });
+    } catch (error: any) {
+      console.error('Error creating room payment:', error);
+      res.status(500).json({ message: 'Error creating payment intent: ' + error.message });
     }
+  });
+
+  // Complete room creation after payment
+  app.post('/api/complete-room-creation', isAuthenticated, async (req, res) => {
+    try {
+      const { paymentIntentId } = req.body;
+      const userId = (req as any).user.id;
+
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (paymentIntent.status === 'succeeded') {
+        const roomName = paymentIntent.metadata.room_name;
+        const metadataUserId = paymentIntent.metadata.user_id;
+
+        // Verify user matches
+        if (metadataUserId !== userId) {
+          return res.status(403).json({ message: 'Payment does not match user' });
+        }
+
+        // Double-check room name is still available
+        const isAvailable = await storage.isRoomNameAvailable(roomName);
+        if (!isAvailable) {
+          return res.status(400).json({ message: 'Room name no longer available' });
+        }
+
+        // Create the room
+        const room = await storage.createRoom({
+          name: roomName,
+          creatorId: userId,
+        });
+
+        res.json({ 
+          room, 
+          message: 'Room created successfully! Payment of $49 processed.' 
+        });
+      } else {
+        res.status(400).json({ message: 'Payment not completed' });
+      }
+    } catch (error: any) {
+      console.error('Error completing room creation:', error);
+      res.status(500).json({ message: 'Error completing room creation: ' + error.message });
+    }
+  });
+
+  // Legacy endpoint - now redirects to payment process
+  app.post('/api/rooms', isAuthenticated, async (req, res) => {
+    return res.status(400).json({ 
+      message: 'Room creation requires payment. Use /api/create-room-payment endpoint instead.' 
+    });
   });
 
   app.get('/api/rooms/:name', async (req, res) => {

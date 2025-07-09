@@ -65,15 +65,21 @@ export default function CreateRoom() {
 
     setIsCreating(true);
     try {
-      const response = await apiRequest("POST", "/api/rooms", { name: roomName.trim() });
+      const response = await apiRequest("POST", "/api/create-room-payment", { name: roomName.trim() });
       const result = await response.json();
       
       if (response.ok) {
-        toast({
-          title: "Room Created!",
-          description: `Room "${result.room.name}" created successfully for $49.`,
-        });
-        setLocation(`/room/${result.room.name}`);
+        if (result.isFree) {
+          // Super user - room created immediately
+          toast({
+            title: "Room Created!",
+            description: result.message,
+          });
+          setLocation(`/room/${result.room.name}`);
+        } else {
+          // Regular user - redirect to payment
+          setLocation(`/room-checkout?clientSecret=${result.clientSecret}&roomName=${result.roomName}`);
+        }
       } else {
         toast({
           title: "Creation Failed",
@@ -141,7 +147,7 @@ export default function CreateRoom() {
                   <strong>Price:</strong> $49 USD (one-time payment)
                 </p>
                 <p className="text-xs text-blue-600 dark:text-blue-500 mt-1">
-                  Payment processing simulated for demo purposes
+                  Secure payment processing via Stripe
                 </p>
               </div>
 
