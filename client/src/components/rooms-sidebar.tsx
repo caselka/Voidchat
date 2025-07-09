@@ -24,6 +24,8 @@ interface RoomsSidebarProps {
 export default function RoomsSidebar({ isOpen, onClose }: RoomsSidebarProps) {
   const [, setLocation] = useLocation();
   const { user, isAuthenticated } = useAuth();
+  
+  console.log('RoomsSidebar render, isOpen:', isOpen);
 
   const { data: roomsData, isLoading } = useQuery({
     queryKey: ["/api/rooms"],
