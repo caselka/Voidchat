@@ -578,12 +578,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 });
                 
                 for (const session of allSessions) {
-                  // Try different matching approaches for the session ID
-                  const sessionKey = sessionId.split('.')[0]; // Get the part before the signature
+                  // Extract session key properly - remove 's:' prefix and get part before signature
+                  let sessionKey = sessionId;
+                  if (sessionKey.startsWith('s:')) {
+                    sessionKey = sessionKey.substring(2); // Remove 's:' prefix
+                  }
+                  sessionKey = sessionKey.split('.')[0]; // Get the part before the signature
                   
                   console.log(`Comparing: sessionKey="${sessionKey}" with stored="${session.sid}"`);
                   
-                  if (session.sid === sessionKey || session.sid === sessionId) {
+                  if (session.sid === sessionKey) {
                     console.log('Found matching session:', session.sid);
                     const sessionData = session.sess as any;
                     console.log('Session data structure:', sessionData);
