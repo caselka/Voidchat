@@ -355,7 +355,20 @@ export default function BackendDashboard() {
               <Sun className="w-4 h-4 mr-1" />
               Toggle Theme
             </Button>
-            <Button variant="outline" size="sm" onClick={() => window.location.href = '/api/logout'}>
+            <Button variant="outline" size="sm" onClick={async () => {
+              try {
+                const response = await fetch('/api/logout', { 
+                  method: 'POST', 
+                  credentials: 'include',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({})
+                });
+                window.location.href = '/';
+              } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/';
+              }
+            }}>
               <LogOut className="w-4 h-4 mr-1" />
               Logout
             </Button>

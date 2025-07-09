@@ -122,8 +122,18 @@ export async function setupAuth(app: Express) {
         if (err) {
           console.error('Session destruction error:', err);
         }
-        // Always redirect to landing page regardless of user type
-        res.redirect("/");
+        // Clear all cookies and ensure proper redirect
+        res.clearCookie('connect.sid');
+        res.clearCookie('session');
+        
+        // Force redirect to landing page with proper headers
+        res.writeHead(302, {
+          'Location': '/',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        });
+        res.end();
       });
     });
   });

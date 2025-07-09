@@ -387,16 +387,47 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Logout endpoint
-  app.post("/api/logout", (req, res) => {
-    req.session.destroy((err) => {
+  // Logout endpoint - support both POST and GET
+  const logoutHandler = (req: any, res: any) => {
+    console.log(`Logout handler called - Method: ${req.method}, URL: ${req.url}`);
+    
+    req.session.destroy((err: any) => {
       if (err) {
-        return res.status(500).json({ message: "Logout failed" });
+        console.error('Session destruction error:', err);
+        if (req.method === 'POST') {
+          return res.status(500).json({ message: "Logout failed" });
+        } else {
+          return res.status(500).send('Logout failed');
+        }
       }
+      
+      // Clear all cookies
       res.clearCookie('connect.sid');
-      res.json({ message: "Logout successful" });
+      res.clearCookie('session');
+      
+      console.log(`Session destroyed, clearing cookies and handling ${req.method} request`);
+      
+      // Handle GET request (redirect) vs POST request (JSON response)
+      if (req.method === 'GET') {
+        console.log('Redirecting to landing page');
+        // Force redirect to landing page with proper headers
+        res.writeHead(302, {
+          'Location': '/',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        });
+        res.end();
+      } else {
+        // POST request - return JSON for API calls
+        console.log('Returning JSON response for POST request');
+        res.json({ message: "Logout successful" });
+      }
     });
-  });
+  };
+  
+  app.post("/api/logout", logoutHandler);
+  app.get("/api/logout", logoutHandler);
 
   // Get current user
   app.get("/api/auth/user", (req, res) => {

@@ -110,7 +110,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 9, 2025)
 
-### Enhanced Room System with Advanced Moderation Features (Latest)
+### Critical Logout Redirect Fix (Latest)
+- **Fixed logout 404 error**: Resolved method mismatch between client POST and server GET endpoint
+- **Enhanced session clearing**: Added proper cookie clearing and cache headers to prevent session persistence
+- **Improved redirect handling**: Used low-level response headers to ensure proper redirect to landing page
+- **Universal logout functionality**: All user types (super users, regular users, anonymous) now properly redirect to landing page after logout
+- **Client-side optimization**: Changed logout calls from fetch() to direct window.location.href for better reliability
+
+### Enhanced Room System with Advanced Moderation Features
 - **Room categories, tags, and privacy settings**: Rooms now support descriptions, private/public settings, user limits, and custom rules
 - **Advanced moderation tools**: Mute users with custom durations, ban users from rooms, set slow mode with configurable delays
 - **Comprehensive moderator dashboard**: Three-tab interface for room management, message moderation, and settings configuration
