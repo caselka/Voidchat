@@ -37,9 +37,8 @@ export function useWebSocket(): WebSocketHook {
   const [rateLimitTime, setRateLimitTime] = useState(0);
 
   const connect = () => {
-    // Force wss in production (replit.dev domains), ws for local dev
-    const isReplit = window.location.hostname.includes('replit.dev');
-    const protocol = isReplit ? "wss:" : "ws:";
+    // Use wss for secure connections (https) and ws for local dev
+    const protocol = window.location.protocol === 'https:' ? "wss:" : "ws:";
     const wsUrl = `${protocol}//${window.location.host}/ws`;
     
     console.log('Connecting to WebSocket:', wsUrl);
@@ -122,8 +121,9 @@ export function useWebSocket(): WebSocketHook {
       };
 
       ws.current.onerror = (event) => {
-        setError('Connection error - attempting to reconnect...');
         console.error('WebSocket error:', event);
+        setError('Connection error - check server');
+        setIsConnected(false);
       };
     } catch (error) {
       console.error('Failed to create WebSocket connection:', error);
