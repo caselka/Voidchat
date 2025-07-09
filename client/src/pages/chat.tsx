@@ -11,7 +11,7 @@ import Walkthrough from "@/components/walkthrough";
 import DynamicHeader from "@/components/dynamic-header";
 import RoomsSidebar from "@/components/rooms-sidebar";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette, LogIn, LogOut, Users, Plus, MessageSquare } from "lucide-react";
+import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette, LogIn, LogOut, Users, Plus, MessageSquare, Mail } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,

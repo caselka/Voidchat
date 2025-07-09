@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home, Moon, Sun, User, LogOut, Users, MessageSquare, Shield } from "lucide-react";
+import { ArrowLeft, Home, Moon, Sun, User, LogOut, Users, MessageSquare, Shield, Mail } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
@@ -107,6 +107,19 @@ export default function DynamicHeader({
               title="Moderator Dashboard"
             >
               <Shield className="h-4 w-4" />
+            </Button>
+          )}
+          
+          {/* Direct Messages - only show for authenticated users */}
+          {isAuthenticated && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation("/messages")}
+              className="p-2 text-blue-600 dark:text-blue-400"
+              title="Direct Messages"
+            >
+              <Mail className="h-4 w-4" />
             </Button>
           )}
           

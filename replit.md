@@ -110,7 +110,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 9, 2025)
 
-### Critical Logout Redirect Fix (Latest)
+### Complete Direct Messages System and Landing Page Overhaul (Latest)
+- **Direct messaging system completed**: Full implementation with database schema, API endpoints, and comprehensive UI
+- **Direct messages UI integration**: Added Mail icon button in header for authenticated users to access /messages page
+- **Landing page completely overhauled**: Removed theme customization references, updated with current features and pricing
+- **Modern marketing copy**: Professional SEO-optimized content focusing on actual capabilities (anonymous chat, direct messaging, rooms, Guardian system)
+- **Accurate pricing display**: Clear $3 accounts, $49 room creation, $20/day Guardian pricing with feature breakdowns
+- **Enhanced security messaging**: Privacy-first principles, no tracking, 15-minute message expiration clearly communicated
+- **Streamlined feature presentation**: Core features (ephemeral messages, anonymous access, room system, direct messages) prominently displayed
+- **Professional footer**: Updated company links, legal pages, and contact information
+
+### Critical Logout Redirect Fix
 - **Fixed logout 404 error**: Resolved method mismatch between client POST and server GET endpoint
 - **Enhanced session clearing**: Added proper cookie clearing and cache headers to prevent session persistence
 - **Improved redirect handling**: Used low-level response headers to ensure proper redirect to landing page
