@@ -61,11 +61,8 @@ export function useWebSocket(): WebSocketHook {
             case 'initial_messages':
               // Only use WebSocket messages if API messages haven't loaded yet
               if (!messagesLoaded) {
-                console.log('Received initial messages from WebSocket:', message.data.length, 'messages');
                 setMessages(message.data.reverse());
                 setMessagesLoaded(true);
-              } else {
-                console.log('Skipping WebSocket initial messages - API messages already loaded');
               }
               break;
               
@@ -147,7 +144,6 @@ export function useWebSocket(): WebSocketHook {
         const response = await fetch('/api/recent-messages');
         if (response.ok) {
           const apiMessages = await response.json();
-          console.log('Loaded initial messages from API:', apiMessages.length, 'messages');
           const formattedMessages = apiMessages.map((msg: any) => ({
             id: msg.id,
             content: msg.content,
@@ -160,7 +156,6 @@ export function useWebSocket(): WebSocketHook {
           }));
           setMessages(formattedMessages);
           setMessagesLoaded(true);
-          console.log('Set messages state with:', formattedMessages.length, 'messages');
         }
       } catch (error) {
         console.error('Error loading initial messages:', error);

@@ -142,11 +142,6 @@ export default function Chat() {
           )}
         </div>
 
-        {/* Debug message count */}
-        <div className="text-center text-xs text-muted-foreground mb-2">
-          Messages loaded: {messages.length}
-        </div>
-
         {/* Chat Messages */}
         <ChatContainer 
           messages={messages}

@@ -91,22 +91,22 @@ export default function ChatContainer({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Debug log for messages
-  console.log('ChatContainer rendering with messages:', messages);
-  
-  const filteredMessages = messages.filter(message => 
-    message.content && 
-    typeof message.content === 'string' && 
-    message.content.trim().length > 0
-  );
-  
-  console.log('Filtered messages for display:', filteredMessages);
+  const filteredMessages = messages.filter(message => {
+    // Handle both direct message format and wrapped format
+    const content = message.content || message.data?.content;
+    return content && 
+           typeof content === 'string' && 
+           content.trim().length > 0;
+  });
 
   return (
     <div className="space-y-2 pb-4">
-      {filteredMessages.map((message, index) => (
+      {filteredMessages.map((message, index) => {
+        // Handle both direct message format and wrapped format
+        const messageData = message.data || message;
+        return (
         <div 
-          key={message.id || `message-${index}-${Date.now()}`} 
+          key={messageData.id || `message-${index}-${Date.now()}`} 
           className="message-bubble group"
           style={{
             padding: '8px 0',
@@ -115,9 +115,9 @@ export default function ChatContainer({
             fontSize: '14px',
             lineHeight: '1.4'
           }}
-          onTouchStart={() => handleLongPressStart(message)}
+          onTouchStart={() => handleLongPressStart(messageData)}
           onTouchEnd={handleLongPressEnd}
-          onMouseDown={() => handleLongPressStart(message)}
+          onMouseDown={() => handleLongPressStart(messageData)}
           onMouseUp={handleLongPressEnd}
           onMouseLeave={handleLongPressEnd}
         >
@@ -132,16 +132,16 @@ export default function ChatContainer({
                   fontSize: '13px'
                 }}
               >
-                {message.username}
+                {messageData.username}
               </span>
               
               {/* Guardian Controls - Inline with username */}
-              {isGuardian && message.username !== 'system' && !message.isAd && (
+              {isGuardian && messageData.username !== 'system' && !messageData.isAd && (
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onMuteUser(message.id)}
+                    onClick={() => onMuteUser(messageData.id)}
                     className="text-red-400 hover:text-red-500 text-xs p-1 h-auto"
                     title="Mute IP"
                   >
@@ -150,7 +150,7 @@ export default function ChatContainer({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onDeleteMessage(message.id)}
+                    onClick={() => onDeleteMessage(messageData.id)}
                     className="text-red-400 hover:text-red-500 text-xs p-1 h-auto"
                     title="Delete"
                   >
@@ -168,12 +168,12 @@ export default function ChatContainer({
                 fontSize: '11px'
               }}
             >
-              {formatTime(message.createdAt || message.timestamp)}
+              {formatTime(messageData.createdAt || messageData.timestamp)}
             </span>
           </div>
           
           {/* Expiry Notice - Below Username */}
-          {message.expiresAt && (
+          {messageData.expiresAt && (
             <div 
               className="font-mono mb-1"
               style={{ 
@@ -181,40 +181,40 @@ export default function ChatContainer({
                 fontSize: '11px'
               }}
             >
-              [{getTimeUntilDelete(message.expiresAt)}]
+              [{getTimeUntilDelete(messageData.expiresAt)}]
             </div>
           )}
           
           {/* Message Content - Light White Text */}
           <div 
             className={`font-mono break-words ${
-              message.isAd 
+              messageData.isAd 
                 ? 'italic opacity-60' 
-                : message.username === 'system'
+                : messageData.username === 'system'
                 ? 'italic'
                 : ''
             }`}
             style={{ 
-              color: message.username === 'system' ? 'var(--system-color)' : 'var(--text)',
+              color: messageData.username === 'system' ? 'var(--system-color)' : 'var(--text)',
               fontSize: '14px',
               lineHeight: '1.4'
             }}
           >
-            {profanityFilter ? filterProfanity(message.content) : message.content}
+            {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
           </div>
           
           {/* Ad-specific content */}
-          {message.isAd && message.productName && (
+          {messageData.isAd && messageData.productName && (
             <div className="mt-2 pt-2 border-t border-gray-700">
               <div className="text-xs font-mono" style={{ color: '#888' }}>
-                <span className="font-semibold">{message.productName}</span>
-                {message.description && (
-                  <div className="mt-1">{message.description}</div>
+                <span className="font-semibold">{messageData.productName}</span>
+                {messageData.description && (
+                  <div className="mt-1">{messageData.description}</div>
                 )}
-                {message.url && (
+                {messageData.url && (
                   <div className="mt-1">
                     <a 
-                      href={message.url} 
+                      href={messageData.url} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-blue-400 hover:text-blue-300 underline"
@@ -227,7 +227,8 @@ export default function ChatContainer({
             </div>
           )}
         </div>
-      ))}
+        );
+      })}
       
       {/* Auto-scroll anchor */}
       <div ref={messagesEndRef} />
