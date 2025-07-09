@@ -15,13 +15,13 @@ export default function MemberSettings() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [autoRenew, setAutoRenew] = useState(false);
 
   // Fetch user status and subscriptions
   const { data: userStatus } = useQuery({
     queryKey: ['/api/username-status'],
     enabled: !!user,
   });
-
 
 
   if (isLoading) {
