@@ -28,6 +28,11 @@ export const ambientAds = pgTable("ambient_ads", {
   expiresAt: timestamp("expires_at").notNull(),
   stripePaymentId: text("stripe_payment_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  clicks: integer("clicks").default(0).notNull(),
+  impressions: integer("impressions").default(0).notNull(),
+  allocatedFunds: integer("allocated_funds").default(0).notNull(), // in cents
+  spentFunds: integer("spent_funds").default(0).notNull(), // in cents
+  status: text("status").default("pending").notNull(), // pending, approved, rejected, active, exhausted
 });
 
 export const rateLimits = pgTable("rate_limits", {
@@ -210,3 +215,39 @@ export type Room = typeof rooms.$inferSelect;
 export type InsertRoom = z.infer<typeof insertRoomSchema>;
 export type RoomMessage = typeof roomMessages.$inferSelect;
 export type InsertRoomMessage = z.infer<typeof insertRoomMessageSchema>;
+
+// Help/Support requests table
+export const helpRequests = pgTable("help_requests", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id"),
+  ipAddress: text("ip_address").notNull(),
+  username: text("username").notNull(),
+  email: text("email"),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  status: text("status").default("pending").notNull(), // pending, in_progress, resolved, closed
+  priority: text("priority").default("normal").notNull(), // low, normal, high, urgent
+  assignedTo: text("assigned_to"), // admin username
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  resolvedAt: timestamp("resolved_at"),
+});
+
+// Sponsor analytics table
+export const sponsorAnalytics = pgTable("sponsor_analytics", {
+  id: serial("id").primaryKey(),
+  adId: integer("ad_id").references(() => ambientAds.id).notNull(),
+  eventType: text("event_type").notNull(), // impression, click, conversion
+  ipAddress: text("ip_address").notNull(),
+  userAgent: text("user_agent"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  costCents: integer("cost_cents").default(0).notNull(), // cost of this event in cents
+});
+
+export const insertHelpRequestSchema = createInsertSchema(helpRequests);
+export const insertSponsorAnalyticsSchema = createInsertSchema(sponsorAnalytics);
+
+export type HelpRequest = typeof helpRequests.$inferSelect;
+export type InsertHelpRequest = z.infer<typeof insertHelpRequestSchema>;
+export type SponsorAnalytics = typeof sponsorAnalytics.$inferSelect;
+export type InsertSponsorAnalytics = z.infer<typeof insertSponsorAnalyticsSchema>;

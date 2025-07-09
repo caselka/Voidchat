@@ -12,6 +12,8 @@ import {
   anonUsernames,
   rooms,
   roomMessages,
+  helpRequests,
+  sponsorAnalytics,
   type Message, 
   type InsertMessage,
   type Guardian,
@@ -32,7 +34,11 @@ import {
   type Room,
   type InsertRoom,
   type RoomMessage,
-  type InsertRoomMessage
+  type InsertRoomMessage,
+  type HelpRequest,
+  type InsertHelpRequest,
+  type SponsorAnalytics,
+  type InsertSponsorAnalytics
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, lt, desc, asc, sql, or } from "drizzle-orm";
@@ -139,6 +145,16 @@ export interface IStorage {
   // Dynamic rate limiting
   getMessageFrequency(ipAddress: string, minutes?: number): Promise<number>;
   calculateDynamicCooldown(ipAddress: string): Promise<number>;
+  
+  // Help requests
+  createHelpRequest(helpRequest: InsertHelpRequest): Promise<HelpRequest>;
+  getHelpRequests(status?: string): Promise<HelpRequest[]>;
+  updateHelpRequestStatus(id: number, status: string, assignedTo?: string): Promise<void>;
+  
+  // Sponsor analytics
+  recordSponsorEvent(analytics: InsertSponsorAnalytics): Promise<SponsorAnalytics>;
+  getSponsorAnalytics(adId: number): Promise<SponsorAnalytics[]>;
+  updateSponsorFunds(adId: number, spent: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1000,6 +1016,125 @@ export class DatabaseStorage implements IStorage {
       undefined,
       { adId, action: 'rejected', reason }
     );
+  }
+
+  // Help request methods (mock implementation until schema is updated)
+  async createHelpRequest(helpRequestData: InsertHelpRequest): Promise<HelpRequest> {
+    // Mock implementation - would create actual DB record
+    const mockHelpRequest: HelpRequest = {
+      id: Date.now(),
+      userId: helpRequestData.userId || null,
+      ipAddress: helpRequestData.ipAddress || '',
+      username: helpRequestData.username || '',
+      email: helpRequestData.email || null,
+      subject: helpRequestData.subject || '',
+      message: helpRequestData.message || '',
+      status: 'pending',
+      priority: helpRequestData.priority || 'normal',
+      assignedTo: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      resolvedAt: null,
+    };
+    return mockHelpRequest;
+  }
+
+  async getHelpRequests(status?: string): Promise<HelpRequest[]> {
+    // Mock implementation - return sample data
+    return [
+      {
+        id: 1,
+        userId: 'user_rob_123',
+        ipAddress: '192.168.1.100',
+        username: 'rob',
+        email: 'rob@example.com',
+        subject: 'Account Issue',
+        message: 'Unable to access paid features after subscription',
+        status: 'pending',
+        priority: 'high',
+        assignedTo: null,
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        resolvedAt: null,
+      },
+      {
+        id: 2,
+        userId: null,
+        ipAddress: '192.168.1.200',
+        username: 'anon1234',
+        email: null,
+        subject: 'Chat Feature Request',
+        message: 'Would like to see dark mode improvements',
+        status: 'in_progress',
+        priority: 'normal',
+        assignedTo: 'caselka',
+        createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000),
+        updatedAt: new Date(Date.now() - 1 * 60 * 60 * 1000),
+        resolvedAt: null,
+      }
+    ];
+  }
+
+  async updateHelpRequestStatus(id: number, status: string, assignedTo?: string): Promise<void> {
+    // Mock implementation - would update actual DB record
+    console.log(`Updated help request ${id} status to ${status}${assignedTo ? ` assigned to ${assignedTo}` : ''}`);
+  }
+
+  // Sponsor analytics methods (mock implementation until schema is updated)
+  async recordSponsorEvent(analyticsData: InsertSponsorAnalytics): Promise<SponsorAnalytics> {
+    const mockAnalytics: SponsorAnalytics = {
+      id: Date.now(),
+      adId: analyticsData.adId || 0,
+      eventType: analyticsData.eventType || 'impression',
+      ipAddress: analyticsData.ipAddress || '',
+      userAgent: analyticsData.userAgent || null,
+      timestamp: new Date(),
+      costCents: analyticsData.costCents || 0,
+    };
+    
+    // Track impression cost (1 cent per impression, 5 cents per click)
+    const cost = analyticsData.eventType === 'click' ? 5 : 1;
+    await this.updateSponsorFunds(analyticsData.adId || 0, cost);
+    
+    return mockAnalytics;
+  }
+
+  async getSponsorAnalytics(adId: number): Promise<SponsorAnalytics[]> {
+    // Mock analytics data showing user engagement
+    return [
+      {
+        id: 1,
+        adId,
+        eventType: 'impression',
+        ipAddress: '192.168.1.100',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        timestamp: new Date(Date.now() - 5 * 60 * 1000),
+        costCents: 1,
+      },
+      {
+        id: 2,
+        adId,
+        eventType: 'click',
+        ipAddress: '192.168.1.100',
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        timestamp: new Date(Date.now() - 3 * 60 * 1000),
+        costCents: 5,
+      },
+      {
+        id: 3,
+        adId,
+        eventType: 'impression',
+        ipAddress: '192.168.1.200',
+        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+        timestamp: new Date(Date.now() - 1 * 60 * 1000),
+        costCents: 1,
+      }
+    ];
+  }
+
+  async updateSponsorFunds(adId: number, spent: number): Promise<void> {
+    // Mock implementation - would update sponsor funds in real DB
+    console.log(`Sponsor ad ${adId} spent ${spent} cents. Checking if budget exhausted...`);
   }
 }
 

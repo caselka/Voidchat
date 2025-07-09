@@ -151,31 +151,40 @@ async function maybeInjectAd() {
   
   const activeAds = await storage.getActiveAmbientAds();
   
-  // Dynamic ad injection frequency based on number of sponsors:
-  // 1-5 sponsors: every 20 messages
-  // 6-10 sponsors: every 15 messages 
-  // 11-20 sponsors: every 10 messages
-  // 20+ sponsors: every 8 messages
+  // Enhanced sponsor distribution: only include ads with remaining budget
+  const adsWithBudget = activeAds.filter(ad => 
+    (!ad.allocatedFunds || ad.spentFunds < ad.allocatedFunds) && ad.status === 'active'
+  );
+  
+  // Dynamic ad injection frequency based on number of active sponsors:
   let adFrequency = 20;
-  if (activeAds.length > 5) adFrequency = 15;
-  if (activeAds.length > 10) adFrequency = 10;
-  if (activeAds.length > 20) adFrequency = 8;
+  if (adsWithBudget.length > 5) adFrequency = 15;
+  if (adsWithBudget.length > 10) adFrequency = 10;
+  if (adsWithBudget.length > 20) adFrequency = 8;
   
   if (messageCountSinceLastAd >= adFrequency) {
     messageCountSinceLastAd = 0;
     
-    if (activeAds.length > 0) {
-      // Weighted distribution: newer ads get slightly higher chance
+    if (adsWithBudget.length > 0) {
+      // Fair distribution algorithm: weight by remaining budget and time since last shown
       const now = Date.now();
-      const adsWithWeights = activeAds.map(ad => ({
-        ad,
-        weight: Math.max(1, 30 - Math.floor((now - new Date(ad.createdAt).getTime()) / (24 * 60 * 60 * 1000)))
-      }));
+      const adsWithWeights = adsWithBudget.map(ad => {
+        const remainingBudget = (ad.allocatedFunds || 1000) - (ad.spentFunds || 0);
+        const budgetWeight = Math.max(1, remainingBudget / 100); // Higher budget = higher weight
+        
+        // Newer ads get slight preference (decay over 30 days)
+        const ageWeight = Math.max(1, 30 - Math.floor((now - new Date(ad.createdAt).getTime()) / (24 * 60 * 60 * 1000)));
+        
+        return {
+          ad,
+          weight: budgetWeight * ageWeight
+        };
+      });
       
       const totalWeight = adsWithWeights.reduce((sum, item) => sum + item.weight, 0);
       let randomWeight = Math.random() * totalWeight;
       
-      let selectedAd = activeAds[0];
+      let selectedAd = adsWithBudget[0];
       for (const item of adsWithWeights) {
         randomWeight -= item.weight;
         if (randomWeight <= 0) {
@@ -184,20 +193,33 @@ async function maybeInjectAd() {
         }
       }
       
+      // Track impression and cost
+      const ipAddress = 'broadcast';
+      await storage.recordSponsorEvent({
+        adId: selectedAd.id,
+        eventType: 'impression',
+        ipAddress,
+        userAgent: 'System',
+        costCents: 1 // 1 cent per impression
+      });
+      
       const adMessage = {
         type: 'message',
         data: {
-          id: `ad-${Date.now()}`,
-          content: `✦ Try: "${selectedAd.productName}" – ${selectedAd.description}${selectedAd.url ? ` ${selectedAd.url}` : ''}`,
+          id: `ad-${selectedAd.id}-${Date.now()}`,
+          content: `✦ Sponsor: "${selectedAd.productName}" – ${selectedAd.description}${selectedAd.url ? ` ${selectedAd.url}` : ''}`,
           username: 'sponsor',
           timestamp: new Date().toISOString(),
           isAd: true,
+          adId: selectedAd.id, // Include ad ID for click tracking
         }
       };
       
       await broadcastMessage(adMessage);
+      
+      console.log(`🎯 Injected sponsor ad: ${selectedAd.productName} (Budget: ${selectedAd.allocatedFunds - selectedAd.spentFunds} cents remaining)`);
     } else {
-      // Fallback to default ambient ads only if no paid sponsors
+      // Fallback to default ambient ads only if no active paid sponsors
       const defaultAds = [
         { business: "void.coffee", content: "Premium coffee for late-night coding sessions ☕" },
         { business: "quantum.dev", content: "Build the future with quantum computing tools ⚡" },
@@ -864,6 +886,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Room message deletion error:', error);
       res.status(500).json({ message: 'Failed to delete message' });
+    }
+  });
+
+  // Help request submission endpoint
+  app.post('/api/help-request', async (req, res) => {
+    try {
+      const { subject, message, email, priority } = req.body;
+      const ipAddress = getClientIp(req);
+      const userId = (req as any).user?.id;
+      
+      let username = 'anonymous';
+      if (userId) {
+        const user = await storage.getUser(userId);
+        username = user?.username || 'user';
+      } else {
+        // Get anonymous username if available
+        const sessionId = req.sessionID || 'temp';
+        username = await storage.getAnonUsername(sessionId);
+      }
+
+      const helpRequest = await storage.createHelpRequest({
+        userId,
+        ipAddress,
+        username,
+        email,
+        subject,
+        message,
+        priority: priority || 'normal'
+      });
+
+      res.json({ helpRequest, message: 'Help request submitted successfully' });
+    } catch (error: any) {
+      console.error('Error creating help request:', error);
+      res.status(500).json({ message: 'Failed to submit help request' });
+    }
+  });
+
+  // Backend help requests management
+  app.get('/api/backend/help-requests', isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req as any).user.id;
+      const isSuperUser = await storage.isSuperUser(userId);
+      
+      if (!isSuperUser) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      const { status } = req.query;
+      const helpRequests = await storage.getHelpRequests(status as string);
+      res.json(helpRequests);
+    } catch (error: any) {
+      console.error('Error fetching help requests:', error);
+      res.status(500).json({ message: 'Failed to fetch help requests' });
+    }
+  });
+
+  // Update help request status
+  app.post('/api/backend/help-requests/:id/update', isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req as any).user.id;
+      const isSuperUser = await storage.isSuperUser(userId);
+      
+      if (!isSuperUser) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      const { id } = req.params;
+      const { status, assignedTo } = req.body;
+      
+      await storage.updateHelpRequestStatus(parseInt(id), status, assignedTo);
+      res.json({ message: 'Help request updated successfully' });
+    } catch (error: any) {
+      console.error('Error updating help request:', error);
+      res.status(500).json({ message: 'Failed to update help request' });
+    }
+  });
+
+  // Sponsor analytics endpoint
+  app.get('/api/backend/sponsor-analytics/:adId', isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req as any).user.id;
+      const isSuperUser = await storage.isSuperUser(userId);
+      
+      if (!isSuperUser) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      const { adId } = req.params;
+      const analytics = await storage.getSponsorAnalytics(parseInt(adId));
+      res.json(analytics);
+    } catch (error: any) {
+      console.error('Error fetching sponsor analytics:', error);
+      res.status(500).json({ message: 'Failed to fetch analytics' });
+    }
+  });
+
+  // Track sponsor ad clicks
+  app.post('/api/sponsor-click/:adId', async (req, res) => {
+    try {
+      const { adId } = req.params;
+      const ipAddress = getClientIp(req);
+      const userAgent = req.headers['user-agent'];
+
+      await storage.recordSponsorEvent({
+        adId: parseInt(adId),
+        eventType: 'click',
+        ipAddress,
+        userAgent,
+        costCents: 5 // 5 cents per click
+      });
+
+      res.json({ message: 'Click tracked successfully' });
+    } catch (error: any) {
+      console.error('Error tracking sponsor click:', error);
+      res.status(500).json({ message: 'Failed to track click' });
     }
   });
 
