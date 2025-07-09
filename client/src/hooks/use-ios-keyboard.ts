@@ -33,11 +33,9 @@ export function useIOSKeyboard() {
             inputRef.current.style.right = '0';
           }
           
-          // Prevent body scroll
-          document.body.style.position = 'fixed';
-          document.body.style.width = '100%';
-          document.body.style.height = `${currentHeight}px`;
+          // Prevent body scroll but maintain layout
           document.body.style.overflow = 'hidden';
+          document.body.style.height = '100vh';
           
         } else {
           // Keyboard is closed
@@ -52,10 +50,8 @@ export function useIOSKeyboard() {
           }
           
           // Reset body
-          document.body.style.position = '';
-          document.body.style.width = '';
-          document.body.style.height = '';
           document.body.style.overflow = '';
+          document.body.style.height = '';
         }
       }
     };
@@ -73,10 +69,8 @@ export function useIOSKeyboard() {
       }
       
       // Reset all styles
-      document.body.style.position = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
       document.body.style.overflow = '';
+      document.body.style.height = '';
       
       if (inputRef.current) {
         inputRef.current.style.position = 'fixed';

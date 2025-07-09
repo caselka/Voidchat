@@ -318,7 +318,7 @@ export default function Chat() {
         style={{
           minHeight: '100vh',
           paddingTop: '80px',
-          paddingBottom: '70px',
+          paddingBottom: '65px',
           position: 'relative'
         }}
       >

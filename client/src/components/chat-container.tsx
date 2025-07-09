@@ -102,12 +102,9 @@ export default function ChatContainer({
           key={message.id || `message-${index}-${Date.now()}`} 
           className="message-bubble group"
           style={{
-            backgroundColor: 'var(--bubble)',
-            borderRadius: '10px',
-            padding: '8px 12px',
-            marginBottom: '12px',
-            border: '1px solid var(--input-border)',
-            maxWidth: '90%',
+            padding: '8px 0',
+            marginBottom: '4px',
+            maxWidth: '100%',
             fontSize: '14px',
             lineHeight: '1.4'
           }}
