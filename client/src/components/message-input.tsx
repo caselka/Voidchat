@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Clock, Hourglass } from "lucide-react";
+import { useIOSKeyboard } from "@/hooks/use-ios-keyboard";
 
 interface MessageInputProps {
   onSendMessage: (content: string) => void;
@@ -15,63 +16,17 @@ export default function MessageInput({
   error
 }: MessageInputProps) {
   const [messageText, setMessageText] = useState('');
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { keyboardHeight, isKeyboardOpen, inputRef } = useIOSKeyboard();
   const maxLength = 500;
   const isRateLimited = rateLimitTime > 0;
   const canSend = messageText.trim().length > 0 && !isRateLimited;
 
-  // Keyboard detection and locking mechanism
+  // Auto-focus on load for better UX
   useEffect(() => {
-    const handleViewportChange = () => {
-      const visualViewport = window.visualViewport;
-      if (visualViewport) {
-        const keyboardHeight = window.innerHeight - visualViewport.height;
-        const isOpen = keyboardHeight > 100; // Threshold for keyboard detection
-        
-        setIsKeyboardOpen(isOpen);
-        
-        if (isOpen) {
-          // Lock body scroll and position input above keyboard
-          document.body.classList.add('ios-keyboard-open');
-          if (containerRef.current) {
-            containerRef.current.style.bottom = `${keyboardHeight}px`;
-          }
-        } else {
-          // Restore normal positioning
-          document.body.classList.remove('ios-keyboard-open');
-          if (containerRef.current) {
-            containerRef.current.style.bottom = '0px';
-          }
-        }
-      }
-    };
-
-    // Listen for visual viewport changes (keyboard events)
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleViewportChange);
-      window.visualViewport.addEventListener('scroll', handleViewportChange);
+    if (textareaRef.current) {
+      textareaRef.current.focus();
     }
-
-    // Fallback for older browsers
-    const handleResize = () => {
-      const heightDiff = window.screen.height - window.innerHeight;
-      const isOpen = heightDiff > 150;
-      setIsKeyboardOpen(isOpen);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleViewportChange);
-        window.visualViewport.removeEventListener('scroll', handleViewportChange);
-      }
-      window.removeEventListener('resize', handleResize);
-      document.body.classList.remove('ios-keyboard-open');
-    };
   }, []);
 
   // Basic client-side security validation
@@ -122,18 +77,17 @@ export default function MessageInput({
 
   return (
     <div 
-      ref={containerRef}
+      ref={inputRef}
       className="message-input-container"
       style={{
         position: 'fixed',
-        bottom: isKeyboardOpen ? `${keyboardHeight}px` : '0px',
+        bottom: '0px',
         left: 0,
         right: 0,
         width: '100%',
         backgroundColor: 'var(--bg)',
         borderTop: '1px solid var(--input-border)',
-        zIndex: 9999,
-        transition: 'bottom 0.3s ease'
+        zIndex: 1000
       }}
     >
       <div className="max-w-4xl mx-auto" style={{ padding: '12px' }}>
@@ -168,24 +122,10 @@ export default function MessageInput({
                   }
                 }}
                 onFocus={() => {
-                  if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-                    setTimeout(() => {
-                      const viewport = window.visualViewport;
-                      if (viewport) {
-                        const kbHeight = window.innerHeight - viewport.height;
-                        if (kbHeight > 100) {
-                          setKeyboardHeight(kbHeight);
-                          setIsKeyboardOpen(true);
-                        }
-                      }
-                    }, 300);
-                  }
+                  // Focus handling is now managed by useIOSKeyboard hook
                 }}
                 onBlur={() => {
-                  setTimeout(() => {
-                    setIsKeyboardOpen(false);
-                    setKeyboardHeight(0);
-                  }, 100);
+                  // Blur handling is now managed by useIOSKeyboard hook
                 }}
                 placeholder="Type a message..."
                 className="message-input w-full resize-none border-none outline-none bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
