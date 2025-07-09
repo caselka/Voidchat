@@ -238,28 +238,28 @@ export default function Landing() {
 
           <Card>
             <CardHeader>
-              <Badge variant="outline" className="w-fit">Exclusive</Badge>
-              <CardTitle className="text-2xl">Guardian Access</CardTitle>
-              <CardDescription>Moderate and protect the void</CardDescription>
+              <Badge variant="outline" className="w-fit">Community</Badge>
+              <CardTitle className="text-2xl">Room Creation</CardTitle>
+              <CardDescription>Create permanent chat rooms</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="text-3xl font-light">$20-100</div>
+                <div className="text-3xl font-light">$49</div>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>• Moderation powers</li>
-                  <li>• Delete inappropriate messages</li>
-                  <li>• Mute disruptive users</li>
-                  <li>• Daily or weekly access</li>
+                  <li>• Create permanent rooms</li>
+                  <li>• Moderation privileges in your room</li>
+                  <li>• Customize room settings</li>
+                  <li>• Build your community</li>
                 </ul>
                 {!isAuthenticated ? (
                   <Button className="w-full" variant="outline" onClick={() => window.location.href = "/register"}>
-                    Sign Up for Guardian
+                    Sign Up to Create Rooms
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 ) : (
-                  <Link href="/guardian-checkout">
+                  <Link href="/create-room">
                     <Button className="w-full" variant="outline">
-                      Become Guardian
+                      Create Room
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>

@@ -13,7 +13,7 @@ import Chat from "@/pages/chat";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import RegisterSimple from "@/pages/register-simple";
-import GuardianCheckout from "@/pages/guardian-checkout";
+
 import Sponsor from "@/pages/sponsor";
 import Handle from "@/pages/handle";
 import Themes from "@/pages/themes";
@@ -38,7 +38,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/register-simple" component={RegisterSimple} />
-      <Route path="/guardian-checkout" component={GuardianCheckout} />
+
       <Route path="/sponsor" component={Sponsor} />
       <Route path="/handle" component={Handle} />
       <Route path="/themes" component={Themes} />

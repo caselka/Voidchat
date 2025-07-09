@@ -5,7 +5,7 @@ import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import ChatContainer from "@/components/chat-container";
 import MessageInput from "@/components/message-input";
-import GuardianPanel from "@/components/guardian-panel";
+
 import HumanVerification from "@/components/human-verification";
 import Walkthrough from "@/components/walkthrough";
 import DynamicHeader from "@/components/dynamic-header";
@@ -25,7 +25,7 @@ import type { Room } from "@shared/schema";
 export default function Chat() {
   const { theme, toggleTheme } = useTheme();
   const { user, isAuthenticated, isLoading } = useAuth();
-  const { messages, isConnected, isGuardian, currentUser, onlineCount, sendMessage, muteUser, deleteMessage, enableSlowMode, error, rateLimitTime } = useWebSocket();
+  const { messages, isConnected, currentUser, onlineCount, sendMessage, muteUser, deleteMessage, enableSlowMode, error, rateLimitTime } = useWebSocket();
   const [profanityFilter, setProfanityFilter] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isHumanVerified, setIsHumanVerified] = useState(false);
@@ -198,13 +198,7 @@ export default function Chat() {
               {profanityFilter ? '***' : '@#$'}
             </Button>
 
-            {/* Guardian Status */}
-            {isGuardian && (
-              <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded flex items-center">
-                <Shield className="w-3 h-3 mr-1" />
-                Guardian
-              </span>
-            )}
+
             
             {/* Rate Limit Indicator */}
             {rateLimitTime > 0 && (
@@ -216,16 +210,13 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* Guardian Panel */}
-      {isGuardian && (
-        <GuardianPanel onEnableSlowMode={enableSlowMode} />
-      )}
+
 
       {/* Chat Container */}
       <div className="max-w-2xl mx-auto px-3 pb-24 min-h-screen">
         <ChatContainer 
           messages={messages}
-          isGuardian={isGuardian}
+          isGuardian={false}
           onMuteUser={muteUser}
           onDeleteMessage={deleteMessage}
           onReplyToMessage={() => {}}

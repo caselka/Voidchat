@@ -161,6 +161,10 @@ export const users = pgTable("users", {
   verificationExpires: timestamp("verification_expires"),
   usernameExpiresAt: timestamp("username_expires_at").notNull(),
   usernameGracePeriodEnds: timestamp("username_grace_period_ends"),
+  autoRenewal: boolean("auto_renewal").default(true).notNull(), // Default to auto-renewal ON
+  stripeCustomerId: text("stripe_customer_id"),
+  stripePaymentMethodId: text("stripe_payment_method_id"),
+  isSuperUser: boolean("is_super_user").default(false).notNull(), // For caselka account
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -179,6 +183,7 @@ export const rooms = pgTable("rooms", {
   creatorId: varchar("creator_id").notNull().references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   isActive: boolean("is_active").default(true),
+  moderators: text("moderators").array().default([]), // Array of user IDs who can moderate
 });
 
 export const roomMessages = pgTable("room_messages", {
@@ -188,7 +193,7 @@ export const roomMessages = pgTable("room_messages", {
   username: varchar("username", { length: 50 }).notNull(),
   ipAddress: varchar("ip_address", { length: 45 }).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-  expiresAt: timestamp("expires_at").notNull(),
+  expiresAt: timestamp("expires_at").notNull(), // 3 days retention for room messages
 });
 
 export const insertRoomSchema = createInsertSchema(rooms).pick({

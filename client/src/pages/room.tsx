@@ -12,7 +12,7 @@ import ChatContainer from "@/components/chat-container";
 import MessageInput from "@/components/message-input";
 import DynamicHeader from "@/components/dynamic-header";
 import RoomsSidebar from "@/components/rooms-sidebar";
-import VLoading from "@/components/v-loading";
+import { Loader2 } from "lucide-react";
 
 interface Room {
   id: number;
@@ -104,7 +104,7 @@ export default function Room() {
   };
 
   const handleMuteUser = async (messageId: string | number) => {
-    if (!room || !isOwner) return;
+    if (!room || !canModerate) return;
     
     try {
       await apiRequest("POST", `/api/rooms/${name}/mute`, { messageId });
@@ -122,7 +122,7 @@ export default function Room() {
   };
 
   const handleDeleteMessage = async (messageId: string | number) => {
-    if (!room || !isOwner) return;
+    if (!room || !canModerate) return;
     
     try {
       await apiRequest("DELETE", `/api/rooms/${name}/messages/${messageId}`);
@@ -187,6 +187,8 @@ export default function Room() {
   }
 
   const isOwner = isAuthenticated && user?.id === room.creatorId;
+  const isSuperUser = user?.username === 'caselka'; // Super user has moderation powers everywhere
+  const canModerate = isOwner || isSuperUser;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -212,12 +214,13 @@ export default function Room() {
             <MessageSquare className="w-5 h-5 text-purple-500" />
             <h1 className="text-lg font-medium">/{room.name}</h1>
             {isOwner && <Crown className="w-4 h-4 text-yellow-500" title="You own this room" />}
+            {isSuperUser && !isOwner && <Shield className="w-4 h-4 text-blue-500" title="Super User - Universal Moderation" />}
             <span className="text-xs text-muted-foreground">
               {isConnected ? '• Connected' : '• Connecting...'}
             </span>
           </div>
           
-          {isOwner && (
+          {canModerate && (
             <Button
               variant="ghost"
               size="sm"
@@ -230,7 +233,7 @@ export default function Room() {
         </div>
 
         {/* Room Settings Panel */}
-        {isOwner && showSettings && (
+        {canModerate && showSettings && (
           <Card className="mb-4">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -238,7 +241,10 @@ export default function Room() {
                 <span>Room Moderation</span>
               </CardTitle>
               <CardDescription>
-                You have full moderation powers as the room owner
+                {isOwner 
+                  ? "You have full moderation powers as the room owner" 
+                  : "You have moderation powers as a super user"
+                }
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -268,7 +274,7 @@ export default function Room() {
               expiresAt: msg.expiresAt,
               ipAddress: msg.ipAddress,
             }))}
-            isGuardian={isOwner}
+            isGuardian={canModerate}
             onMuteUser={handleMuteUser}
             onDeleteMessage={handleDeleteMessage}
             onReplyToMessage={() => {}} // Rooms don't support replies yet

@@ -1,16 +1,20 @@
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, CreditCard, Shield, Calendar, AlertCircle } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function MemberSettings() {
   const { user, isLoading } = useAuth();
-  const [autoRenew, setAutoRenew] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Fetch user status and subscriptions
   const { data: userStatus } = useQuery({
@@ -18,10 +22,7 @@ export default function MemberSettings() {
     enabled: !!user,
   });
 
-  const { data: guardianStatus } = useQuery({
-    queryKey: ['/api/guardian-status'],
-    enabled: !!user,
-  });
+
 
   if (isLoading) {
     return (
@@ -151,49 +152,80 @@ export default function MemberSettings() {
             </CardContent>
           </Card>
 
-          {/* Guardian Status */}
+          {/* Auto-renewal Settings */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Shield className="mr-2 h-5 w-5" />
-                Guardian Access
+                Auto-Renewal Settings
               </CardTitle>
               <CardDescription>
-                Moderation privileges and subscription status
+                Manage automatic username renewal preferences
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {guardianStatus?.isGuardian ? (
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="default" className="bg-blue-500">
-                      <Shield className="mr-1 h-3 w-3" />
-                      Active Guardian
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">
-                      Expires: {new Date(guardianStatus.expiresAt).toLocaleDateString()}
-                    </span>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">Auto-renewal</p>
+                    <p className="text-xs text-muted-foreground">
+                      Automatically renew your username before expiration
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    You have moderation privileges including message deletion and user muting.
+                  <div className="flex items-center space-x-2">
+                    <Switch 
+                      checked={user?.autoRenewal} 
+                      onCheckedChange={async (checked) => {
+                        try {
+                          await apiRequest('POST', '/api/update-auto-renewal', { autoRenewal: checked });
+                          toast({
+                            title: "Settings updated",
+                            description: `Auto-renewal ${checked ? 'enabled' : 'disabled'}`,
+                          });
+                          queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+                        } catch (error) {
+                          toast({
+                            title: "Error",
+                            description: "Failed to update auto-renewal setting",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Payment Method</p>
+                  <p className="text-xs text-muted-foreground">
+                    {user?.stripePaymentMethodId ? 'Payment method saved' : 'No payment method on file'}
                   </p>
-                  <Button variant="outline">
-                    Manage Guardian Subscription
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        const response = await apiRequest('POST', '/api/create-payment-setup');
+                        const { clientSecret } = await response.json();
+                        // TODO: Redirect to Stripe payment method setup
+                        console.log('Payment setup:', clientSecret);
+                        toast({
+                          title: "Payment setup",
+                          description: "Payment method functionality coming soon",
+                        });
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to setup payment method",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                  >
+                    {user?.stripePaymentMethodId ? 'Update' : 'Add'} Payment Method
                   </Button>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    Become a Guardian to help moderate the chat community.
-                  </p>
-                  <Link href="/guardian">
-                    <Button>
-                      <Shield className="mr-2 h-4 w-4" />
-                      Become a Guardian ($20/day)
-                    </Button>
-                  </Link>
-                </div>
-              )}
+              </div>
             </CardContent>
           </Card>
 

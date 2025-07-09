@@ -79,7 +79,7 @@ function getClientIp(req: any): string {
          '127.0.0.1';
 }
 
-async function checkRateLimit(ipAddress: string): Promise<{ allowed: boolean; blockedUntil?: Date }> {
+async function checkRateLimit(ipAddress: string, customCooldown?: number): Promise<{ allowed: boolean; blockedUntil?: Date; cooldownSeconds?: number }> {
   const rateLimit = await storage.getRateLimit(ipAddress);
   const now = new Date();
   
@@ -94,9 +94,12 @@ async function checkRateLimit(ipAddress: string): Promise<{ allowed: boolean; bl
     return { allowed: false };
   }
   
+  // Use dynamic cooldown or fallback to 5 seconds
+  const dynamicCooldown = customCooldown || await storage.calculateDynamicCooldown(ipAddress);
+  
   if (!rateLimit) {
     await storage.updateRateLimit(ipAddress, 1);
-    return { allowed: true };
+    return { allowed: true, cooldownSeconds: dynamicCooldown };
   }
   
   const timeSinceLastMessage = now.getTime() - rateLimit.lastMessageAt.getTime();
@@ -104,12 +107,12 @@ async function checkRateLimit(ipAddress: string): Promise<{ allowed: boolean; bl
   // Reset count if more than 10 seconds passed
   if (timeSinceLastMessage > 10000) {
     await storage.updateRateLimit(ipAddress, 1);
-    return { allowed: true };
+    return { allowed: true, cooldownSeconds: dynamicCooldown };
   }
   
-  // Check 5 second rate limit
-  if (timeSinceLastMessage < 5000) {
-    return { allowed: false };
+  // Check dynamic rate limit (instead of fixed 5 seconds)
+  if (timeSinceLastMessage < dynamicCooldown * 1000) {
+    return { allowed: false, cooldownSeconds: dynamicCooldown };
   }
   
   // Check spam protection (5 messages in 10 seconds)
@@ -120,7 +123,7 @@ async function checkRateLimit(ipAddress: string): Promise<{ allowed: boolean; bl
   }
   
   await storage.updateRateLimit(ipAddress, rateLimit.messageCount + 1);
-  return { allowed: true };
+  return { allowed: true, cooldownSeconds: dynamicCooldown };
 }
 
 async function broadcastMessage(message: any, excludeIp?: string) {
@@ -244,25 +247,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Guardian status endpoint
-  app.get('/api/guardian-status', isAuthenticated, async (req: any, res) => {
+
+
+  // Auto-renewal toggle endpoint
+  app.post("/api/update-auto-renewal", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.id;
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
       }
-      
-      const guardianStatus = await storage.getGuardianStatus(user.email || '');
-      
-      res.json({
-        isGuardian: !!guardianStatus,
-        expiresAt: guardianStatus?.expiresAt,
-        createdAt: guardianStatus?.createdAt
+
+      const { autoRenewal } = req.body;
+      if (typeof autoRenewal !== 'boolean') {
+        return res.status(400).json({ message: "Invalid autoRenewal value" });
+      }
+
+      await storage.updateUserAutoRenewal(userId, autoRenewal);
+      res.json({ success: true, autoRenewal });
+    } catch (error) {
+      console.error("Error updating auto-renewal:", error);
+      res.status(500).json({ message: "Failed to update auto-renewal setting" });
+    }
+  });
+
+  // Payment method setup endpoint
+  app.post("/api/create-payment-setup", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      // TODO: Implement Stripe Setup Intent for payment method
+      res.json({ 
+        clientSecret: "placeholder_client_secret",
+        message: "Payment method setup coming soon"
       });
-    } catch (error: any) {
-      console.error('Error fetching guardian status:', error);
-      res.status(500).json({ message: 'Failed to fetch guardian status' });
+    } catch (error) {
+      console.error("Error creating payment setup:", error);
+      res.status(500).json({ message: "Failed to create payment setup" });
     }
   });
 
@@ -447,6 +470,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Room moderation endpoints
+  app.post('/api/rooms/:name/mute', isAuthenticated, async (req, res) => {
+    try {
+      const { name } = req.params;
+      const { messageId } = req.body;
+      const userId = (req as any).user.id;
+      
+      const room = await storage.getRoom(name);
+      if (!room) {
+        return res.status(404).json({ message: 'Room not found' });
+      }
+
+      // Check if user is room owner or super user
+      const user = await storage.getUser(userId);
+      const isSuperUser = await storage.isSuperUser(userId);
+      const isOwner = room.creatorId === userId;
+      
+      if (!isOwner && !isSuperUser) {
+        return res.status(403).json({ message: 'Only room owners can mute users' });
+      }
+
+      // Get the message to find the IP to mute
+      const messages = await storage.getRoomMessages(room.id, 100);
+      const targetMessage = messages.find(m => m.id === parseInt(messageId));
+      
+      if (!targetMessage) {
+        return res.status(404).json({ message: 'Message not found' });
+      }
+
+      // Mute the IP for 5 minutes in this room
+      await storage.muteIp(targetMessage.ipAddress, user?.username || 'moderator', 5 * 60);
+      
+      // Log the action
+      await storage.logGuardianAction(
+        user?.email || userId, 
+        'mute_user', 
+        targetMessage.ipAddress, 
+        parseInt(messageId), 
+        { roomName: name, duration: 5 }
+      );
+
+      res.json({ success: true, message: 'User muted for 5 minutes' });
+    } catch (error) {
+      console.error('Room mute error:', error);
+      res.status(500).json({ message: 'Failed to mute user' });
+    }
+  });
+
+  app.delete('/api/rooms/:name/messages/:messageId', isAuthenticated, async (req, res) => {
+    try {
+      const { name, messageId } = req.params;
+      const userId = (req as any).user.id;
+      
+      const room = await storage.getRoom(name);
+      if (!room) {
+        return res.status(404).json({ message: 'Room not found' });
+      }
+
+      // Check if user is room owner or super user
+      const user = await storage.getUser(userId);
+      const isSuperUser = await storage.isSuperUser(userId);
+      const isOwner = room.creatorId === userId;
+      
+      if (!isOwner && !isSuperUser) {
+        return res.status(403).json({ message: 'Only room owners can delete messages' });
+      }
+
+      await storage.deleteRoomMessage(parseInt(messageId));
+      
+      // Log the action
+      await storage.logGuardianAction(
+        user?.username || userId, 
+        'delete_room_message', 
+        undefined, 
+        parseInt(messageId), 
+        { roomName: name }
+      );
+
+      // Broadcast message deletion to all room clients
+      await broadcastRoomMessage(name, {
+        type: 'room_message_deleted',
+        data: { messageId: parseInt(messageId) }
+      });
+
+      res.json({ success: true, message: 'Message deleted' });
+    } catch (error) {
+      console.error('Room message delete error:', error);
+      res.status(500).json({ message: 'Failed to delete message' });
+    }
+  });
+
   // Room messages endpoints
   app.get('/api/rooms/:name/messages', async (req, res) => {
     try {
@@ -482,10 +596,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Room not found' });
       }
 
-      // Check rate limit
-      const { allowed } = await checkRateLimit(ipAddress);
+      // Check rate limit with dynamic cooldown
+      const { allowed, cooldownSeconds } = await checkRateLimit(ipAddress);
       if (!allowed) {
-        return res.status(429).json({ message: 'Rate limited' });
+        return res.status(429).json({ 
+          message: `Rate limited. Dynamic cooldown: ${cooldownSeconds}s` 
+        });
       }
 
       // Check if user is muted in this room
@@ -856,7 +972,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             return;
           }
 
-          const { allowed, blockedUntil } = await checkRateLimit(ipAddress);
+          const { allowed, blockedUntil, cooldownSeconds } = await checkRateLimit(ipAddress);
           
           if (!allowed) {
             ws.send(JSON.stringify({
@@ -864,7 +980,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               data: { 
                 message: blockedUntil ? 
                   `You are temporarily blocked until ${blockedUntil.toLocaleTimeString()}` :
-                  'You are rate limited. Please wait before sending another message.'
+                  `Rate limited. Dynamic cooldown: ${cooldownSeconds}s (chat activity based)`
               }
             }));
             return;

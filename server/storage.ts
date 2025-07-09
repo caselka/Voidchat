@@ -92,6 +92,8 @@ export interface IStorage {
   getUserByUsernameOrEmail(usernameOrEmail: string): Promise<User | undefined>;
   createUser(user: UpsertUser): Promise<User>;
   verifyUser(id: string): Promise<void>;
+  updateUserAutoRenewal(userId: string, autoRenewal: boolean): Promise<void>;
+  updateUserPaymentMethod(userId: string, stripeCustomerId: string, paymentMethodId: string): Promise<void>;
   
   // User stats for Guardian eligibility
   getUserStats?(ipAddress: string): Promise<{ messagesLast7Days: number; paidAccountSince?: Date } | undefined>;
@@ -113,8 +115,18 @@ export interface IStorage {
   // Room messages
   createRoomMessage(message: InsertRoomMessage & { username: string; ipAddress: string }): Promise<RoomMessage>;
   getRoomMessages(roomId: number, limit?: number): Promise<RoomMessage[]>;
+  getRecentRoomMessages(roomId: number, minutes?: number): Promise<RoomMessage[]>; // Get messages from last X minutes
   deleteExpiredRoomMessages(): Promise<void>;
   deleteRoomMessage(id: number): Promise<void>;
+  
+  // Room moderation
+  isRoomModerator(userId: string, roomId: number): Promise<boolean>;
+  addRoomModerator(roomId: number, userId: string): Promise<void>;
+  removeRoomModerator(roomId: number, userId: string): Promise<void>;
+  
+  // Dynamic rate limiting
+  getMessageFrequency(ipAddress: string, minutes?: number): Promise<number>;
+  calculateDynamicCooldown(ipAddress: string): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -474,6 +486,7 @@ export class DatabaseStorage implements IStorage {
         ...userData,
         id: userId,
         usernameExpiresAt,
+        autoRenewal: true, // Auto-renewal ON by default
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -491,6 +504,27 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date(),
       })
       .where(eq(users.id, id));
+  }
+
+  async updateUserAutoRenewal(userId: string, autoRenewal: boolean): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        autoRenewal,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+  }
+
+  async updateUserPaymentMethod(userId: string, stripeCustomerId: string, paymentMethodId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        stripeCustomerId,
+        stripePaymentMethodId: paymentMethodId,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
   }
 
   async getAnonUsername(sessionId: string): Promise<string> {
@@ -633,16 +667,109 @@ export class DatabaseStorage implements IStorage {
 
   // Room messages methods
   async createRoomMessage(messageData: InsertRoomMessage & { username: string; ipAddress: string }): Promise<RoomMessage> {
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+    const expiresAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000); // 3 days from now
     
     const [message] = await db
       .insert(roomMessages)
       .values({
         ...messageData,
         expiresAt,
+        createdAt: new Date(),
       })
       .returning();
     return message;
+  }
+
+  async getRecentRoomMessages(roomId: number, minutes = 15): Promise<RoomMessage[]> {
+    const cutoffTime = new Date(Date.now() - minutes * 60 * 1000);
+    return await db
+      .select()
+      .from(roomMessages)
+      .where(and(
+        eq(roomMessages.roomId, roomId),
+        gte(roomMessages.createdAt, cutoffTime),
+        gte(roomMessages.expiresAt, new Date()) // Non-expired
+      ))
+      .orderBy(asc(roomMessages.createdAt));
+  }
+
+  async isRoomModerator(userId: string, roomId: number): Promise<boolean> {
+    const [room] = await db.select().from(rooms).where(eq(rooms.id, roomId));
+    if (!room) return false;
+    
+    // Check if user is the creator or a moderator
+    if (room.creatorId === userId) return true;
+    if (room.moderators && room.moderators.includes(userId)) return true;
+    
+    // Check if user is super user (caselka)
+    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    if (user?.isSuperUser) return true;
+    
+    return false;
+  }
+
+  async addRoomModerator(roomId: number, userId: string): Promise<void> {
+    const [room] = await db.select().from(rooms).where(eq(rooms.id, roomId));
+    if (!room) return;
+    
+    const currentModerators = room.moderators || [];
+    if (!currentModerators.includes(userId)) {
+      await db
+        .update(rooms)
+        .set({ moderators: [...currentModerators, userId] })
+        .where(eq(rooms.id, roomId));
+    }
+  }
+
+  async removeRoomModerator(roomId: number, userId: string): Promise<void> {
+    const [room] = await db.select().from(rooms).where(eq(rooms.id, roomId));
+    if (!room) return;
+    
+    const currentModerators = room.moderators || [];
+    const newModerators = currentModerators.filter(id => id !== userId);
+    
+    await db
+      .update(rooms)
+      .set({ moderators: newModerators })
+      .where(eq(rooms.id, roomId));
+  }
+
+  async getMessageFrequency(ipAddress: string, minutes = 5): Promise<number> {
+    const cutoffTime = new Date(Date.now() - minutes * 60 * 1000);
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(messages)
+      .where(and(
+        eq(messages.ipAddress, ipAddress),
+        gte(messages.createdAt, cutoffTime)
+      ));
+    return result[0]?.count || 0;
+  }
+
+  async calculateDynamicCooldown(ipAddress: string): Promise<number> {
+    // Get message frequency in last 5 minutes
+    const recentMessages = await this.getMessageFrequency(ipAddress, 5);
+    
+    // Base cooldown of 5 seconds
+    let cooldown = 5;
+    
+    // If chat is quiet (fewer than 10 messages from all users in last 5 minutes), reduce cooldown
+    const totalRecentMessages = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(messages)
+      .where(gte(messages.createdAt, new Date(Date.now() - 5 * 60 * 1000)));
+    
+    const globalActivity = totalRecentMessages[0]?.count || 0;
+    
+    if (globalActivity < 10) {
+      // Chat is quiet, allow faster messaging (2 second cooldown)
+      cooldown = 2;
+    } else if (recentMessages > 3) {
+      // User is very active, increase cooldown
+      cooldown = 10;
+    }
+    
+    return cooldown;
   }
 
   async getRoomMessages(roomId: number, limit = 50): Promise<RoomMessage[]> {
