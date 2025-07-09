@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'wouter';
-import { Search, MessageSquare, User, Clock, ArrowLeft } from 'lucide-react';
+import { Search, MessageSquare, User, Clock, ArrowLeft, RefreshCw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import MobileNavigation from '@/components/mobile-navigation';
 import MobileSidebar from '@/components/mobile-sidebar';

@@ -18,12 +18,25 @@ export default function MobileNavigation({ onSidebarToggle, className }: MobileN
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
 
-  // Fetch unread messages count
+  // Fetch unread counts with better performance
   const { data: unreadData } = useQuery({
     queryKey: ['/api/unread-count'],
     enabled: isAuthenticated,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 15000, // Faster updates
+    staleTime: 10000,
+    gcTime: 300000,
   });
+
+  // Fetch notification count
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['/api/notifications'],
+    enabled: isAuthenticated,
+    refetchInterval: 15000,
+    staleTime: 10000,
+    gcTime: 300000,
+  });
+
+  const notificationBadge = notifications.filter((n: any) => !n.isRead).length;
 
   // Hide/show navigation on scroll (iOS style)
   useEffect(() => {
@@ -64,7 +77,7 @@ export default function MobileNavigation({ onSidebarToggle, className }: MobileN
       icon: Bell,
       href: '/notifications',
       active: location === '/notifications',
-      badge: 0, // TODO: Implement mentions count
+      badge: notificationBadge
     },
     {
       id: 'messages',

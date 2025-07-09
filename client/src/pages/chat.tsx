@@ -8,6 +8,7 @@ import MessageInput from "@/components/message-input";
 import MobileNavigation from "@/components/mobile-navigation";
 import MobileSidebar from "@/components/mobile-sidebar";
 import AnimatedGlowBox from "@/components/animated-glow-box";
+import MobileMessageInput from "@/components/mobile-message-input";
 
 import HumanVerification from "@/components/human-verification";
 import Walkthrough from "@/components/walkthrough";
@@ -237,7 +238,7 @@ export default function Chat() {
 
 
       {/* Chat Container */}
-      <div className="max-w-2xl mx-auto px-3 pb-24 min-h-screen">
+      <div className="max-w-2xl mx-auto min-h-screen">
         <ChatContainer 
           messages={messages}
           isGuardian={false}
@@ -248,19 +249,14 @@ export default function Chat() {
         />
       </div>
 
-      {/* Message Input - Wrapped in glow box with mention support */}
-      <AnimatedGlowBox 
-        glowColor="green" 
-        intensity="subtle" 
-        speed="normal"
-        className="fixed bottom-16 md:bottom-4 left-4 right-4 md:left-1/2 md:right-auto md:w-96 md:-translate-x-1/2 z-40"
-      >
-        <MessageInput 
+      {/* Modern iMessage-style Input */}
+      <div className="fixed bottom-16 left-0 right-0 z-10">
+        <MobileMessageInput
           onSendMessage={sendMessage}
+          disabled={rateLimitTime > 0}
           rateLimitTime={rateLimitTime}
-          error={error}
         />
-      </AnimatedGlowBox>
+      </div>
 
       {/* Mobile Navigation */}
       {isMobile && (

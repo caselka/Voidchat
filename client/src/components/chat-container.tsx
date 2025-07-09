@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { Volume, Trash2 } from "lucide-react";
+import { Volume, Trash2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { Message } from "@/hooks/use-websocket";
 
 interface ChatContainerProps {
@@ -99,138 +100,167 @@ export default function ChatContainer({
            content.trim().length > 0;
   });
 
+  // Group consecutive messages from same user for cleaner iMessage-style display
+  const groupedMessages = useMemo(() => {
+    const groups: Array<{
+      username: string;
+      messages: any[];
+      timestamp: string;
+    }> = [];
+
+    filteredMessages.forEach((message) => {
+      const messageData = message.data || message;
+      const username = messageData.username || 'Anonymous';
+      const timestamp = messageData.createdAt || messageData.timestamp;
+      
+      const lastGroup = groups[groups.length - 1];
+      const timeDiff = lastGroup 
+        ? new Date(timestamp).getTime() - new Date(lastGroup.timestamp).getTime()
+        : Infinity;
+
+      // Group if same user and within 2 minutes
+      if (lastGroup && lastGroup.username === username && timeDiff < 120000) {
+        lastGroup.messages.push(messageData);
+        lastGroup.timestamp = timestamp;
+      } else {
+        groups.push({
+          username,
+          messages: [messageData],
+          timestamp,
+        });
+      }
+    });
+
+    return groups;
+  }, [filteredMessages]);
+
+  // Generate user avatar color based on username
+  const getUserColor = (username: string) => {
+    const colors = [
+      "#3B82F6", "#8B5CF6", "#EF4444", "#F59E0B", 
+      "#10B981", "#06B6D4", "#F97316", "#84CC16"
+    ];
+    
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+      hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
   return (
-    <div className="space-y-2 pb-4">
-      {filteredMessages.map((message, index) => {
-        // Handle both direct message format and wrapped format
-        const messageData = message.data || message;
-        return (
-        <div 
-          key={messageData.id || `message-${index}-${Date.now()}`} 
-          className="message-bubble group"
-          style={{
-            padding: '8px 0',
-            marginBottom: '4px',
-            maxWidth: '100%',
-            fontSize: '14px',
-            lineHeight: '1.4'
-          }}
-          onTouchStart={() => handleLongPressStart(messageData)}
-          onTouchEnd={handleLongPressEnd}
-          onMouseDown={() => handleLongPressStart(messageData)}
-          onMouseUp={handleLongPressEnd}
-          onMouseLeave={handleLongPressEnd}
-        >
-          {/* Message Header: Username and Timestamp */}
-          <div className="flex justify-between items-center mb-1">
-            <div className="flex items-center gap-2">
-              {/* Username - Bold Green */}
-              <span 
-                className="font-bold font-mono"
-                style={{ 
-                  color: 'var(--username-color)',
-                  fontSize: '13px'
-                }}
-              >
-                {messageData.username}
-              </span>
-              
-              {/* Guardian Controls - Inline with username */}
-              {isGuardian && messageData.username !== 'system' && !messageData.isAd && (
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onMuteUser(messageData.id)}
-                    className="text-red-400 hover:text-red-500 text-xs p-1 h-auto"
-                    title="Mute IP"
-                  >
-                    <Volume className="w-3 h-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDeleteMessage(messageData.id)}
-                    className="text-red-400 hover:text-red-500 text-xs p-1 h-auto"
-                    title="Delete"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </div>
-              )}
+    <div className="px-3 py-2 pb-20">
+      <div className="space-y-3">
+        {groupedMessages.map((group, groupIndex) => (
+          <div key={`${group.username}-${groupIndex}`} className="flex items-end space-x-2">
+            {/* Avatar */}
+            <div 
+              className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-semibold text-white shadow-md"
+              style={{
+                backgroundColor: getUserColor(group.username),
+              }}
+            >
+              {group.username.charAt(0).toUpperCase()}
             </div>
             
-            {/* Timestamp - Right Aligned Gray */}
-            <span 
-              className="font-mono"
-              style={{ 
-                color: 'var(--timestamp-color)',
-                fontSize: '11px'
-              }}
-            >
-              {formatTime(messageData.createdAt || messageData.timestamp)}
-            </span>
-          </div>
-          
-          {/* Expiry Notice - Below Username */}
-          {messageData.expiresAt && (
-            <div 
-              className="font-mono mb-1"
-              style={{ 
-                color: 'var(--expiry-color)',
-                fontSize: '11px'
-              }}
-            >
-              [{getTimeUntilDelete(messageData.expiresAt)}]
-            </div>
-          )}
-          
-          {/* Message Content - Light White Text */}
-          <div 
-            className={`font-mono break-words ${
-              messageData.isAd 
-                ? 'italic opacity-60' 
-                : messageData.username === 'system'
-                ? 'italic'
-                : ''
-            }`}
-            style={{ 
-              color: messageData.username === 'system' ? 'var(--system-color)' : 'var(--text)',
-              fontSize: '14px',
-              lineHeight: '1.4'
-            }}
-          >
-            {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
-          </div>
-          
-          {/* Ad-specific content */}
-          {messageData.isAd && messageData.productName && (
-            <div className="mt-2 pt-2 border-t border-gray-700">
-              <div className="text-xs font-mono" style={{ color: '#888' }}>
-                <span className="font-semibold">{messageData.productName}</span>
-                {messageData.description && (
-                  <div className="mt-1">{messageData.description}</div>
-                )}
-                {messageData.url && (
-                  <div className="mt-1">
-                    <a 
-                      href={messageData.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 underline"
+            {/* Message Group */}
+            <div className="flex-1 max-w-[80%]">
+              {/* Username (only show once per group) */}
+              <div className="text-xs font-medium text-muted-foreground mb-1 px-1">
+                {group.username}
+              </div>
+              
+              {/* Messages in this group */}
+              <div className="space-y-1">
+                {group.messages.map((messageData, messageIndex) => {
+                  const displayContent = profanityFilter ? filterProfanity(messageData.content) : messageData.content;
+                  
+                  return (
+                    <div
+                      key={messageData.id || `message-${messageIndex}`}
+                      className={cn(
+                        "bg-muted/60 rounded-2xl px-3 py-2.5 shadow-sm relative group transition-colors hover:bg-muted/70",
+                        messageIndex === 0 && "rounded-tl-md", // First message gets square corner
+                        messageIndex === group.messages.length - 1 && "rounded-bl-md" // Last message gets square corner
+                      )}
+                      onTouchStart={() => handleLongPressStart(messageData)}
+                      onTouchEnd={handleLongPressEnd}
+                      onMouseLeave={handleLongPressEnd}
                     >
-                      Learn more
-                    </a>
-                  </div>
-                )}
+                      <div className="text-sm text-foreground leading-relaxed break-words">
+                        {displayContent}
+                      </div>
+                      
+                      {/* Expiration indicator */}
+                      {messageData.expiresAt && (
+                        <div className="text-[10px] text-orange-500/60 mt-1 flex items-center">
+                          <Clock className="w-2.5 h-2.5 mr-1" />
+                          {getTimeUntilDelete(messageData.expiresAt)}
+                        </div>
+                      )}
+                      
+                      {/* Ad-specific content */}
+                      {messageData.isAd && messageData.productName && (
+                        <div className="mt-2 pt-2 border-t border-border/50">
+                          <div className="text-xs">
+                            <div className="font-semibold text-foreground">{messageData.productName}</div>
+                            {messageData.description && (
+                              <div className="text-muted-foreground mt-1">{messageData.description}</div>
+                            )}
+                            {messageData.url && (
+                              <div className="mt-1">
+                                <a 
+                                  href={messageData.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline"
+                                >
+                                  Learn more →
+                                </a>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Guardian controls */}
+                      {isGuardian && messageData.username !== 'system' && !messageData.isAd && (
+                        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex space-x-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onMuteUser(messageData.id)}
+                              className="h-5 w-5 p-0 bg-background/80 hover:bg-destructive/20"
+                              title="Mute user"
+                            >
+                              <Volume className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onDeleteMessage(messageData.id)}
+                              className="h-5 w-5 p-0 bg-background/80 hover:bg-destructive/20"
+                              title="Delete message"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              
+              {/* Timestamp (only show for the last message in group) */}
+              <div className="text-[10px] text-muted-foreground mt-1 px-1">
+                {formatTime(group.timestamp)}
               </div>
             </div>
-          )}
-        </div>
-        );
-      })}
-      
-      {/* Auto-scroll anchor */}
+          </div>
+        ))}
+      </div>
       <div ref={messagesEndRef} />
     </div>
   );
