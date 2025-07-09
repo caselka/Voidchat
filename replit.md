@@ -108,9 +108,18 @@ Voidchat is a minimalist, anonymous real-time chat room designed with the aesthe
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Updates (July 8, 2025)
+## Recent Updates (July 9, 2025)
 
-### Account Settings and Message Persistence Fix (Latest)
+### WebSocket Authentication and User Identification Fix (Latest)
+- **Fixed WebSocket authentication**: Resolved session parsing issue where 's:' prefix in cookies wasn't properly stripped
+- **Authenticated user display**: Messages now correctly show registered username "rob" instead of anonymous "anon2186"
+- **Session matching logic**: Fixed session ID comparison between cookie storage and database lookup
+- **Real-time user identification**: WebSocket connection now properly detects authenticated users on connect
+- **Message username consistency**: Both message sending and client status display now use correct authenticated username
+- **Comprehensive debugging**: Added detailed session parsing and authentication flow logging for troubleshooting
+- **Fallback system maintained**: Anonymous users still get proper anon usernames when not logged in
+
+### Account Settings and Message Persistence Fix
 - **Fixed account settings access**: Added Users icon in header when logged in to access member settings
 - **Corrected user display logic**: Landing page now shows actual username instead of email prefix (fixed "caselka" vs "rob" issue)
 - **Enhanced message persistence**: Messages now load from database before WebSocket connection to prevent loss on refresh

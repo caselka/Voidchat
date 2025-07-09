@@ -498,7 +498,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               }
             }
           } catch (error) {
-            console.log('Session parsing error for WebSocket connection:', error);
+            // Session parsing failed, will fall back to anonymous
           }
         }
         
@@ -610,23 +610,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           let authenticatedUser = null;
           const cookies = req.headers.cookie;
           
-          console.log('Processing message with cookies:', cookies);
-          
           if (cookies) {
             try {
               const sessionMatch = cookies.match(/connect\.sid=([^;]+)/);
               if (sessionMatch) {
                 const sessionId = decodeURIComponent(sessionMatch[1]);
-                console.log('Extracted session ID:', sessionId);
                 
                 // Check all sessions to find the matching one
                 const allSessions = await db.select().from(sessions);
-                console.log(`Found ${allSessions.length} total sessions`);
-                
-                // Log all session IDs for debugging
-                allSessions.forEach((s, i) => {
-                  console.log(`Session ${i}: ID=${s.sid}, Data keys:`, Object.keys(s.sess as any));
-                });
                 
                 for (const session of allSessions) {
                   // Extract session key properly - remove 's:' prefix and get part before signature
@@ -636,12 +627,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                   }
                   sessionKey = sessionKey.split('.')[0]; // Get the part before the signature
                   
-                  console.log(`Comparing: sessionKey="${sessionKey}" with stored="${session.sid}"`);
-                  
                   if (session.sid === sessionKey) {
-                    console.log('Found matching session:', session.sid);
                     const sessionData = session.sess as any;
-                    console.log('Session data structure:', sessionData);
                     
                     // Check for different possible session data structures
                     let userId = null;
@@ -654,16 +641,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     }
                     
                     if (userId) {
-                      console.log('Found user ID in session:', userId);
                       authenticatedUser = await storage.getUser(userId);
-                      console.log('Retrieved authenticated user:', authenticatedUser?.username);
                       break;
                     }
                   }
-                }
-                
-                if (!authenticatedUser) {
-                  console.log('No authenticated user found for session:', sessionId);
                 }
               }
             } catch (error) {
@@ -674,17 +655,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (authenticatedUser?.username) {
             // Use authenticated user's registered username
             username = sanitizeUsername(authenticatedUser.username);
-            console.log('Using authenticated username:', username);
           } else {
-            console.log('No authenticated user found, using fallback. authenticatedUser:', authenticatedUser);
             // Fallback to custom handle or anon username
             const customHandle = await storage.getCustomHandle(ipAddress);
             if (customHandle) {
               username = sanitizeUsername(customHandle.handle);
-              console.log('Using custom handle:', username);
             } else {
               username = await storage.getAnonUsername(ipAddress);
-              console.log('Using anon username:', username);
             }
           }
           
