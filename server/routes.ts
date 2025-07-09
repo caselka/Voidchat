@@ -463,26 +463,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
     
     // Send guardian status and current user info
-    Promise.all([
-      storage.isGuardian(ipAddress),
-      storage.getAnonUsername(ipAddress),
-      storage.getCustomHandle(ipAddress)
-    ]).then(([isGuardian, anonUsername, customHandle]) => {
-      const currentUsername = customHandle ? customHandle.handle : anonUsername;
-      
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ 
-          type: 'guardian_status', 
-          data: { isGuardian } 
-        }));
-        ws.send(JSON.stringify({ 
-          type: 'current_user', 
-          data: { username: currentUsername } 
-        }));
+    const sendUserInfo = async () => {
+      try {
+        // Check for authenticated user first
+        let authenticatedUser = null;
+        const cookies = req.headers.cookie;
+        
+        if (cookies) {
+          try {
+            const sessionMatch = cookies.match(/connect\.sid=([^;]+)/);
+            if (sessionMatch) {
+              const sessionId = decodeURIComponent(sessionMatch[1]);
+              
+              // Check sessions to find the matching one
+              const allSessions = await db.select().from(sessions);
+              
+              for (const session of allSessions) {
+                // Extract session key properly - remove 's:' prefix and get part before signature
+                let sessionKey = sessionId;
+                if (sessionKey.startsWith('s:')) {
+                  sessionKey = sessionKey.substring(2); // Remove 's:' prefix
+                }
+                sessionKey = sessionKey.split('.')[0]; // Get the part before the signature
+                
+                if (session.sid === sessionKey) {
+                  const sessionData = session.sess as any;
+                  
+                  if (sessionData?.user?.id) {
+                    const userId = sessionData.user.id;
+                    authenticatedUser = await storage.getUser(userId);
+                    break;
+                  }
+                }
+              }
+            }
+          } catch (error) {
+            console.log('Session parsing error for WebSocket connection:', error);
+          }
+        }
+        
+        const [isGuardian, anonUsername, customHandle] = await Promise.all([
+          storage.isGuardian(ipAddress),
+          storage.getAnonUsername(ipAddress),
+          storage.getCustomHandle(ipAddress)
+        ]);
+        
+        // Determine username priority: authenticated > custom handle > anon
+        let currentUsername: string;
+        if (authenticatedUser?.username) {
+          currentUsername = authenticatedUser.username;
+        } else if (customHandle) {
+          currentUsername = customHandle.handle;
+        } else {
+          currentUsername = anonUsername;
+        }
+        
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ 
+            type: 'guardian_status', 
+            data: { isGuardian } 
+          }));
+          ws.send(JSON.stringify({ 
+            type: 'current_user', 
+            data: { username: currentUsername } 
+          }));
+        }
+      } catch (error) {
+        console.error('Error checking guardian status or username:', error);
       }
-    }).catch(error => {
-      console.error('Error checking guardian status or username:', error);
-    });
+    };
+    
+    sendUserInfo();
     
     ws.on('message', async (data) => {
       try {
