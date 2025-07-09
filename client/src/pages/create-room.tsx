@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import DynamicHeader from "@/components/dynamic-header";
-import VLoading from "@/components/v-loading";
+import { Loader2 } from "lucide-react";
 import { Home, Shield, Users } from "lucide-react";
 
 export default function CreateRoom() {
@@ -20,10 +20,10 @@ export default function CreateRoom() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center matrix-bg">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <VLoading size="lg" className="mb-4" />
-          <p className="text-sm text-muted-foreground hacker-typewriter">Loading...</p>
+          <Loader2 className="w-8 h-8 animate-spin mb-4 mx-auto" />
+          <p className="text-sm text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -174,7 +174,7 @@ export default function CreateRoom() {
                 >
                   {isCreating ? (
                     <>
-                      <VLoading size="sm" className="mr-2" />
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
                       Creating...
                     </>
                   ) : (

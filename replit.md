@@ -110,22 +110,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 9, 2025)
 
-### Room WebSocket Connection Fix and VLoading Improvements (Latest)
-- **CRITICAL FIX: Room WebSocket routing**: Removed path restriction from WebSocket server to accept both `/ws` and `/ws/room/*` connections
-- **Room functionality fully restored**: Room chat connections now work properly with real-time messaging
-- **VLoading component redesign**: Completely rebuilt with stable positioning and smooth animations:
-  - Fixed glitchy behavior with proper transform origins
-  - Improved V-shape drawing animation with scaleY transforms
-  - Smoother scanning dot animations without visual jumps
-  - Responsive sizing for sm/md/lg variants
-- **Enhanced hacker animations**: All user interaction animations working perfectly:
-  - **hacker-glitch**: Color-shifting glitch effect for emphasis
-  - **hacker-scan**: Scanning line effect for forms and containers
-  - **hacker-pulse**: Pulsing border with green glow for buttons
-  - **hacker-typewriter**: Text typing animation for headers
-  - **matrix-bg**: Falling binary code background effect
-- **Room system validation**: Test room confirmed working with message persistence and real-time updates
-- **Anonymous user support**: Proper handling of 401 auth errors for anonymous users in rooms
+### VLoading Component Removal and UI Cleanup (Latest)
+- **VLoading component removed**: Replaced all broken VLoading components with Lucide React Loader2 icons
+- **Human verification disabled**: Completely removed verification requirement for anonymous users
+- **Fixed app routing**: Corrected App.tsx to use main chat.tsx file instead of chat-new.tsx
+- **Stable loading indicators**: All loading states now use consistent Loader2 spinner with proper animations
+- **Create room page fixed**: Removed problematic VLoading from create-room and register pages
+- **UI consistency**: All forms now use standard spinning icons for loading states
 
 ### WebSocket Authentication and User Identification Fix (Latest)
 - **Fixed WebSocket authentication**: Resolved session parsing issue where 's:' prefix in cookies wasn't properly stripped

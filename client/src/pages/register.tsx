@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { apiRequest } from "@/lib/queryClient";
-import VLoading from "@/components/v-loading";
+import { Loader2 } from "lucide-react";
 
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 if (!stripeKey) {
@@ -120,7 +120,7 @@ const PaymentForm = ({ paymentIntent, formData, onBack, onSuccess }: {
         >
           {isProcessing ? (
             <>
-              <VLoading size="sm" className="mr-2" />
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
               Processing...
             </>
           ) : (
