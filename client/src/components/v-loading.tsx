@@ -12,6 +12,12 @@ export default function VLoading({ className, size = "md" }: VLoadingProps) {
     lg: "w-12 h-12"
   };
 
+  const lineHeight = {
+    sm: 12,
+    md: 24,
+    lg: 36
+  };
+
   return (
     <div className={cn("flex items-center justify-center", className)}>
       <div className={cn("relative", sizeClasses[size])}>
@@ -20,24 +26,22 @@ export default function VLoading({ className, size = "md" }: VLoadingProps) {
           <div className="relative">
             {/* Left line of V */}
             <div 
-              className="absolute bg-current origin-bottom transform rotate-[20deg]"
+              className="absolute bg-green-400 origin-bottom transform rotate-[20deg] animate-pulse"
               style={{
                 width: '2px',
-                height: size === 'sm' ? '12px' : size === 'md' ? '24px' : '36px',
+                height: `${lineHeight[size]}px`,
                 left: size === 'sm' ? '4px' : size === 'md' ? '8px' : '12px',
-                top: '0',
-                animation: 'v-draw-left 1.5s ease-in-out infinite'
+                top: '0'
               }}
             />
             {/* Right line of V */}
             <div 
-              className="absolute bg-current origin-bottom transform rotate-[-20deg]"
+              className="absolute bg-green-400 origin-bottom transform rotate-[-20deg] animate-pulse"
               style={{
                 width: '2px',
-                height: size === 'sm' ? '12px' : size === 'md' ? '24px' : '36px',
+                height: `${lineHeight[size]}px`,
                 right: size === 'sm' ? '4px' : size === 'md' ? '8px' : '12px',
-                top: '0',
-                animation: 'v-draw-right 1.5s ease-in-out infinite 0.2s'
+                top: '0'
               }}
             />
           </div>
@@ -49,64 +53,17 @@ export default function VLoading({ className, size = "md" }: VLoadingProps) {
             {[0, 1, 2].map(i => (
               <div
                 key={i}
-                className="bg-current opacity-0"
+                className="bg-green-400 animate-ping"
                 style={{
                   width: size === 'sm' ? '2px' : '3px',
                   height: size === 'sm' ? '2px' : '3px',
-                  animation: `v-scan-dot 2s ease-in-out infinite ${i * 0.3}s`
+                  animationDelay: `${i * 0.3}s`
                 }}
               />
             ))}
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes v-draw-left {
-          0%, 20% { 
-            height: 0; 
-            opacity: 0;
-          }
-          50% { 
-            height: ${size === 'sm' ? '12px' : size === 'md' ? '24px' : '36px'}; 
-            opacity: 1;
-          }
-          70%, 100% { 
-            height: ${size === 'sm' ? '12px' : size === 'md' ? '24px' : '36px'}; 
-            opacity: 0.3;
-          }
-        }
-        
-        @keyframes v-draw-right {
-          0%, 20% { 
-            height: 0; 
-            opacity: 0;
-          }
-          50% { 
-            height: ${size === 'sm' ? '12px' : size === 'md' ? '24px' : '36px'}; 
-            opacity: 1;
-          }
-          70%, 100% { 
-            height: ${size === 'sm' ? '12px' : size === 'md' ? '24px' : '36px'}; 
-            opacity: 0.3;
-          }
-        }
-        
-        @keyframes v-scan-dot {
-          0%, 30% { 
-            opacity: 0; 
-            transform: scale(0);
-          }
-          60% { 
-            opacity: 1; 
-            transform: scale(1);
-          }
-          80%, 100% { 
-            opacity: 0; 
-            transform: scale(0);
-          }
-        }
-      `}</style>
     </div>
   );
 }

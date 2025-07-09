@@ -32,10 +32,11 @@ export default function Chat() {
   const [replyingTo, setReplyingTo] = useState<{ id: number; content: string; username: string } | null>(null);
   const [globalCooldown, setGlobalCooldown] = useState<{ active: boolean; timeLeft: number; reason: string } | null>(null);
 
-  // Fetch rooms for dropdown
+  // Fetch rooms for dropdown - API returns array directly
   const { data: rooms = [], isLoading: roomsLoading } = useQuery({
     queryKey: ['/api/rooms'],
     enabled: true,
+    refetchOnWindowFocus: false,
   });
 
   // Check if user is new (for walkthrough)
