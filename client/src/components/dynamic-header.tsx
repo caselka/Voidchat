@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Home, Moon, Sun, User, LogOut, Users, Box } from "lucide-react";
+import { ArrowLeft, Home, Moon, Sun, User, LogOut, Users, Grid3X3 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
@@ -58,7 +58,7 @@ export default function DynamicHeader({
               className="p-2 text-purple-600 dark:text-purple-400"
               title="Rooms"
             >
-              <Box className="h-4 w-4" />
+              <Grid3X3 className="h-4 w-4" />
             </Button>
           )}
         </div>
