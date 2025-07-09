@@ -86,9 +86,6 @@ const RegistrationForm = () => {
     try {
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/login?registration=success`,
-        },
         redirect: 'if_required',
       });
 
@@ -103,14 +100,20 @@ const RegistrationForm = () => {
         try {
           await apiRequest("POST", "/api/complete-username-registration", {
             payment_intent_id: paymentIntent.id,
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
           });
           
           toast({
-            title: "Success",
-            description: "Account created successfully! You can now sign in.",
+            title: "Registration Successful!",
+            description: "Your account has been created and is ready to use.",
           });
           
-          setLocation("/login?registration=success");
+          // Redirect after a short delay to show the success message
+          setTimeout(() => {
+            setLocation("/login?registration=success");
+          }, 1500);
         } catch (registrationError: any) {
           toast({
             title: "Registration Error",

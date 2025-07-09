@@ -249,13 +249,16 @@ export async function setupAuth(app: Express) {
         return res.status(400).json({ message: 'Payment not completed' });
       }
       
-      const { username, email, password } = paymentIntent.metadata;
+      const { username, email, password } = req.body;
       
       // Check if user already exists 
       const existingUser = await storage.getUserByUsername(username);
       if (existingUser) {
         return res.json({ message: 'Account already exists' });
       }
+      
+      // Hash the password
+      const hashedPassword = await hashPassword(password);
       
       // Set username expiration dates
       const now = new Date();
@@ -265,7 +268,7 @@ export async function setupAuth(app: Express) {
       const user = await storage.createUser({
         username,
         email,
-        password: password, // Already hashed from payment creation
+        password: hashedPassword,
         isVerified: true, // Auto-verify paid accounts
         usernameExpiresAt,
         usernameGracePeriodEnds: null
