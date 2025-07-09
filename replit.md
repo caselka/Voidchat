@@ -110,6 +110,23 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 9, 2025)
 
+### Navigation and Hacker Animations Implementation (Latest)
+- **Fixed navigation buttons**: Home and back buttons now correctly redirect to main chat (/chat) instead of homepage (/)
+- **Added V-shaped loading icon**: Created custom VLoading component with edgy square hacker style and scanning animation
+- **Implemented hacker animations**: Added CSS animations for user interactions including:
+  - **hacker-glitch**: Color-shifting glitch effect for emphasis
+  - **hacker-scan**: Scanning line effect for forms and containers
+  - **hacker-pulse**: Pulsing border with green glow for buttons
+  - **hacker-typewriter**: Text typing animation for headers
+  - **matrix-bg**: Falling binary code background effect
+- **Enhanced user experience**: Applied animations to key interactions:
+  - Account creation forms with scanning effects
+  - Payment processing with V loading icon
+  - Room entrance with matrix background
+  - Button interactions with pulse effects
+- **Room WebSocket improvements**: Fixed WebSocket connection handling for room-specific chat functionality
+- **Mobile-optimized animations**: All animations work smoothly across devices without performance impact
+
 ### WebSocket Authentication and User Identification Fix (Latest)
 - **Fixed WebSocket authentication**: Resolved session parsing issue where 's:' prefix in cookies wasn't properly stripped
 - **Authenticated user display**: Messages now correctly show registered username "rob" instead of anonymous "anon2186"

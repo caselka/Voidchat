@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { apiRequest } from "@/lib/queryClient";
+import VLoading from "@/components/v-loading";
 
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 if (!stripeKey) {
@@ -89,11 +90,11 @@ const PaymentForm = ({ paymentIntent, formData, onBack, onSuccess }: {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 hacker-scan matrix-bg">
       <div className="text-center">
-        <h3 className="text-lg font-semibold">Complete Your Registration</h3>
+        <h3 className="text-lg font-semibold hacker-typewriter">Complete Your Registration</h3>
         <p className="text-sm text-muted-foreground mt-2">
-          Username: <span className="font-medium">{formData.username}</span>
+          Username: <span className="font-medium text-green-400">{formData.username}</span>
         </p>
         <p className="text-sm text-muted-foreground">
           Cost: <span className="font-medium">$3.00</span> (one-time username reservation fee)
@@ -115,9 +116,16 @@ const PaymentForm = ({ paymentIntent, formData, onBack, onSuccess }: {
         <Button
           type="submit"
           disabled={!stripe || isProcessing}
-          className="flex-1"
+          className="flex-1 hacker-pulse"
         >
-          {isProcessing ? "Processing..." : "Complete Registration"}
+          {isProcessing ? (
+            <>
+              <VLoading size="sm" className="mr-2" />
+              Processing...
+            </>
+          ) : (
+            "Complete Registration"
+          )}
         </Button>
       </div>
     </form>

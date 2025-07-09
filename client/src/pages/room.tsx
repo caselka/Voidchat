@@ -11,6 +11,7 @@ import { useWebSocket } from "@/hooks/use-room-websocket";
 import ChatContainer from "@/components/chat-container";
 import MessageInput from "@/components/message-input";
 import DynamicHeader from "@/components/dynamic-header";
+import VLoading from "@/components/v-loading";
 
 interface Room {
   id: number;
@@ -138,8 +139,11 @@ export default function Room() {
 
   if (isLoading || messagesLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div className="min-h-screen bg-background flex items-center justify-center matrix-bg">
+        <div className="text-center">
+          <VLoading size="lg" className="mb-4" />
+          <p className="text-sm text-muted-foreground hacker-typewriter">Entering room...</p>
+        </div>
       </div>
     );
   }

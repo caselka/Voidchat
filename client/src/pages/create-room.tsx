@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import DynamicHeader from "@/components/dynamic-header";
+import VLoading from "@/components/v-loading";
 import { Home, Shield, Users } from "lucide-react";
 
 export default function CreateRoom() {
@@ -19,8 +20,11 @@ export default function CreateRoom() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div className="min-h-screen bg-background flex items-center justify-center matrix-bg">
+        <div className="text-center">
+          <VLoading size="lg" className="mb-4" />
+          <p className="text-sm text-muted-foreground hacker-typewriter">Loading...</p>
+        </div>
       </div>
     );
   }
@@ -123,7 +127,7 @@ export default function CreateRoom() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleCreateRoom} className="space-y-6">
+            <form onSubmit={handleCreateRoom} className="space-y-6 hacker-scan matrix-bg">
               <div className="space-y-2">
                 <Label htmlFor="roomName">Room Name</Label>
                 <Input
@@ -166,9 +170,16 @@ export default function CreateRoom() {
                 <Button 
                   type="submit" 
                   disabled={isCreating || !roomName.trim()}
-                  className="flex-1"
+                  className="flex-1 hacker-pulse"
                 >
-                  {isCreating ? "Creating..." : "Create Room ($49)"}
+                  {isCreating ? (
+                    <>
+                      <VLoading size="sm" className="mr-2" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Create Room ($49)"
+                  )}
                 </Button>
                 <Button 
                   type="button" 

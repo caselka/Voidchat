@@ -32,7 +32,7 @@ export default function DynamicHeader({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setLocation(backUrl)}
+              onClick={() => setLocation(backUrl === "/" ? "/chat" : backUrl)}
               className="p-2"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -42,7 +42,7 @@ export default function DynamicHeader({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setLocation("/")}
+              onClick={() => setLocation("/chat")}
               className="p-2"
             >
               <Home className="h-4 w-4" />
