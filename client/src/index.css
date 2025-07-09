@@ -495,81 +495,17 @@ html {
   }
 }
 
-/* V Loading Component Animations */
-@keyframes v-draw-left {
-  0% { 
+/* V Loading Simple Animation */
+@keyframes v-scan {
+  0% {
+    top: 0%;
     opacity: 0;
-    transform: rotate(20deg) scaleY(0);
   }
-  30% {
-    opacity: 0.3;
-    transform: rotate(20deg) scaleY(0.5);
-  }
-  60% { 
+  50% {
     opacity: 1;
-    transform: rotate(20deg) scaleY(1);
   }
-  80% {
-    opacity: 0.7;
-    transform: rotate(20deg) scaleY(1);
-  }
-  100% { 
-    opacity: 0.2;
-    transform: rotate(20deg) scaleY(1);
-  }
-}
-
-@keyframes v-draw-right {
-  0% { 
+  100% {
+    top: 80%;
     opacity: 0;
-    transform: rotate(-20deg) scaleY(0);
   }
-  30% {
-    opacity: 0.3;
-    transform: rotate(-20deg) scaleY(0.5);
-  }
-  60% { 
-    opacity: 1;
-    transform: rotate(-20deg) scaleY(1);
-  }
-  80% {
-    opacity: 0.7;
-    transform: rotate(-20deg) scaleY(1);
-  }
-  100% { 
-    opacity: 0.2;
-    transform: rotate(-20deg) scaleY(1);
-  }
-}
-
-@keyframes v-scan-dot {
-  0%, 20% { 
-    opacity: 0; 
-    transform: scale(0.3);
-  }
-  50% { 
-    opacity: 1; 
-    transform: scale(1.2);
-  }
-  70% { 
-    opacity: 0.8; 
-    transform: scale(1);
-  }
-  100% { 
-    opacity: 0; 
-    transform: scale(0.3);
-  }
-}
-
-/* V Loading animation classes */
-.v-line-left {
-  animation: v-draw-left 2s ease-in-out infinite;
-}
-
-.v-line-right {
-  animation: v-draw-right 2s ease-in-out infinite 0.3s;
-}
-
-.v-dot {
-  animation: v-scan-dot 1.8s ease-in-out infinite;
 }

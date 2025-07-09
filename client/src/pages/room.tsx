@@ -141,7 +141,7 @@ export default function Room() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center matrix-bg">
         <div className="text-center">
-          <VLoading size="lg" className="mb-4" />
+          <VLoading size="lg" className="mb-4 text-green-400" />
           <p className="text-sm text-muted-foreground hacker-typewriter">Entering room...</p>
         </div>
       </div>

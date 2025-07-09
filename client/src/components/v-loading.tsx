@@ -6,62 +6,51 @@ interface VLoadingProps {
 }
 
 export default function VLoading({ className, size = "md" }: VLoadingProps) {
-  const dimensions = {
-    sm: { container: "w-6 h-6", line: "12px", dotSize: "2px", spacing: "6px" },
-    md: { container: "w-10 h-10", line: "20px", dotSize: "3px", spacing: "10px" },
-    lg: { container: "w-16 h-16", line: "32px", dotSize: "4px", spacing: "16px" }
+  const sizeMap = {
+    sm: "w-8 h-8",
+    md: "w-12 h-12", 
+    lg: "w-16 h-16"
   };
-  
-  const config = dimensions[size];
 
   return (
     <div className={cn("flex items-center justify-center", className)}>
-      <div className={cn("relative flex items-center justify-center", config.container)}>
-        {/* V Shape Container */}
-        <div className="relative" style={{ width: config.spacing, height: config.line }}>
-          {/* Left line of V */}
+      <div className={cn("relative", sizeMap[size])}>
+        {/* Simple V using CSS borders - much more reliable */}
+        <div 
+          className="absolute inset-0 animate-pulse"
+          style={{
+            borderLeft: '3px solid currentColor',
+            borderRight: '3px solid currentColor',
+            borderBottom: '3px solid currentColor',
+            borderTop: 'none',
+            transform: 'perspective(10px) rotateX(5deg)',
+            clipPath: 'polygon(20% 0%, 50% 100%, 80% 0%)',
+          }}
+        />
+        
+        {/* Scanning line effect */}
+        <div 
+          className="absolute inset-0 overflow-hidden"
+        >
           <div 
-            className="absolute bg-current v-line-left"
+            className="absolute w-full h-0.5 bg-green-400 opacity-80"
             style={{
-              width: '2px',
-              height: config.line,
+              top: '20%',
               left: '0',
-              bottom: '0',
-              transformOrigin: 'bottom center',
-              transform: 'rotate(20deg)',
-            }}
-          />
-          {/* Right line of V */}
-          <div 
-            className="absolute bg-current v-line-right"
-            style={{
-              width: '2px', 
-              height: config.line,
-              right: '0',
-              bottom: '0',
-              transformOrigin: 'bottom center',
-              transform: 'rotate(-20deg)',
+              animation: 'v-scan 2s ease-in-out infinite'
             }}
           />
         </div>
         
-        {/* Scanning dots positioned at bottom of V */}
-        <div 
-          className="absolute flex gap-1"
-          style={{ 
-            bottom: '0',
-            left: '50%',
-            transform: 'translateX(-50%)'
-          }}
-        >
+        {/* Pulsing dots at bottom */}
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex gap-1">
           {[0, 1, 2].map(i => (
             <div
               key={i}
-              className="bg-current rounded-full opacity-0 v-dot"
+              className="w-1 h-1 bg-green-400 rounded-full animate-pulse"
               style={{
-                width: config.dotSize,
-                height: config.dotSize,
-                animationDelay: `${i * 0.3}s`
+                animationDelay: `${i * 0.5}s`,
+                animationDuration: '1.5s'
               }}
             />
           ))}
