@@ -186,10 +186,10 @@ Preferred communication style: Simple, everyday language.
 - **Database tables**: Created rooms and room_messages tables with proper relationships
 - **Payment simulation**: $49 payment processing simulated for demonstration
 - **Super user privileges**: Caselka can create rooms for free as founder account
-- **Human verification**: Anonymous users must solve simple math captcha before accessing chat
+- **Human verification**: DISABLED - removed math captcha requirement for anonymous users
 - **Individual room pages**: Each room has dedicated page at /room/name with owner information
-- **Rooms button in header**: Purple cube icon button on left side for all users to access room features
-- **Fixed human verification**: Math equations no longer change while typing answers
+- **Rooms button in header**: Purple message square icon button on left side for all users to access room features
+- **Rooms sidebar functionality**: Click rooms button to expand sidebar from left showing all available rooms
 
 ### Sponsor Ads Enhancement and Content Moderation
 - **Removed impression estimates**: Eliminated misleading impression counts from sponsor ad pricing display

@@ -83,8 +83,8 @@ export default function Chat() {
     );
   };
 
-  // Check if user needs human verification (anonymous users only)
-  const needsVerification = !isAuthenticated && !isHumanVerified;
+  // Check if user needs human verification (anonymous users only) - DISABLED FOR NOW
+  const needsVerification = false; // !isAuthenticated && !isHumanVerified;
 
   useEffect(() => {
     // Check if user is at bottom
@@ -135,10 +135,10 @@ export default function Chat() {
         onClose={() => setShowRoomsSidebar(false)}
       />
       
-      {/* Human Verification Modal for Anonymous Users */}
-      {needsVerification && (
+      {/* Human Verification Modal for Anonymous Users - DISABLED */}
+      {/* {needsVerification && (
         <HumanVerification onVerified={() => setIsHumanVerified(true)} />
-      )}
+      )} */}
       
       {/* Chat Content */}
       <div className="pt-14 pb-20">
