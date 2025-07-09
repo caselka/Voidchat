@@ -470,7 +470,8 @@ export class DatabaseStorage implements IStorage {
 
   async isSuperUser(userId: string): Promise<boolean> {
     const [user] = await db.select().from(users).where(eq(users.id, userId));
-    return user?.username === 'caselka';
+    // Check if user is flagged as super user OR is caselka (founder) OR is voidteam (backend)
+    return user?.isSuperUser || user?.username === 'caselka' || user?.username === 'voidteam' || false;
   }
 
   async createUser(userData: UpsertUser): Promise<User> {

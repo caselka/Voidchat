@@ -89,10 +89,20 @@ export default function MessageInput({
         borderTop: '1px solid var(--input-border)',
         zIndex: 1000,
         transition: 'bottom 0.2s ease-out',
-        paddingBottom: 'env(safe-area-inset-bottom)'
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        transform: 'translate3d(0,0,0)', // Hardware acceleration to prevent scroll movement
+        willChange: 'transform', // Optimize for transform changes
+        touchAction: 'none' // Prevent touch scroll on input container
       }}
     >
-      <div className="max-w-4xl mx-auto" style={{ padding: '12px' }}>
+      <div 
+        className="max-w-4xl mx-auto" 
+        style={{ 
+          padding: '12px',
+          transform: 'translate3d(0,0,0)', // Ensure input area stays fixed
+          position: 'relative'
+        }}
+      >
 
         <form onSubmit={handleSubmit} className="w-full">
           <div 
@@ -123,8 +133,20 @@ export default function MessageInput({
                     handleSubmit(e);
                   }
                 }}
-                onFocus={() => {
-                  // Focus handling is now managed by useIOSKeyboard hook
+                onFocus={(e) => {
+                  // Prevent scroll movement on focus - keep input fixed
+                  e.target.scrollIntoView = () => {}; // Disable scrollIntoView
+                  
+                  // Scroll content area to bottom instead of moving input
+                  setTimeout(() => {
+                    const chatContainer = document.querySelector('.chat-container');
+                    if (chatContainer) {
+                      chatContainer.scrollTop = chatContainer.scrollHeight;
+                    } else {
+                      // Fallback to window scroll
+                      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    }
+                  }, 100);
                 }}
                 onBlur={() => {
                   // Blur handling is now managed by useIOSKeyboard hook
@@ -133,10 +155,13 @@ export default function MessageInput({
                 className="message-input w-full resize-none border-none outline-none bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   color: 'var(--input-text)',
-                  fontSize: '14px',
+                  fontSize: '16px', // Prevent iOS zoom
                   lineHeight: '1.4',
                   padding: '6px 10px',
-                  height: '28px'
+                  height: '28px',
+                  transform: 'translate3d(0,0,0)', // Hardware acceleration
+                  willChange: 'height', // Optimize for height changes only
+                  touchAction: 'manipulation' // Prevent double-tap zoom
                 }}
                 maxLength={maxLength}
                 disabled={isRateLimited}

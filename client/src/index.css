@@ -190,6 +190,25 @@ html {
     min-height: 44px;
     min-width: 44px;
   }
+  
+  /* Keep input fixed above keyboard on mobile */
+  .message-input-container {
+    position: fixed !important;
+    transform: translate3d(0,0,0) !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    touch-action: none !important;
+  }
+  
+  /* Prevent input area from scrolling */
+  .message-input-container textarea {
+    position: relative !important;
+    transform: translate3d(0,0,0) !important;
+    will-change: height !important;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+  }
 }
 
 /* Dark theme message styling */

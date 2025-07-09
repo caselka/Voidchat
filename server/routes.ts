@@ -149,18 +149,46 @@ async function broadcastRoomMessage(roomName: string, message: any, excludeIp?: 
 async function maybeInjectAd() {
   messageCountSinceLastAd++;
   
-  if (messageCountSinceLastAd >= 20) {
+  const activeAds = await storage.getActiveAmbientAds();
+  
+  // Dynamic ad injection frequency based on number of sponsors:
+  // 1-5 sponsors: every 20 messages
+  // 6-10 sponsors: every 15 messages 
+  // 11-20 sponsors: every 10 messages
+  // 20+ sponsors: every 8 messages
+  let adFrequency = 20;
+  if (activeAds.length > 5) adFrequency = 15;
+  if (activeAds.length > 10) adFrequency = 10;
+  if (activeAds.length > 20) adFrequency = 8;
+  
+  if (messageCountSinceLastAd >= adFrequency) {
     messageCountSinceLastAd = 0;
     
-    const activeAds = await storage.getActiveAmbientAds();
     if (activeAds.length > 0) {
-      const randomAd = activeAds[Math.floor(Math.random() * activeAds.length)];
+      // Weighted distribution: newer ads get slightly higher chance
+      const now = Date.now();
+      const adsWithWeights = activeAds.map(ad => ({
+        ad,
+        weight: Math.max(1, 30 - Math.floor((now - new Date(ad.createdAt).getTime()) / (24 * 60 * 60 * 1000)))
+      }));
+      
+      const totalWeight = adsWithWeights.reduce((sum, item) => sum + item.weight, 0);
+      let randomWeight = Math.random() * totalWeight;
+      
+      let selectedAd = activeAds[0];
+      for (const item of adsWithWeights) {
+        randomWeight -= item.weight;
+        if (randomWeight <= 0) {
+          selectedAd = item.ad;
+          break;
+        }
+      }
       
       const adMessage = {
         type: 'message',
         data: {
           id: `ad-${Date.now()}`,
-          content: `✦ Try: "${randomAd.productName}" – ${randomAd.description}${randomAd.url ? ` ${randomAd.url}` : ''}`,
+          content: `✦ Try: "${selectedAd.productName}" – ${selectedAd.description}${selectedAd.url ? ` ${selectedAd.url}` : ''}`,
           username: 'sponsor',
           timestamp: new Date().toISOString(),
           isAd: true,
@@ -169,7 +197,7 @@ async function maybeInjectAd() {
       
       await broadcastMessage(adMessage);
     } else {
-      // Fallback to default ambient ads
+      // Fallback to default ambient ads only if no paid sponsors
       const defaultAds = [
         { business: "void.coffee", content: "Premium coffee for late-night coding sessions ☕" },
         { business: "quantum.dev", content: "Build the future with quantum computing tools ⚡" },

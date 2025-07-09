@@ -110,6 +110,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 9, 2025)
 
+### Sponsor Ad System Enhancement and Backend Account Setup (Latest)
+- **Dynamic ad frequency**: Ad delivery rate now adapts to sponsor count (8-20 messages between ads based on sponsor volume)
+- **Weighted distribution**: Newer sponsored ads get slightly higher visibility with smart rotation system
+- **Mobile input fixed**: Input field now stays above keyboard and prevents scroll movement with hardware acceleration
+- **Backend moderation account**: Created "voidteam" account (password: voidteam123) with super user privileges
+- **Enhanced moderation**: voidteam account has universal moderation powers for sponsor approval, user reports, and help center
+- **Improved sponsor delivery**: System handles 20+ sponsors with fair rotation and frequency optimization
+
 ### VLoading Component Removal and UI Cleanup (Latest)
 - **VLoading component removed**: Replaced all broken VLoading components with Lucide React Loader2 icons
 - **Human verification disabled**: Completely removed verification requirement for anonymous users
