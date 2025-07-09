@@ -50,18 +50,11 @@ export default function DynamicHeader({
               <Home className="h-4 w-4" />
             </Button>
           )}
-          {showRooms && (
+          {showRooms && onRoomsClick && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => {
-                console.log('DynamicHeader rooms button clicked, onRoomsClick:', onRoomsClick);
-                if (onRoomsClick) {
-                  onRoomsClick();
-                } else {
-                  console.log('No onRoomsClick handler provided');
-                }
-              }}
+              onClick={onRoomsClick}
               className="p-2 text-purple-600 dark:text-purple-400"
               title="Rooms"
             >

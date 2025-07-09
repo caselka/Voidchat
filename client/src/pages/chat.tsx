@@ -126,19 +126,13 @@ export default function Chat() {
       <DynamicHeader 
         title={`voidchat · ${onlineCount} online`}
         showRooms={true}
-        onRoomsClick={() => {
-          console.log('Rooms button clicked, opening sidebar');
-          setShowRoomsSidebar(true);
-        }}
+        onRoomsClick={() => setShowRoomsSidebar(true)}
       />
       
       {/* Rooms Sidebar */}
       <RoomsSidebar 
         isOpen={showRoomsSidebar}
-        onClose={() => {
-          console.log('Closing rooms sidebar');
-          setShowRoomsSidebar(false);
-        }}
+        onClose={() => setShowRoomsSidebar(false)}
       />
       
       {/* Human Verification Modal for Anonymous Users */}
