@@ -204,13 +204,13 @@ export async function setupAuth(app: Express) {
         return res.status(400).json({ message: 'Email already registered' });
       }
 
-      // Import Stripe dynamically since it's not imported in this file
-      const Stripe = require('stripe');
+      // Import Stripe dynamically
+      const { default: Stripe } = await import('stripe');
       if (!process.env.STRIPE_SECRET_KEY) {
         throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
       }
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-        apiVersion: "2023-10-16",
+        apiVersion: "2025-06-30.basil",
       });
 
       // Create payment intent for $3 username reservation
@@ -240,8 +240,8 @@ export async function setupAuth(app: Express) {
         return res.status(400).json({ message: 'Payment intent ID required' });
       }
       
-      const Stripe = require('stripe');
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      const { default: Stripe } = await import('stripe');
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
       
       const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
       
