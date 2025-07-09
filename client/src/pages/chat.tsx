@@ -11,7 +11,7 @@ import Walkthrough from "@/components/walkthrough";
 import DynamicHeader from "@/components/dynamic-header";
 import RoomsSidebar from "@/components/rooms-sidebar";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette, LogIn, LogOut, Users, Plus, Box } from "lucide-react";
+import { Moon, Sun, MoreVertical, Shield, Megaphone, Info, User, Palette, LogIn, LogOut, Users, Plus, MessageSquare } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -74,7 +74,7 @@ export default function Chat() {
         {rooms.map((room: Room) => (
           <DropdownMenuItem key={room.id} asChild>
             <Link href={`/room/${room.name}`} className="flex items-center">
-              <Box className="w-4 h-4 mr-2" />
+              <MessageSquare className="w-4 h-4 mr-2" />
               {room.name}
             </Link>
           </DropdownMenuItem>
