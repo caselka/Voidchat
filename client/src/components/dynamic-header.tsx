@@ -50,15 +50,16 @@ export default function DynamicHeader({
               <Home className="h-4 w-4" />
             </Button>
           )}
-          {showRooms && onRoomsClick && (
+          {showRooms && (
             <Button
               variant="ghost"
               size="sm"
               onClick={onRoomsClick}
-              className="p-2 text-purple-600 dark:text-purple-400"
-              title="Rooms"
+              className="p-2 text-purple-600 dark:text-purple-400 border border-purple-600/20 hover:bg-purple-600/10"
+              title="Browse Rooms"
             >
               <MessageSquare className="h-4 w-4" />
+              <span className="ml-1 text-xs hidden sm:inline">Rooms</span>
             </Button>
           )}
         </div>
