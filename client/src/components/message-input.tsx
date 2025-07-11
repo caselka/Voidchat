@@ -201,9 +201,15 @@ export default function MessageInput({
               data-testid="send-button"
             >
               {isRateLimited ? (
-                <Clock className="w-5 h-5 button-icon" />
+                <Clock className="w-4 h-4 button-icon" />
               ) : (
-                <Send className="w-5 h-5 button-icon" />
+                <svg 
+                  className="w-4 h-4 button-icon" 
+                  viewBox="0 0 16 16" 
+                  fill="currentColor"
+                >
+                  <path d="M15.854.146a.5.5 0 0 1 .11.54L13.026 8.74a.5.5 0 0 1-.708.233L8.5 7.326V12.5a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5V7.326L2.682 8.973a.5.5 0 0 1-.708-.233L-.954.686a.5.5 0 0 1 .11-.54.5.5 0 0 1 .54-.11L8 2.88 16.304.036a.5.5 0 0 1 .55.11z"/>
+                </svg>
               )}
             </Button>
           </div>
