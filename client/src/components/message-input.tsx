@@ -83,19 +83,7 @@ export default function MessageInput({
   return (
     <div className="w-full">
       <form onSubmit={handleSubmit} className="w-full p-4 pl-[9px] pr-[9px]">
-        <div 
-          className="relative flex items-center transition-all duration-200 max-w-4xl mx-auto"
-          style={{
-            backgroundColor: 'var(--input-bg)',
-            border: '1px solid var(--input-border)',
-            borderRadius: '0.75rem',
-            minHeight: '44px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)'
-          }}
-        >
-            <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden">
               <textarea
                 ref={textareaRef}
                 value={messageText}
@@ -171,7 +159,6 @@ export default function MessageInput({
                 )}
               </Button>
             </div>
-          </div>
           
         {/* Error Messages */}
         {(error || isRateLimited) && (
