@@ -264,9 +264,6 @@ export default function ChatContainer({
         </div>
         );
       })}
-      
-      {/* Auto-scroll anchor */}
-      <div ref={messagesEndRef} />
     </div>
   );
 }

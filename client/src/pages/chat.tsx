@@ -110,9 +110,14 @@ export default function Chat() {
     const loadMessageHistory = async () => {
       try {
         const response = await fetch('/api/recent-messages');
-        const historyMessages = await response.json();
-        if (Array.isArray(historyMessages) && historyMessages.length > 0) {
-          setMessages(historyMessages);
+        if (response.ok) {
+          const historyMessages = await response.json();
+          if (Array.isArray(historyMessages) && historyMessages.length > 0) {
+            // Only set messages if we don't already have any from WebSocket
+            if (messages.length === 0) {
+              setMessages(historyMessages);
+            }
+          }
         }
       } catch (error) {
         console.error('Failed to load message history:', error);
