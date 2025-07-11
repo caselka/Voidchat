@@ -774,7 +774,7 @@ html {
   position: relative;
 }
 
-/* Chat header area */
+/* Chat header area with proper spacing */
 .chat-header {
   flex: 0 0 auto;
   z-index: 100;
@@ -782,6 +782,12 @@ html {
   top: 0;
   background-color: var(--bg);
   border-bottom: 1px solid var(--border-subtle);
+  height: 56px;
+}
+
+/* Main content area with header offset */
+.main-content {
+  padding-top: 56px;
 }
 
 /* Main chat messages area - grows to fill space */
@@ -796,7 +802,7 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Discord-style input area - fixed at bottom */
+/* Discord-style input area - fixed at bottom with blur effect */
 .chat-input-area {
   flex: 0 0 auto;
   position: sticky;
@@ -805,11 +811,8 @@ html {
   right: 0;
   z-index: 200;
   background-color: var(--bg);
-  border-top: 1px solid var(--border);
-  padding: 1rem;
-  padding-bottom: max(env(safe-area-inset-bottom), 1rem);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 /* Discord-style input styling */
@@ -936,6 +939,30 @@ html {
   transition: background-color 0.1s ease;
   border-radius: 0;
   position: relative;
+  display: flex;
+  width: 100%;
+}
+
+/* Own messages align to the right */
+.message-bubble.own-message {
+  justify-content: flex-end;
+}
+
+.message-bubble.own-message .message-wrapper {
+  flex-direction: row-reverse;
+  max-width: 80%;
+  margin-left: auto;
+}
+
+/* Other messages align to the left */
+.message-bubble.other-message {
+  justify-content: flex-start;
+}
+
+.message-bubble.other-message .message-wrapper {
+  flex-direction: row;
+  max-width: 80%;
+  margin-right: auto;
 }
 
 .message-bubble:hover {
@@ -1065,8 +1092,15 @@ html {
 }
 
 .message-bubble.compact .message-wrapper {
-  padding-left: 3.25rem;
   gap: 0;
+}
+
+.message-bubble.compact.other-message .message-wrapper {
+  padding-left: 3.25rem;
+}
+
+.message-bubble.compact.own-message .message-wrapper {
+  padding-right: 3.25rem;
 }
 
 .message-bubble.compact .message-avatar {

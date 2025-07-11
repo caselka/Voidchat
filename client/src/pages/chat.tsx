@@ -143,19 +143,21 @@ export default function Chat() {
         />
       </div>
       
-      {/* Rooms Sidebar */}
-      <RoomsSidebar 
-        isOpen={showRoomsSidebar}
-        onClose={() => setShowRoomsSidebar(false)}
-      />
-      
-      {/* Human Verification Modal for Anonymous Users - DISABLED */}
-      {/* {needsVerification && (
-        <HumanVerification onVerified={() => setIsHumanVerified(true)} />
-      )} */}
-      
-      {/* Main Chat Messages Area */}
-      <div className="chat-messages-area">
+      {/* Main content with header offset */}
+      <div className="main-content">
+        {/* Rooms Sidebar */}
+        <RoomsSidebar 
+          isOpen={showRoomsSidebar}
+          onClose={() => setShowRoomsSidebar(false)}
+        />
+        
+        {/* Human Verification Modal for Anonymous Users - DISABLED */}
+        {/* {needsVerification && (
+          <HumanVerification onVerified={() => setIsHumanVerified(true)} />
+        )} */}
+        
+        {/* Main Chat Messages Area */}
+        <div className="chat-messages-area">
         {/* Welcome Section */}
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center py-6 md:py-8 space-y-4">
@@ -247,15 +249,16 @@ export default function Chat() {
             currentUser={currentUser}
           />
         </div>
-      </div>
+        </div>
 
-      {/* Message Input - Sticky at bottom */}
-      <div className="chat-input-area">
-        <MessageInput 
-          onSendMessage={sendMessage}
-          rateLimitTime={rateLimitTime}
-          error={error}
-        />
+        {/* Message Input - Sticky at bottom */}
+        <div className="chat-input-area">
+          <MessageInput 
+            onSendMessage={sendMessage}
+            rateLimitTime={rateLimitTime}
+            error={error}
+          />
+        </div>
       </div>
 
       {/* Walkthrough */}

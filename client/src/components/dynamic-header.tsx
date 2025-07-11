@@ -26,10 +26,10 @@ export default function DynamicHeader({
   const [, setLocation] = useLocation();
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-b border-border">
-      <div className="flex items-center justify-between px-3 py-2 max-w-full">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-b border-border" style={{ height: '56px' }}>
+      <div className="flex items-center justify-between px-3 py-2 max-w-full h-full">
         {/* Left side - Back/Home buttons */}
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
           {showBack && (
             <Button
               variant="ghost"
@@ -64,10 +64,10 @@ export default function DynamicHeader({
           )}
         </div>
 
-        {/* Center - Title */}
-        <div className="flex-1 text-center min-w-0">
+        {/* Center - Title with proper spacing */}
+        <div className="flex-1 text-center min-w-0 mx-2">
           {title && (
-            <h1 className="text-sm font-medium truncate px-2">
+            <h1 className="text-sm font-medium truncate">
               {title}
             </h1>
           )}

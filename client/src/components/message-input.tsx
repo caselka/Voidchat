@@ -75,19 +75,19 @@ export default function MessageInput({
 
   return (
     <div className="w-full">
-      <div className="max-w-4xl mx-auto p-4">
-
-        <form onSubmit={handleSubmit} className="w-full">
-          <div 
-            className="relative flex items-center transition-all duration-200"
-            style={{
-              backgroundColor: 'var(--input-bg)',
-              border: '1px solid var(--input-border)',
-              borderRadius: '0.5rem',
-              minHeight: '44px',
-              boxShadow: 'none'
-            }}
-          >
+      <form onSubmit={handleSubmit} className="w-full p-4">
+        <div 
+          className="relative flex items-center transition-all duration-200 max-w-4xl mx-auto"
+          style={{
+            backgroundColor: 'var(--input-bg)',
+            border: '1px solid var(--input-border)',
+            borderRadius: '0.75rem',
+            minHeight: '44px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)'
+          }}
+        >
             <div className="flex-1 overflow-hidden">
               <textarea
                 ref={textareaRef}
@@ -166,15 +166,14 @@ export default function MessageInput({
             </div>
           </div>
           
-          {/* Error Messages */}
-          {(error || isRateLimited) && (
-            <div className="mt-2 px-4 text-xs text-destructive flex items-center">
-              <Clock className="w-3 h-3 mr-1" />
-              {error || `Wait ${rateLimitTime} seconds before sending another message`}
-            </div>
-          )}
-        </form>
-      </div>
+        {/* Error Messages */}
+        {(error || isRateLimited) && (
+          <div className="mt-2 px-4 text-xs text-destructive flex items-center justify-center max-w-4xl mx-auto">
+            <Clock className="w-3 h-3 mr-1" />
+            {error || `Wait ${rateLimitTime} seconds before sending another message`}
+          </div>
+        )}
+      </form>
     </div>
   );
 }
