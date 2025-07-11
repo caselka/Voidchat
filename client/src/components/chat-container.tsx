@@ -147,7 +147,7 @@ export default function ChatContainer({
   return (
     <div 
       ref={chatRef}
-      className="w-full pb-4 overflow-y-auto space-y-3"
+      className="w-full pb-4 overflow-y-auto space-y-4 px-2 sm:px-4"
       style={{ 
         height: 'calc(100vh - 280px)',
         paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))',
@@ -165,7 +165,7 @@ export default function ChatContainer({
         return (
         <div 
           key={messageData.id || `message-${index}-${Date.now()}`} 
-          className={`message-bubble message-fade-in group ${
+          className={`message-bubble message-fade-in group max-w-lg mx-auto ${
             isOwnMessage ? 'own-message' : isSystemMessage ? 'system-message' : 'other-message'
           } ${isCompact ? 'compact' : ''}`}
           onTouchStart={() => handleLongPressStart(messageData)}
@@ -177,7 +177,7 @@ export default function ChatContainer({
           {isSystemMessage ? (
             /* System message layout */
             <div className="message-wrapper">
-              <div className="message-content message-text">
+              <div className="message-content message-text break-words whitespace-pre-wrap">
                 {profanityFilter && typeof messageData.content === 'string' ? 
                   filterProfanity(messageData.content) : 
                   messageData.content}
@@ -190,15 +190,15 @@ export default function ChatContainer({
               <div className="message-content-wrapper">
                 {/* Message header with timer */}
                 {!isCompact && (
-                  <div className="message-header">
-                    <span className="message-username message-metadata">
+                  <div className="message-header mb-2">
+                    <span className="message-username">
                       {messageData.username}
                     </span>
-                    <span className="message-timestamp message-metadata">
+                    <span className="message-timestamp">
                       {formatTime(messageData.createdAt || messageData.timestamp)}
                     </span>
                     {/* Message timer */}
-                    <span className="message-timer text-xs opacity-60">
+                    <span className="message-timer text-xs opacity-60 ml-2">
                       {getTimeUntilDelete(messageData.expiresAt)}
                     </span>
                   </div>

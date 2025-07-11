@@ -110,16 +110,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 11, 2025)
 
-### Enhanced Mobile UI with Smart Scrolling and Asterisk Censoring (Latest)
+### Complete Mobile Typography and Layout Overhaul (Latest)
+- **Professional Typography**: Inter font family with proper font stack, 16px base, optimal line-height for readability
+- **Fixed Line-Breaking**: Proper word-break, overflow-wrap, and hyphens to prevent mid-word breaks on small screens
+- **Enhanced Text Contrast**: Improved light/dark mode contrast ratios with proper opacity values for usernames/timestamps
+- **Improved Message Spacing**: Better vertical padding between messages, centered max-width containers, consistent spacing
 - **Smart Scroll-to-Bottom**: Only auto-scrolls when user is already at bottom, preserves scroll position when viewing history
 - **Message History Loading**: Automatically loads recent messages on page load via /api/recent-messages
 - **Asterisk Profanity Filter**: Changed from ### to *** for cleaner censoring (f*ck instead of ####)
 - **Username Protection**: Profanity filter only applies to message content, never filters usernames or system text
-- **Enhanced Scrolling**: Proper overflow-y-auto with height calculations for mobile keyboard compatibility
-- **iOS Safe Area**: Comprehensive env(safe-area-inset-bottom) + env(keyboard-inset-height) support
-- **Touch Scrolling**: Enabled smooth upward scrolling through message history on mobile devices
-- **High Contrast Themes**: Improved light/dark mode with proper contrast ratios and no grey-on-grey text
-- **44px Touch Targets**: All interactive elements meet Apple's minimum touch target guidelines
+- **iOS Safe Area**: Comprehensive env(safe-area-inset-bottom) + scroll-padding-bottom support
+- **Enhanced Message Styling**: 600px max-width, backdrop blur, rounded corners, improved visual hierarchy
 
 ### Landing Page Mobile Layout Optimization
 - **Enhanced mobile responsiveness**: Improved mobile-first design with better spacing, typography, and button sizing

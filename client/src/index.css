@@ -46,13 +46,14 @@ html {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: var(--font-base);
+  font-family: 'Inter', var(--font-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-padding-bottom: 140px; /* So the input isn't hidden */
 }
 
 body {
-  font-family: var(--font-base);
+  font-family: 'Inter', var(--font-base);
   font-size: 1rem; /* 16px base - prevents iOS zoom */
   font-weight: var(--font-weight-normal);
   line-height: var(--line-height);
@@ -655,6 +656,130 @@ html {
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+/* Fix line-breaking and text rendering issues */
+textarea,
+.message-content {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+}
+
+/* Enhanced message styling with better contrast and spacing */
+.message-bubble {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.dark .message-bubble {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Message text styling with proper contrast */
+.message-text {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.9);
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.dark .message-text {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Username and timestamp styling with improved contrast */
+.message-username {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
+  margin-right: 0.5rem;
+}
+
+.dark .message-username {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.message-timestamp {
+  font-size: 0.75rem; /* 12px */
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.dark .message-timestamp {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Message metadata styling */
+.message-metadata {
+  display: inline-block;
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  margin-right: 0.5rem;
+}
+
+.dark .message-metadata {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Enhanced mobile input styling */
+.message-input {
+  font-size: 1rem; /* 16px to prevent iOS zoom */
+  font-weight: 400;
+  line-height: 1.5;
+  min-height: 44px;
+  max-height: 120px;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+
+.dark .message-input {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.message-input::placeholder {
+  font-size: 0.875rem; /* 14px */
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.dark .message-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Better system message styling */
+.system-message {
+  text-align: center;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark .system-message {
+  color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 /* Hide scrollbar but keep functionality */
