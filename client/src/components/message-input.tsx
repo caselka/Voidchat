@@ -122,7 +122,6 @@ export default function MessageInput({
             value={messageText}
             onChange={handleInputChange}
             onPaste={(e) => {
-              // Prevent pasting of potentially dangerous content
               e.preventDefault();
               const paste = e.clipboardData.getData('text/plain');
               const cleanPaste = paste.replace(/<[^>]*>/g, '').replace(/\{[^}]*\}/g, '');
@@ -135,7 +134,6 @@ export default function MessageInput({
               }
             }}
             onFocus={() => {
-              // Smooth scroll to bottom when input is focused
               setTimeout(() => {
                 const messagesArea = document.querySelector('.chat-messages-area');
                 if (messagesArea) {
@@ -147,29 +145,32 @@ export default function MessageInput({
               }, 100);
             }}
             placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Message the void"}
-            className="discord-input flex-1 resize-none border-none outline-none disabled:opacity-50 disabled:cursor-not-allowed selectable bg-transparent message-fade-in"
+            className="flex-1 resize-none bg-transparent message-fade-in"
             style={{
               fontSize: '1rem',
               fontFamily: 'var(--font-base)',
               fontWeight: 'var(--font-weight-normal)',
-              lineHeight: 'var(--line-height)',
+              lineHeight: '1.5',
               padding: '0.875rem 1rem',
               borderRadius: '0.625rem',
               minHeight: '44px',
               maxHeight: '120px',
-              backgroundColor: 'transparent',
               color: 'var(--text)',
-              resize: 'none',
-              touchAction: 'manipulation',
-              outline: 'none',
+              backgroundColor: 'transparent',
               border: 'none',
+              outline: 'none',
+              resize: 'none',
               caretColor: 'var(--text)',
-              textRendering: 'optimizeLegibility'
+              touchAction: 'manipulation',
+              textRendering: 'optimizeLegibility',
+              WebkitTextSizeAdjust: '100%',
+              opacity: isRateLimited ? 0.5 : 1,
+              cursor: isRateLimited ? 'not-allowed' : 'text'
             }}
             maxLength={maxLength}
             disabled={isRateLimited}
             autoComplete="off"
-            spellCheck="false"
+            spellCheck="true"
             inputMode="text"
             autoCapitalize="sentences"
             autoCorrect="on"
