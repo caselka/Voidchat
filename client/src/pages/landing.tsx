@@ -14,60 +14,60 @@ export default function Landing() {
       <DynamicHeader showHome={false} />
       
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16 pt-20 text-center">
+      <div className="container mx-auto px-4 py-12 md:py-16 pt-16 md:pt-20 text-center">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-6xl md:text-8xl font-light mb-6 tracking-tight">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-light mb-4 md:mb-6 tracking-tight">
             voidchat
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 font-light">
+          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-6 md:mb-8 font-light px-2">
             Secure anonymous messaging with premium features for serious users
           </p>
-          <p className="text-lg text-muted-foreground mb-16 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground mb-12 md:mb-16 max-w-2xl mx-auto px-4">
             Join real-time conversations where messages disappear after 15 minutes. 
             Chat anonymously for free, or unlock premium features including reserved usernames, 
             private rooms, direct messaging, and moderation tools.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <Link href="/chat">
-              <Button size="lg" className="text-lg px-8 py-6">
-                <MessageCircle className="mr-2 h-5 w-5" />
+          <div className="flex flex-col gap-6 justify-center items-center">
+            <Link href="/chat" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6">
+                <MessageCircle className="mr-2 h-4 sm:h-5 w-4 sm:w-5" />
                 Start Chatting Now
               </Button>
             </Link>
             
             {!isAuthenticated ? (
-              <div className="flex flex-col gap-4 items-center">
-                <div className="flex gap-4">
+              <div className="flex flex-col gap-4 items-center w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
                   <Button 
                     size="lg" 
-                    className="text-lg px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                     onClick={() => window.location.href = "/register"}
                   >
-                    <Star className="mr-2 h-5 w-5" />
+                    <Star className="mr-2 h-4 sm:h-5 w-4 sm:w-5" />
                     Create Account ($3)
                   </Button>
                   <Button 
                     variant="outline" 
                     size="lg" 
-                    className="text-lg px-8 py-6"
+                    className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6"
                     onClick={() => window.location.href = "/login"}
                   >
                     Sign In
                   </Button>
                 </div>
-                <p className="text-sm text-muted-foreground max-w-md text-center">
+                <p className="text-xs sm:text-sm text-muted-foreground max-w-md text-center px-4">
                   Reserve your username for 30 days • Direct messaging • Room creation
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col gap-4 items-center">
-                <div className="text-lg text-muted-foreground">
+              <div className="flex flex-col gap-4 items-center w-full sm:w-auto">
+                <div className="text-base sm:text-lg text-muted-foreground text-center px-4">
                   Welcome back, {user?.username || user?.firstName || user?.email?.split('@')[0] || 'user'}!
                 </div>
-                <Link href="/chat">
-                  <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-                    <MessageCircle className="mr-2 h-5 w-5" />
+                <Link href="/chat" className="w-full sm:w-auto">
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6">
+                    <MessageCircle className="mr-2 h-4 sm:h-5 w-4 sm:w-5" />
                     Continue Chatting
                   </Button>
                 </Link>
@@ -78,15 +78,15 @@ export default function Landing() {
       </div>
 
       {/* Features Section */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-light mb-4">Core Features</h2>
-          <p className="text-xl text-muted-foreground">
+      <div className="container mx-auto px-4 py-12 md:py-16">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl font-light mb-3 md:mb-4">Core Features</h2>
+          <p className="text-lg sm:text-xl text-muted-foreground px-4">
             Built for privacy, designed for connection
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
           <Card className="text-center">
             <CardHeader>
               <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -138,15 +138,15 @@ export default function Landing() {
       </div>
 
       {/* Pricing Section */}
-      <div className="container mx-auto px-4 py-16 bg-muted/20">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-light mb-4">Simple, Transparent Pricing</h2>
-          <p className="text-xl text-muted-foreground">
+      <div className="container mx-auto px-4 py-12 md:py-16 bg-muted/20">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl font-light mb-3 md:mb-4">Simple, Transparent Pricing</h2>
+          <p className="text-lg sm:text-xl text-muted-foreground px-4">
             Pay only for what you need, when you need it
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
           <Card className="text-center">
             <CardHeader>
               <CardTitle className="text-2xl">Anonymous</CardTitle>
@@ -215,15 +215,15 @@ export default function Landing() {
       </div>
 
       {/* Security & Privacy */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-light mb-4">Security & Privacy</h2>
-          <p className="text-xl text-muted-foreground">
+      <div className="container mx-auto px-4 py-12 md:py-16">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl font-light mb-3 md:mb-4">Security & Privacy</h2>
+          <p className="text-lg sm:text-xl text-muted-foreground px-4">
             Built with privacy-first principles
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
           <Card className="text-center">
             <CardHeader>
               <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -263,16 +263,16 @@ export default function Landing() {
       </div>
 
       {/* Call to Action */}
-      <div className="container mx-auto px-4 py-16 bg-muted/10">
+      <div className="container mx-auto px-4 py-12 md:py-16 bg-muted/10">
         <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-4xl font-light mb-4">Ready to Join the Void?</h2>
-          <p className="text-xl text-muted-foreground mb-8">
+          <h2 className="text-3xl sm:text-4xl font-light mb-3 md:mb-4">Ready to Join the Void?</h2>
+          <p className="text-lg sm:text-xl text-muted-foreground mb-6 md:mb-8 px-4">
             Start chatting instantly, or create an account to unlock premium features
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/chat">
-              <Button size="lg" className="text-lg px-8 py-6">
-                <MessageCircle className="mr-2 h-5 w-5" />
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <Link href="/chat" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6">
+                <MessageCircle className="mr-2 h-4 sm:h-5 w-4 sm:w-5" />
                 Start Chatting Now
               </Button>
             </Link>
@@ -280,10 +280,10 @@ export default function Landing() {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="text-lg px-8 py-6"
+                className="w-full sm:w-auto text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6"
                 onClick={() => window.location.href = "/register"}
               >
-                <Star className="mr-2 h-5 w-5" />
+                <Star className="mr-2 h-4 sm:h-5 w-4 sm:w-5" />
                 Create Account ($3)
               </Button>
             )}
@@ -293,19 +293,19 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="border-t border-border bg-muted/20">
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid md:grid-cols-4 gap-8">
+        <div className="container mx-auto px-4 py-6 md:py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             <div>
-              <h3 className="font-medium mb-4">Product</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/chat" className="hover:text-foreground">Chat</Link></li>
-                <li><Link href="/register" className="hover:text-foreground">Create Account</Link></li>
-                <li><Link href="/login" className="hover:text-foreground">Sign In</Link></li>
+              <h3 className="font-medium mb-3 md:mb-4 text-sm sm:text-base">Product</h3>
+              <ul className="space-y-1 md:space-y-2 text-xs sm:text-sm text-muted-foreground">
+                <li><Link href="/chat" className="hover:text-foreground transition-colors">Chat</Link></li>
+                <li><Link href="/register" className="hover:text-foreground transition-colors">Create Account</Link></li>
+                <li><Link href="/login" className="hover:text-foreground transition-colors">Sign In</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-medium mb-4">Features</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
+              <h3 className="font-medium mb-3 md:mb-4 text-sm sm:text-base">Features</h3>
+              <ul className="space-y-1 md:space-y-2 text-xs sm:text-sm text-muted-foreground">
                 <li>Anonymous Chat</li>
                 <li>Direct Messages</li>
                 <li>Room Creation</li>
@@ -313,22 +313,22 @@ export default function Landing() {
               </ul>
             </div>
             <div>
-              <h3 className="font-medium mb-4">Company</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/about" className="hover:text-foreground">About</Link></li>
-                <li><Link href="/careers" className="hover:text-foreground">Careers</Link></li>
-                <li><Link href="/contact" className="hover:text-foreground">Contact</Link></li>
+              <h3 className="font-medium mb-3 md:mb-4 text-sm sm:text-base">Company</h3>
+              <ul className="space-y-1 md:space-y-2 text-xs sm:text-sm text-muted-foreground">
+                <li><Link href="/about" className="hover:text-foreground transition-colors">About</Link></li>
+                <li><Link href="/careers" className="hover:text-foreground transition-colors">Careers</Link></li>
+                <li><Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-medium mb-4">Legal</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/privacy" className="hover:text-foreground">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-foreground">Terms of Service</Link></li>
+              <h3 className="font-medium mb-3 md:mb-4 text-sm sm:text-base">Legal</h3>
+              <ul className="space-y-1 md:space-y-2 text-xs sm:text-sm text-muted-foreground">
+                <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
+          <div className="border-t border-border mt-6 md:mt-8 pt-6 md:pt-8 text-center text-xs sm:text-sm text-muted-foreground">
             <p>&copy; 2025 voidchat. Built for privacy, designed for connection.</p>
           </div>
         </div>
