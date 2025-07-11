@@ -792,6 +792,32 @@ textarea,
   display: none;
 }
 
+/* Enhanced mobile scrolling */
+.touch-pan-y {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+/* Chat container mobile optimizations */
+.chat-messages-area {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  touch-action: pan-y;
+  overflow-y: auto;
+  height: calc(100vh - 140px);
+}
+
+/* Mobile specific scrolling improvements */
+@media (max-width: 768px) {
+  .chat-messages-area {
+    height: calc(100vh - 120px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+  }
+}
+
 /* Walkthrough highlight effect */
 .walkthrough-highlight {
   position: relative;

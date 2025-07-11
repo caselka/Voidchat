@@ -147,11 +147,9 @@ export default function ChatContainer({
   return (
     <div 
       ref={chatRef}
-      className="w-full pb-4 overflow-y-auto space-y-4 px-2 sm:px-4"
+      className="w-full pb-4 space-y-4 px-2 sm:px-4"
       style={{ 
-        height: 'calc(100vh - 280px)',
-        paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))',
-        scrollBehavior: 'smooth'
+        paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))'
       }}
     >
       {filteredMessages.map((message, index) => {
