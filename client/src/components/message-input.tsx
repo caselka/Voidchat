@@ -102,7 +102,7 @@ export default function MessageInput({
         paddingBottom: `calc(0.75rem + env(safe-area-inset-bottom, 0px) + env(keyboard-inset-height, 0px))`
       }}
     >
-      <form onSubmit={handleSubmit} className="w-full py-3">
+      <form onSubmit={handleSubmit} className="w-full py-3 pt-[0px] pb-[0px]">
         <div 
           className="relative flex items-center max-w-4xl mx-auto"
           style={{
