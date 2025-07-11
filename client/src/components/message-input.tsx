@@ -75,7 +75,7 @@ export default function MessageInput({
 
   return (
     <div className="w-full">
-      <form onSubmit={handleSubmit} className="w-full p-4">
+      <form onSubmit={handleSubmit} className="w-full p-4 pl-[9px] pr-[9px]">
         <div 
           className="relative flex items-center transition-all duration-200 max-w-4xl mx-auto"
           style={{
