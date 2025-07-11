@@ -9,8 +9,17 @@
 <body>
   <div class="chat-wrapper">
     <header class="chat-header">
-      <h1>Voidchat</h1>
-      <p>Welcome to the void. Messages are temporary.</p>
+      <div class="header-left">
+        <button class="nav-btn" onclick="toggleRooms()">🏠</button>
+        <button class="nav-btn" onclick="toggleTheme()">🌙</button>
+      </div>
+      <div class="header-center">
+        <h1>Voidchat</h1>
+        <p>Welcome to the void. Messages are temporary.</p>
+      </div>
+      <div class="header-right">
+        <button class="nav-btn" onclick="showLogin()">👤</button>
+      </div>
     </header>
 
     <div class="chat-messages" id="messages"></div>

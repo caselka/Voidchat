@@ -111,12 +111,41 @@ document.addEventListener('DOMContentLoaded', function() {
   connectWebSocket();
 });
 
+// Navigation functions
+function toggleRooms() {
+  alert('Rooms feature - would navigate to /rooms in full app');
+}
+
+function toggleTheme() {
+  const body = document.body;
+  const isDark = body.style.background === 'rgb(13, 13, 13)' || !body.style.background;
+  
+  if (isDark) {
+    // Switch to light theme
+    document.documentElement.style.setProperty('--bg', '#ffffff');
+    document.documentElement.style.setProperty('--text', '#333333');
+    document.documentElement.style.setProperty('--bubble-bg', '#f5f5f5');
+    document.documentElement.style.setProperty('--border', '#e0e0e0');
+  } else {
+    // Switch to dark theme
+    document.documentElement.style.setProperty('--bg', '#0d0d0d');
+    document.documentElement.style.setProperty('--text', '#eee');
+    document.documentElement.style.setProperty('--bubble-bg', '#1c1c1c');
+    document.documentElement.style.setProperty('--border', '#2a2a2a');
+  }
+}
+
+function showLogin() {
+  alert('Login feature - would navigate to authentication in full app');
+}
+
 // Load recent messages when page loads (with DOM ready check)
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(() => {
     fetch('/api/recent-messages')
       .then(response => response.json())
       .then(messages => {
+        console.log('Loaded messages:', messages);
         if (Array.isArray(messages)) {
           messages.forEach(msg => {
             if (msg && msg.username && msg.content) {
@@ -124,9 +153,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
           });
         }
+        
+        // If no messages, show a sample message
+        if (!messages || messages.length === 0) {
+          displayMessage('System', 'Welcome to Voidchat! Messages appear here and fade after 10 seconds.');
+        }
       })
       .catch(error => {
         console.log('Could not load recent messages:', error);
+        // Show sample message if API fails
+        displayMessage('System', 'Welcome to Voidchat! Send a message to test the interface.');
       });
   }, 100);
 });
