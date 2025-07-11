@@ -235,7 +235,7 @@ export default function Chat() {
               }}
               title="Toggle profanity filter"
             >
-              <span className="text-sm">{profanityFilter ? '***' : '@#$'}</span>
+              <span className="text-sm">{profanityFilter ? '***' : 'naughty words'}</span>
             </Button>
             
             {/* Rate Limit Indicator */}
