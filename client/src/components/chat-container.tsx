@@ -28,7 +28,7 @@ function filterProfanity(text: string): string {
   let filteredText = text;
   profanityWords.forEach(word => {
     const regex = new RegExp(`\\b${word}\\b`, 'gi');
-    filteredText = filteredText.replace(regex, '#'.repeat(word.length));
+    filteredText = filteredText.replace(regex, '*'.repeat(word.length));
   });
   
   return filteredText;
@@ -86,12 +86,30 @@ export default function ChatContainer({
     }
   };
 
-  // Auto-scroll to bottom when new messages arrive
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Smart scroll-to-bottom: only if user is already at bottom
+  const chatRef = useRef<HTMLDivElement>(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
   
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    const el = chatRef.current;
+    if (!el) return;
+    
+    const checkIfAtBottom = () => {
+      const threshold = 100;
+      const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+      setIsAtBottom(isNearBottom);
+    };
+    
+    // Auto-scroll only if user was already at bottom
+    if (isAtBottom) {
+      setTimeout(() => {
+        el.scrollTop = el.scrollHeight;
+      }, 50);
+    }
+    
+    el.addEventListener('scroll', checkIfAtBottom);
+    return () => el.removeEventListener('scroll', checkIfAtBottom);
+  }, [messages, isAtBottom]);
 
   const filteredMessages = messages.filter(message => {
     // Handle both direct message format and wrapped format
@@ -127,7 +145,15 @@ export default function ChatContainer({
   };
 
   return (
-    <div className="w-full pb-4">
+    <div 
+      ref={chatRef}
+      className="w-full pb-4 overflow-y-auto space-y-3"
+      style={{ 
+        height: 'calc(100vh - 280px)',
+        paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))',
+        scrollBehavior: 'smooth'
+      }}
+    >
       {filteredMessages.map((message, index) => {
         // Handle both direct message format and wrapped format
         const messageData = message.data || message;
@@ -152,7 +178,9 @@ export default function ChatContainer({
             /* System message layout */
             <div className="message-wrapper">
               <div className="message-content message-text">
-                {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
+                {profanityFilter && typeof messageData.content === 'string' ? 
+                  filterProfanity(messageData.content) : 
+                  messageData.content}
               </div>
             </div>
           ) : (
@@ -176,9 +204,11 @@ export default function ChatContainer({
                   </div>
                 )}
                 
-                {/* Message content */}
+                {/* Message content - only filter message text, not usernames */}
                 <div className="message-content message-text">
-                  {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
+                  {profanityFilter && typeof messageData.content === 'string' ? 
+                    filterProfanity(messageData.content) : 
+                    messageData.content}
                 </div>
                 
                 {/* Ad-specific content */}

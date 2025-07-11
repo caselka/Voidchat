@@ -110,16 +110,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 11, 2025)
 
-### Replit iOS-Style Mobile Layout Overhaul (Latest)
-- **100dvh Layout System**: Complete mobile-first layout with proper viewport units and no weird scrolling
-- **Replit-Style Input**: Soft rounded corners (12px), proper padding, backdrop blur, smooth transitions on focus/hover/send
-- **Enhanced Typography**: CSS variables for Apple system font stack, 0.75rem light grey metadata, 1rem message text
-- **Message Spacing**: Consistent 1rem spacing between messages, max 85% width, proper typography hierarchy
-- **Smooth Animations**: Focus transforms, hover effects, send button scaling, backdrop blur transitions
-- **iOS Safe Area**: Proper env(safe-area-inset-bottom) support with fixed bottom positioning above keyboard
-- **Mobile Keyboard Handling**: Input stays stuck above keyboard, 44px min height, 120px max height
-- **Auto-scroll Enhancement**: Smooth scroll to bottom on new messages and input focus with proper timing
-- **Clean Identity Tags**: Styled "You are anonXXXX" with rounded pill design and proper typography
+### Enhanced Mobile UI with Smart Scrolling and Asterisk Censoring (Latest)
+- **Smart Scroll-to-Bottom**: Only auto-scrolls when user is already at bottom, preserves scroll position when viewing history
+- **Message History Loading**: Automatically loads recent messages on page load via /api/recent-messages
+- **Asterisk Profanity Filter**: Changed from ### to *** for cleaner censoring (f*ck instead of ####)
+- **Username Protection**: Profanity filter only applies to message content, never filters usernames or system text
+- **Enhanced Scrolling**: Proper overflow-y-auto with height calculations for mobile keyboard compatibility
+- **iOS Safe Area**: Comprehensive env(safe-area-inset-bottom) + env(keyboard-inset-height) support
+- **Touch Scrolling**: Enabled smooth upward scrolling through message history on mobile devices
+- **High Contrast Themes**: Improved light/dark mode with proper contrast ratios and no grey-on-grey text
+- **44px Touch Targets**: All interactive elements meet Apple's minimum touch target guidelines
 
 ### Landing Page Mobile Layout Optimization
 - **Enhanced mobile responsiveness**: Improved mobile-first design with better spacing, typography, and button sizing

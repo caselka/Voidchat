@@ -105,6 +105,23 @@ export default function Chat() {
     }
   }, []);
 
+  // Load message history on page load
+  useEffect(() => {
+    const loadMessageHistory = async () => {
+      try {
+        const response = await fetch('/api/recent-messages');
+        const historyMessages = await response.json();
+        if (Array.isArray(historyMessages) && historyMessages.length > 0) {
+          setMessages(historyMessages);
+        }
+      } catch (error) {
+        console.error('Failed to load message history:', error);
+      }
+    };
+    
+    loadMessageHistory();
+  }, []);
+
   useEffect(() => {
     // Auto-scroll when new messages arrive - optimized for new flexbox layout
     if (messages.length > 0) {
