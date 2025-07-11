@@ -251,7 +251,7 @@ export default function Chat() {
         </div>
 
         {/* Message Input - Sticky at bottom */}
-        <div className="chat-input-area pt-[0px] pb-[0px] pl-[27px] pr-[27px] bg-[#ffffff00]">
+        <div className="chat-input-area pl-[27px] pr-[27px] bg-[#ffffff00] pt-[0px] pb-[0px]">
           <MessageInput 
             onSendMessage={sendMessage}
             rateLimitTime={rateLimitTime}
