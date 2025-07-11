@@ -110,19 +110,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 11, 2025)
 
-### Modern Discord-Meets-Replit Typography and Mobile Overhaul (Latest)
-- **Professional Inter Font Stack**: Complete Inter font integration with proper fallbacks for all devices
-- **Consistent Typography Scale**: 16px messages, 13px usernames/timestamps, 14px placeholders - prevents iOS zoom
-- **Enhanced Dark Mode Contrast**: Improved color variables with proper #1f2937 light text and #e0e0e0 dark text
-- **Fixed Line-Breaking Issues**: Comprehensive word-break, overflow-wrap, hyphens, and pre-wrap CSS to prevent mid-word breaks
-- **Discord-Style Message Bubbles**: 600px max-width, enhanced shadows, backdrop blur, rounded corners, proper spacing
-- **iOS Keyboard Support**: env(keyboard-inset-height) integration, proper safe-area handling, no input overlap
-- **Enhanced Visual Hierarchy**: Better spacing between elements, subtle shadows, modern cubic-bezier transitions
-- **Improved Focus States**: Blue focus rings, better input styling, proper touch targets (44px minimum)
-- **Mobile-First Responsive**: Adjusted margins and padding for mobile screens, proper container sizing
-- **Text Selection Enabled**: Users can now select and copy message text with .selectable class
-- **Smart Auto-Scroll**: Preserves scroll position when viewing history, smooth scrolling to bottom
-- **Professional Input Styling**: Modern textarea with resize controls, auto-height, proper backdrop blur
+### Complete Mobile Typography and Layout Overhaul (Latest)
+- **Professional Typography**: Inter font family with proper font stack, 16px base, optimal line-height for readability
+- **Fixed Line-Breaking**: Proper word-break, overflow-wrap, and hyphens to prevent mid-word breaks on small screens
+- **Enhanced Text Contrast**: Improved light/dark mode contrast ratios with proper opacity values for usernames/timestamps
+- **Improved Message Spacing**: Better vertical padding between messages, centered max-width containers, consistent spacing
+- **Smart Scroll-to-Bottom**: Only auto-scrolls when user is already at bottom, preserves scroll position when viewing history
+- **Message History Loading**: Automatically loads recent messages on page load via /api/recent-messages
+- **Asterisk Profanity Filter**: Changed from ### to *** for cleaner censoring (f*ck instead of ####)
+- **Username Protection**: Profanity filter only applies to message content, never filters usernames or system text
+- **iOS Safe Area**: Comprehensive env(safe-area-inset-bottom) + scroll-padding-bottom support
+- **Enhanced Message Styling**: 600px max-width, backdrop blur, rounded corners, improved visual hierarchy
 
 ### Landing Page Mobile Layout Optimization
 - **Enhanced mobile responsiveness**: Improved mobile-first design with better spacing, typography, and button sizing
