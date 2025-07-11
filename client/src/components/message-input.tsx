@@ -97,7 +97,7 @@ export default function MessageInput({
 
   return (
     <div 
-      className="fixed bottom-0 inset-x-0 z-50 px-4 bg-background/90 backdrop-blur-md border-t border-subtle"
+      className="fixed bottom-0 inset-x-0 z-50 px-4 bg-background/90 backdrop-blur-md border-t border-subtle pt-[13px] pb-[13px]"
       style={{
         paddingBottom: `calc(0.75rem + env(safe-area-inset-bottom, 0px) + env(keyboard-inset-height, 0px))`
       }}
