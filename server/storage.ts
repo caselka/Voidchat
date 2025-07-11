@@ -225,8 +225,8 @@ export class DatabaseStorage implements IStorage {
     // Additional security check: Ensure content and username are clean
     const { sanitizeMessageContent, sanitizeUsername } = await import('./security');
     
-    // Set expiration to 15 minutes from now
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    // Messages are now stored permanently (set long expiration for compatibility)
+    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
     
     const [message] = await db
       .insert(messages)
@@ -242,7 +242,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRecentMessages(limit = 50): Promise<Message[]> {
-    // Get recent messages that haven't expired yet
+    // Get recent messages (now stored permanently)
     return await db
       .select({
         id: messages.id,
@@ -254,7 +254,6 @@ export class DatabaseStorage implements IStorage {
         replyToId: messages.replyToId,
       })
       .from(messages)
-      .where(gt(messages.expiresAt, new Date()))
       .orderBy(desc(messages.createdAt))
       .limit(limit);
   }
