@@ -786,8 +786,7 @@ export class DatabaseStorage implements IStorage {
       .from(roomMessages)
       .where(and(
         eq(roomMessages.roomId, roomId),
-        gte(roomMessages.createdAt, cutoffTime),
-        gte(roomMessages.expiresAt, new Date()) // Non-expired
+        gte(roomMessages.createdAt, cutoffTime)
       ))
       .orderBy(asc(roomMessages.createdAt));
   }
@@ -872,14 +871,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRoomMessages(roomId: number, limit = 50): Promise<RoomMessage[]> {
-    const now = new Date();
     return await db
       .select()
       .from(roomMessages)
-      .where(and(
-        eq(roomMessages.roomId, roomId),
-        gte(roomMessages.expiresAt, now) // Only non-expired messages
-      ))
+      .where(eq(roomMessages.roomId, roomId))
       .orderBy(desc(roomMessages.createdAt))
       .limit(limit);
   }

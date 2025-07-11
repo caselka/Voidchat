@@ -890,7 +890,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Room not found' });
       }
 
-      const messages = await storage.getRoomMessages(room.id, 50);
+      const messages = await storage.getRecentRoomMessages(room.id, 15);
       res.json(messages);
     } catch (error) {
       console.error('Room messages fetch error:', error);
@@ -1250,7 +1250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         storage.getRoom(ws.roomName).then(room => {
           if (room) {
             console.log(`Loading messages for room ${ws.roomName} (id: ${room.id})`);
-            return storage.getRoomMessages(room.id, 50);
+            return storage.getRecentRoomMessages(room.id, 15);
           }
           console.log(`Room ${ws.roomName} not found when loading messages`);
           return [];

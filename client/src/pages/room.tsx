@@ -79,12 +79,12 @@ export default function Room() {
     }
   });
 
-  // Load initial messages
+  // Load initial messages from REST API only if WebSocket hasn't loaded them yet
   useEffect(() => {
-    if (roomMessages && Array.isArray(roomMessages)) {
+    if (roomMessages && Array.isArray(roomMessages) && messages.length === 0) {
       setMessages(roomMessages);
     }
-  }, [roomMessages]);
+  }, [roomMessages, messages.length]);
 
   const sendMessage = async (content: string) => {
     if (!room) return;
@@ -240,8 +240,7 @@ export default function Room() {
                   )}
                 </div>
                 <div className="flex items-center space-x-3 text-xs" style={{ color: 'var(--text-muted)' }}>
-                  <span>{isConnected ? '🟢 Connected' : '🟡 Connecting...'}</span>
-                  <span>• Created by @{room.creatorId}</span>
+                  <span>Created by @{room.creatorId}</span>
                   <span>• {new Date(room.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
