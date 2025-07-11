@@ -163,7 +163,7 @@ export default function ChatContainer({
         return (
         <div 
           key={messageData.id || `message-${index}-${Date.now()}`} 
-          className={`message-bubble message-fade-in group max-w-lg mx-auto ${
+          className={`message-bubble message-fade-in group ${
             isOwnMessage ? 'own-message' : isSystemMessage ? 'system-message' : 'other-message'
           } ${isCompact ? 'compact' : ''}`}
           onTouchStart={() => handleLongPressStart(messageData)}
@@ -175,7 +175,7 @@ export default function ChatContainer({
           {isSystemMessage ? (
             /* System message layout */
             <div className="message-wrapper">
-              <div className="message-content message-text break-words whitespace-pre-wrap">
+              <div className="message-content message-text selectable">
                 {profanityFilter && typeof messageData.content === 'string' ? 
                   filterProfanity(messageData.content) : 
                   messageData.content}

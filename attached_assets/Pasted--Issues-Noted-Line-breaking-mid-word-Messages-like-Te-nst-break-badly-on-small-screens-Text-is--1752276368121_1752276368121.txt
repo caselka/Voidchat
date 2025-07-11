@@ -1,0 +1,89 @@
+🔧 Issues Noted
+Line-breaking mid-word: Messages like Te\nst break badly on small screens.
+
+Text is too light in some themes: Especially the timestamp/subtext in dark mode.
+
+Lack of vertical padding: Elements feel cramped or stacked too tightly.
+
+Text scaling inconsistency: Font sizes jump between elements.
+
+Message box too low or gets obscured by keyboard on mobile.
+
+Dark mode readability not tuned – background and text contrast is off.
+
+System UI (username, meta info) isn't visually separated.
+
+✅ Typography Recommendations
+Use a consistent, mobile-friendly font stack with good fallback and kerning:
+
+css
+Copy
+Edit
+font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+Base font size: 16px
+
+Username & timestamp: 13px, font-weight: 500, color: #999
+
+Message text: 16px, font-weight: 400
+
+Message input placeholder: 14px, color: #666 (light), #aaa (dark)
+
+Max message box width: 600px, centered
+
+🎯 CSS / Tailwind Changes to Apply
+Update your message box and layout styles like so:
+
+tsx
+Copy
+Edit
+<div className="max-w-lg mx-auto px-2 sm:px-4">
+  <div className="bg-muted-foreground/5 dark:bg-white/5 text-foreground dark:text-white px-4 py-3 rounded-xl shadow-md">
+    <div className="text-sm font-medium text-gray-400 dark:text-gray-500 mb-1">
+      anon1234 <span className="text-xs">08:50 · 15 minutes left</span>
+    </div>
+    <div className="text-base leading-relaxed break-words whitespace-pre-wrap">
+      test
+    </div>
+  </div>
+</div>
+Add this to your global CSS to control line breaks:
+
+css
+Copy
+Edit
+textarea,
+.message-content {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+And improve spacing:
+
+css
+Copy
+Edit
+html {
+  scroll-padding-bottom: 140px; /* So the input isn't hidden */
+}
+🎨 Light vs Dark Theme Fix
+Fix low contrast in dark mode:
+
+css
+Copy
+Edit
+:root {
+  --background-dark: #0f1117;
+  --foreground-dark: #e0e0e0;
+  --message-bg-dark: #1c1f26;
+  --border-dark: #2e3038;
+}
+
+[data-theme="dark"] {
+  background-color: var(--background-dark);
+  color: var(--foreground-dark);
+}
+
+.message-box.dark {
+  background-color: var(--message-bg-dark);
+  border: 1px solid var(--border-dark);
+}

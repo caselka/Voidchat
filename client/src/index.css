@@ -28,13 +28,29 @@
 
 /* CSS Variables for normalized typography */
 :root {
-  --font-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-size-base: 16px;
+  --font-base: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-size-base: 16px; /* Message text size */
+  --font-size-username: 13px; /* Username and timestamp size */
+  --font-size-placeholder: 14px; /* Input placeholder size */
   --font-size-small: 12px;
   --line-height: 1.5;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
+  
+  /* Message styling variables */
+  --message-max-width: 600px;
+  --message-spacing: 1rem;
+  --message-padding: 0.75rem 1rem;
+  --message-border-radius: 12px;
+  
+  /* Enhanced contrast for dark mode */
+  --background-dark: #0f1117;
+  --foreground-dark: #e0e0e0;
+  --message-bg-dark: #1c1f26;
+  --border-dark: #2e3038;
+  --text-muted-dark: #9ca3af;
+  --text-secondary-dark: #6b7280;
 }
 
 /* Typography Scale - Mobile-first with 1.25x ratio */
@@ -669,59 +685,65 @@ textarea,
   -moz-hyphens: auto;
 }
 
-/* Enhanced message styling with better contrast and spacing */
+/* Enhanced message styling with Discord-meets-Replit aesthetic */
 .message-bubble {
-  max-width: 600px;
+  max-width: var(--message-max-width);
   margin: 0 auto;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-  border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.2s ease;
+  padding: var(--message-padding);
+  margin-bottom: var(--message-spacing);
+  border-radius: var(--message-border-radius);
+  background-color: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .dark .message-bubble {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
+  background-color: var(--message-bg-dark);
+  border: 1px solid var(--border-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Message text styling with proper contrast */
+/* Message text styling with proper contrast and line-breaking */
 .message-text {
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
-  color: rgba(0, 0, 0, 0.9);
+  font-size: var(--font-size-base); /* 16px */
+  font-weight: var(--font-weight-normal);
+  line-height: 1.6;
+  color: #1f2937; /* Better contrast */
   word-break: break-word;
   overflow-wrap: break-word;
   white-space: pre-wrap;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
 }
 
 .dark .message-text {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--foreground-dark);
 }
 
 /* Username and timestamp styling with improved contrast */
 .message-username {
-  font-size: 0.8125rem; /* 13px */
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.7);
+  font-size: var(--font-size-username); /* 13px */
+  font-weight: var(--font-weight-medium);
+  color: #6b7280; /* Better light mode contrast */
   margin-right: 0.5rem;
 }
 
 .dark .message-username {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-muted-dark);
 }
 
 .message-timestamp {
   font-size: 0.75rem; /* 12px */
-  font-weight: 400;
-  color: rgba(0, 0, 0, 0.5);
+  font-weight: var(--font-weight-normal);
+  color: #9ca3af; /* Better light mode contrast */
 }
 
 .dark .message-timestamp {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary-dark);
 }
 
 /* Message metadata styling */
@@ -737,34 +759,48 @@ textarea,
   color: rgba(255, 255, 255, 0.7);
 }
 
-/* Enhanced mobile input styling */
+/* Enhanced mobile input styling with iOS keyboard support */
 .message-input {
-  font-size: 1rem; /* 16px to prevent iOS zoom */
-  font-weight: 400;
+  font-size: var(--font-size-base); /* 16px to prevent iOS zoom */
+  font-weight: var(--font-weight-normal);
   line-height: 1.5;
-  min-height: 44px;
+  min-height: 44px; /* iOS touch target */
   max-height: 120px;
   padding: 0.75rem 1rem;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  transition: all 0.2s ease;
+  border-radius: var(--message-border-radius);
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  resize: none;
 }
 
 .dark .message-input {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.9);
+  background-color: var(--message-bg-dark);
+  border-color: var(--border-dark);
+  color: var(--foreground-dark);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .message-input::placeholder {
-  font-size: 0.875rem; /* 14px */
-  color: rgba(0, 0, 0, 0.5);
+  font-size: var(--font-size-placeholder); /* 14px */
+  color: #6b7280;
 }
 
 .dark .message-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-secondary-dark);
+}
+
+.message-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark .message-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
 }
 
 /* Better system message styling */
@@ -810,11 +846,23 @@ textarea,
   height: calc(100vh - 140px);
 }
 
-/* Mobile specific scrolling improvements */
+/* Mobile specific scrolling improvements with keyboard support */
 @media (max-width: 768px) {
   .chat-messages-area {
     height: calc(100vh - 120px);
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + env(keyboard-inset-height, 80px));
+  }
+  
+  /* Ensure proper spacing on mobile */
+  .message-bubble {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    max-width: calc(var(--message-max-width) - 1rem);
+  }
+  
+  /* Adjust input area for mobile keyboards */
+  .message-input-container {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + env(keyboard-inset-height, 0px));
   }
 }
 
