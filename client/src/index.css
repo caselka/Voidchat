@@ -26,70 +26,80 @@
   user-select: text;
 }
 
-/* Reset and mobile-first typography */
+/* Typography Scale - Mobile-first with 1.25x ratio */
 html {
-  font-size: 14px; /* Smaller base size for mobile */
+  font-size: 16px; /* Base 1rem = 16px */
   line-height: 1.5;
-  -webkit-text-size-adjust: 100%; /* Prevent font scaling in iOS */
-  text-size-adjust: 100%; /* Prevent font scaling in other browsers */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px; /* Normal size for desktop */
-  }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 1rem; /* 16px base */
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Force smaller text on mobile */
-@media screen and (max-width: 768px) {
-  body {
-    font-size: 14px;
-  }
-  
-  .text-sm {
-    font-size: 12px;
-  }
-  
-  .text-xs {
-    font-size: 11px;
-  }
-}
+/* Typography Scale Classes */
+.text-xs { font-size: 0.75rem; }      /* 12px */
+.text-sm { font-size: 0.875rem; }     /* 14px */
+.text-base { font-size: 1rem; }       /* 16px - base */
+.text-lg { font-size: 1.25rem; }      /* 20px */
+.text-xl { font-size: 1.5rem; }       /* 24px */
+.text-2xl { font-size: 1.875rem; }    /* 30px */
 
-/* CSS Variables for clean theming */
+/* Minimalist Void Theme CSS Variables */
 :root {
-  /* Light theme colors */
+  /* Light Mode - Minimalist Void */
   --bg: #ffffff;
-  --text: #000000;
-  --bubble: #f5f5f5;
-  --input-bg: #ffffff;
-  --input-text: #000000;
+  --text: #111111;
+  --text-muted: #666666;
+  --text-subtle: #999999;
+  --bubble-user: #f8f9fa;
+  --bubble-other: #f0f0f0;
+  --bubble-system: #e8f4fd;
+  --input-bg: #fafafa;
   --input-border: #e0e0e0;
-  --username-color: #00aa66;
-  --timestamp-color: #888888;
-  --expiry-color: #999999;
+  --border-subtle: #f0f0f0;
+  
+  /* Legacy compatibility */
+  --username-color: #666666;
+  --timestamp-color: #999999;
+  --expiry-color: #cccccc;
   --system-color: #4ade80;
   --counter-color: #9ca3af;
-  --send-button: #3b82f6;
+  --send-button: #111111;
   --send-button-disabled: #d1d5db;
-  --welcome-text: #6b7280;
+  --welcome-text: #666666;
 }
 
-/* Dark theme colors */
-.dark {
-  --bg: #000000;
-  --text: #ffffff;
-  --bubble: #1a1a1a;
-  --input-bg: #1a1a1a;
-  --input-text: #ffffff;
-  --input-border: #333333;
-  --username-color: #00ff88;
-  --timestamp-color: #888888;
-  --expiry-color: #666666;
+[data-theme="dark"], .dark {
+  /* Dark Mode - Minimalist Void */
+  --bg: #0a0a0a;
+  --text: #f5f5f5;
+  --text-muted: #a0a0a0;
+  --text-subtle: #707070;
+  --bubble-user: #1a1a1a;
+  --bubble-other: #151515;
+  --bubble-system: #0f1419;
+  --input-bg: #111111;
+  --input-border: #2a2a2a;
+  --border-subtle: #1a1a1a;
+  
+  /* Legacy compatibility */
+  --username-color: #a0a0a0;
+  --timestamp-color: #707070;
+  --expiry-color: #505050;
   --system-color: #4ade80;
-  --counter-color: #888888;
-  --send-button: #3b82f6;
-  --send-button-disabled: #555555;
-  --welcome-text: #888888;
+  --counter-color: #707070;
+  --send-button: #f5f5f5;
+  --send-button-disabled: #404040;
+  --welcome-text: #a0a0a0;
 }
 
 /* Apply theme variables to body and base elements */
@@ -132,7 +142,38 @@ html {
 @keyframes messageSlideIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth fade-out animation for expiring messages */
+.message-fade-out {
+  animation: messageFadeOut 0.3s ease-out forwards;
+}
+
+@keyframes messageFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+}
+
+.message-fade-in {
+  animation: messageFadeIn 0.2s ease-out;
+}
+
+@keyframes messageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
   }
   to {
     opacity: 1;

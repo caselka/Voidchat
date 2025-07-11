@@ -110,9 +110,9 @@ export default function MessageInput({
             style={{
               backgroundColor: 'var(--input-bg)',
               border: '1px solid var(--input-border)',
-              borderRadius: '10px',
-              height: '40px',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+              borderRadius: '0.5rem',
+              minHeight: '44px',
+              boxShadow: 'none'
             }}
           >
             <div className="flex-1 overflow-hidden">
@@ -151,14 +151,14 @@ export default function MessageInput({
                 onBlur={() => {
                   // Blur handling is now managed by useIOSKeyboard hook
                 }}
-                placeholder="Type a message..."
-                className="message-input w-full resize-none border-none outline-none bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Type a message..."}
+                className="message-input w-full resize-none border-none outline-none bg-transparent disabled:opacity-50 disabled:cursor-not-allowed selectable"
                 style={{
-                  color: 'var(--input-text)',
+                  color: 'var(--text)',
                   fontSize: '16px', // Prevent iOS zoom
-                  lineHeight: '1.4',
-                  padding: '6px 10px',
-                  height: '28px',
+                  lineHeight: '1.5',
+                  padding: '0.75rem 1rem',
+                  minHeight: '32px',
                   transform: 'translate3d(0,0,0)', // Hardware acceleration
                   willChange: 'height', // Optimize for height changes only
                   touchAction: 'manipulation' // Prevent double-tap zoom
@@ -171,12 +171,11 @@ export default function MessageInput({
               />
             </div>
             
-            <div className="flex items-center gap-1 px-2">
+            <div className="flex items-center gap-2 px-3">
               <span 
-                className="font-mono"
                 style={{
-                  color: 'var(--counter-color)',
-                  fontSize: '10px'
+                  color: 'var(--text-subtle)',
+                  fontSize: '0.75rem'
                 }}
               >
                 {messageText.length}/{maxLength}
@@ -185,13 +184,20 @@ export default function MessageInput({
                 type="submit"
                 disabled={!canSend}
                 size="sm"
-                className="h-6 w-6 p-0 rounded shrink-0 transition-colors duration-200"
+                className="p-0 shrink-0 transition-colors duration-200 border-0 focus:outline-none"
                 style={{
                   backgroundColor: canSend ? 'var(--send-button)' : 'var(--send-button-disabled)',
-                  color: 'white'
+                  color: canSend ? 'var(--bg)' : 'var(--text-subtle)',
+                  height: '32px',
+                  width: '32px',
+                  borderRadius: '0.25rem'
                 }}
               >
-                <Send className="w-3 h-3" />
+                {isRateLimited ? (
+                  <Clock className="w-4 h-4" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
               </Button>
             </div>
           </div>

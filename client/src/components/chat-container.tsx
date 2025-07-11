@@ -11,6 +11,7 @@ interface ChatContainerProps {
   onDeleteMessage: (messageId: string | number) => void;
   onReplyToMessage: (message: { id: number; content: string; username: string }) => void;
   profanityFilter?: boolean;
+  currentUser?: string;
 }
 
 // Simple profanity filter function
@@ -39,7 +40,8 @@ export default function ChatContainer({
   onMuteUser, 
   onDeleteMessage, 
   onReplyToMessage,
-  profanityFilter = false 
+  profanityFilter = false,
+  currentUser
 }: ChatContainerProps) {
   const formatTime = (timestamp: string) => {
     if (!timestamp) return '';
@@ -99,133 +101,136 @@ export default function ChatContainer({
            content.trim().length > 0;
   });
 
+  // Use the passed currentUser prop
+
   return (
-    <div className="space-y-2 pb-4">
+    <div className="space-y-2 pb-4 max-w-4xl mx-auto px-4">
       {filteredMessages.map((message, index) => {
         // Handle both direct message format and wrapped format
         const messageData = message.data || message;
+        const isOwnMessage = currentUser && messageData.username === currentUser;
+        const isSystemMessage = messageData.username === 'system';
+        
         return (
         <div 
           key={messageData.id || `message-${index}-${Date.now()}`} 
-          className="message-bubble group"
-          style={{
-            padding: '8px 0',
-            marginBottom: '4px',
-            maxWidth: '100%',
-            fontSize: '14px',
-            lineHeight: '1.4'
-          }}
+          className={`message-bubble message-fade-in group flex ${
+            isOwnMessage ? 'justify-end' : isSystemMessage ? 'justify-center' : 'justify-start'
+          }`}
           onTouchStart={() => handleLongPressStart(messageData)}
           onTouchEnd={handleLongPressEnd}
           onMouseDown={() => handleLongPressStart(messageData)}
           onMouseUp={handleLongPressEnd}
           onMouseLeave={handleLongPressEnd}
+          style={{ marginBottom: '0.5rem' }}
         >
-          {/* Message Header: Username and Timestamp */}
-          <div className="flex justify-between items-center mb-1">
-            <div className="flex items-center gap-2">
-              {/* Username - Bold Green */}
-              <span 
-                className="font-bold font-mono"
-                style={{ 
-                  color: 'var(--username-color)',
-                  fontSize: '13px'
-                }}
-              >
-                {messageData.username}
-              </span>
-              
-              {/* Guardian Controls - Inline with username */}
-              {isGuardian && messageData.username !== 'system' && !messageData.isAd && (
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onMuteUser(messageData.id)}
-                    className="text-red-400 hover:text-red-500 text-xs p-1 h-auto"
-                    title="Mute IP"
-                  >
-                    <Volume className="w-3 h-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDeleteMessage(messageData.id)}
-                    className="text-red-400 hover:text-red-500 text-xs p-1 h-auto"
-                    title="Delete"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
+          <div className={`
+            max-w-[85%] md:max-w-[75%] 
+            ${isSystemMessage ? 'max-w-full text-center' : ''}
+            ${isOwnMessage ? 'ml-auto' : isSystemMessage ? 'mx-auto' : 'mr-auto'}
+          `}>
+            {/* Message Header - Only for non-system messages */}
+            {!isSystemMessage && (
+              <div className={`flex items-center gap-2 mb-1 text-xs ${
+                isOwnMessage ? 'justify-end text-right' : 'justify-start'
+              }`}>
+                <div className={`flex items-center gap-2 ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'}`}>
+                  {/* Username */}
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                    {messageData.username}
+                  </span>
+                  
+                  {/* Timestamp */}
+                  <span style={{ color: 'var(--text-subtle)', fontSize: '0.75rem' }}>
+                    {formatTime(messageData.createdAt || messageData.timestamp)}
+                  </span>
+                  
+                  {/* Expiry time */}
+                  {messageData.expiresAt && (
+                    <span style={{ color: 'var(--text-subtle)', fontSize: '0.75rem' }}>
+                      • {getTimeUntilDelete(messageData.expiresAt)}
+                    </span>
+                  )}
+                  
+                  {/* Guardian Controls */}
+                  {isGuardian && !messageData.isAd && !isOwnMessage && (
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onMuteUser(messageData.id)}
+                        className="text-red-400 hover:text-red-500 p-1 h-auto"
+                        title="Mute IP"
+                      >
+                        <Volume className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDeleteMessage(messageData.id)}
+                        className="text-red-400 hover:text-red-500 p-1 h-auto"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
+            )}
+            
+            {/* Message Content */}
+            <div 
+              className={`
+                break-words selectable
+                ${isSystemMessage 
+                  ? 'italic text-center' 
+                  : 'rounded-lg'
+                }
+                ${messageData.isAd ? 'border-l-4 border-orange-400 pl-3' : ''}
+              `}
+              style={{
+                backgroundColor: isSystemMessage 
+                  ? 'transparent' 
+                  : isOwnMessage 
+                  ? 'var(--bubble-user)' 
+                  : 'var(--bubble-other)',
+                color: isSystemMessage 
+                  ? 'var(--text-muted)' 
+                  : 'var(--text)',
+                padding: isSystemMessage ? '0.25rem 0.5rem' : '0.75rem 1rem',
+                fontSize: '1rem',
+                lineHeight: '1.5',
+                borderRadius: isSystemMessage ? '0' : '0.5rem'
+              }}
+            >
+              {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
             </div>
             
-            {/* Timestamp - Right Aligned Gray */}
-            <span 
-              className="font-mono"
-              style={{ 
-                color: 'var(--timestamp-color)',
-                fontSize: '11px'
-              }}
-            >
-              {formatTime(messageData.createdAt || messageData.timestamp)}
-            </span>
-          </div>
-          
-          {/* Expiry Notice - Below Username */}
-          {messageData.expiresAt && (
-            <div 
-              className="font-mono mb-1"
-              style={{ 
-                color: 'var(--expiry-color)',
-                fontSize: '11px'
-              }}
-            >
-              [{getTimeUntilDelete(messageData.expiresAt)}]
-            </div>
-          )}
-          
-          {/* Message Content - Light White Text */}
-          <div 
-            className={`font-mono break-words ${
-              messageData.isAd 
-                ? 'italic opacity-60' 
-                : messageData.username === 'system'
-                ? 'italic'
-                : ''
-            }`}
-            style={{ 
-              color: messageData.username === 'system' ? 'var(--system-color)' : 'var(--text)',
-              fontSize: '14px',
-              lineHeight: '1.4'
-            }}
-          >
-            {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
-          </div>
-          
-          {/* Ad-specific content */}
-          {messageData.isAd && messageData.productName && (
-            <div className="mt-2 pt-2 border-t border-gray-700">
-              <div className="text-xs font-mono" style={{ color: '#888' }}>
-                <span className="font-semibold">{messageData.productName}</span>
-                {messageData.description && (
-                  <div className="mt-1">{messageData.description}</div>
-                )}
-                {messageData.url && (
-                  <div className="mt-1">
-                    <a 
-                      href={messageData.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 underline"
-                    >
-                      Learn more
-                    </a>
-                  </div>
-                )}
+            {/* Ad-specific content */}
+            {messageData.isAd && messageData.productName && (
+              <div className="mt-2 pt-2 border-t border-muted">
+                <div className="text-xs">
+                  <span className="font-semibold">{messageData.productName}</span>
+                  {messageData.description && (
+                    <div className="mt-1 text-muted-foreground">{messageData.description}</div>
+                  )}
+                  {messageData.url && (
+                    <div className="mt-1">
+                      <a 
+                        href={messageData.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        Learn more
+                      </a>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
         );
       })}
