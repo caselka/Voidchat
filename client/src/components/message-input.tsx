@@ -118,8 +118,8 @@ export default function MessageInput({
                     }
                   }, 150);
                 }}
-                placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Type a message..."}
-                className="message-input w-full resize-none border-none outline-none bg-transparent disabled:opacity-50 disabled:cursor-not-allowed selectable"
+                placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Message #voidchat"}
+                className="discord-input w-full resize-none border-none outline-none bg-transparent disabled:opacity-50 disabled:cursor-not-allowed selectable"
                 style={{
                   color: 'var(--text)',
                   fontSize: '1rem', // 16px using rem units
@@ -150,10 +150,8 @@ export default function MessageInput({
                 type="submit"
                 disabled={!canSend}
                 size="sm"
-                className="p-0 shrink-0 transition-colors duration-200 border-0 focus:outline-none"
+                className="discord-send-button p-0 shrink-0 transition-colors duration-200 border-0 focus:outline-none"
                 style={{
-                  backgroundColor: canSend ? 'var(--send-button)' : 'var(--send-button-disabled)',
-                  color: canSend ? 'var(--bg)' : 'var(--text-subtle)',
                   height: '32px',
                   width: '32px',
                   borderRadius: '0.25rem'

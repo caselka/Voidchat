@@ -103,6 +103,29 @@ export default function ChatContainer({
 
   // Use the passed currentUser prop
 
+  // Helper function to get avatar initials
+  const getAvatarInitials = (username: string) => {
+    if (username === 'system') return 'SYS';
+    if (username.startsWith('anon')) return 'A';
+    return username.charAt(0).toUpperCase();
+  };
+
+  // Helper function to determine if message should be compact
+  const shouldCompact = (currentMessage: any, previousMessage: any) => {
+    if (!previousMessage) return false;
+    const current = currentMessage.data || currentMessage;
+    const previous = previousMessage.data || previousMessage;
+    
+    // Same user and within 5 minutes
+    if (current.username === previous.username) {
+      const currentTime = new Date(current.createdAt || current.timestamp);
+      const previousTime = new Date(previous.createdAt || previous.timestamp);
+      const timeDiff = Math.abs(currentTime.getTime() - previousTime.getTime());
+      return timeDiff < 5 * 60 * 1000; // 5 minutes
+    }
+    return false;
+  };
+
   return (
     <div className="w-full pb-4">
       {filteredMessages.map((message, index) => {
@@ -110,112 +133,107 @@ export default function ChatContainer({
         const messageData = message.data || message;
         const isOwnMessage = currentUser && messageData.username === currentUser;
         const isSystemMessage = messageData.username === 'system';
+        const previousMessage = index > 0 ? filteredMessages[index - 1] : null;
+        const isCompact = shouldCompact(message, previousMessage) && !isSystemMessage;
         
         return (
         <div 
           key={messageData.id || `message-${index}-${Date.now()}`} 
           className={`message-bubble message-fade-in group ${
             isOwnMessage ? 'own-message' : isSystemMessage ? 'system-message' : 'other-message'
-          }`}
+          } ${isCompact ? 'compact' : ''}`}
           onTouchStart={() => handleLongPressStart(messageData)}
           onTouchEnd={handleLongPressEnd}
           onMouseDown={() => handleLongPressStart(messageData)}
           onMouseUp={handleLongPressEnd}
           onMouseLeave={handleLongPressEnd}
         >
-          <div className="message-wrapper">
-            {/* Message Header - Only for non-system messages */}
-            {!isSystemMessage && (
-              <div className={`flex items-center gap-2 mb-1 text-xs ${
-                isOwnMessage ? 'justify-end text-right' : 'justify-start'
-              }`}>
-                <div className={`flex items-center gap-2 ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'}`}>
-                  {/* Username */}
-                  <span style={{ 
-                    color: isOwnMessage ? 'rgba(255,255,255,0.7)' : 'var(--text-muted)', 
-                    fontSize: '0.75rem' 
-                  }}>
-                    {messageData.username}
-                  </span>
-                  
-                  {/* Timestamp */}
-                  <span style={{ 
-                    color: isOwnMessage ? 'rgba(255,255,255,0.6)' : 'var(--text-subtle)', 
-                    fontSize: '0.75rem' 
-                  }}>
-                    {formatTime(messageData.createdAt || messageData.timestamp)}
-                  </span>
-                  
-                  {/* Guardian Controls */}
-                  {isGuardian && !messageData.isAd && !isOwnMessage && (
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onMuteUser(messageData.id)}
-                        className="text-red-400 hover:text-red-500 p-1 h-auto"
-                        title="Mute IP"
-                      >
-                        <Volume className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onDeleteMessage(messageData.id)}
-                        className="text-red-400 hover:text-red-500 p-1 h-auto"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
+          {isSystemMessage ? (
+            /* System message layout */
+            <div className="message-wrapper">
+              <div className="message-content">
+                {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
               </div>
-            )}
-            
-            {/* Message Content */}
-            <div 
-              className="message-content"
-              style={{
-                backgroundColor: isSystemMessage 
-                  ? 'transparent' 
-                  : isOwnMessage 
-                  ? 'var(--primary, #007AFF)' 
-                  : 'var(--bubble-other)',
-                color: isSystemMessage 
-                  ? 'var(--text-muted)' 
-                  : isOwnMessage 
-                  ? 'white' 
-                  : 'var(--text)',
-              }}
-            >
-              {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
             </div>
-            
-            {/* Ad-specific content */}
-            {messageData.isAd && messageData.productName && (
-              <div className="mt-2 pt-2 border-t border-muted">
-                <div className="text-xs">
-                  <span className="font-semibold">{messageData.productName}</span>
-                  {messageData.description && (
-                    <div className="mt-1 text-muted-foreground">{messageData.description}</div>
-                  )}
-                  {messageData.url && (
-                    <div className="mt-1">
-                      <a 
-                        href={messageData.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        Learn more
-                      </a>
-                    </div>
-                  )}
+          ) : (
+            /* Regular message layout */
+            <div className="message-wrapper">
+              {/* Avatar (hidden in compact mode) */}
+              {!isCompact && (
+                <div className="message-avatar">
+                  {getAvatarInitials(messageData.username)}
                 </div>
+              )}
+              
+              {/* Message content wrapper */}
+              <div className="message-content-wrapper">
+                {/* Message header (hidden in compact mode) */}
+                {!isCompact && (
+                  <div className="message-header">
+                    <span className="message-username">
+                      {messageData.username}
+                    </span>
+                    <span className="message-timestamp">
+                      {formatTime(messageData.createdAt || messageData.timestamp)}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Message content */}
+                <div className="message-content">
+                  {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
+                </div>
+                
+                {/* Ad-specific content */}
+                {messageData.isAd && messageData.productName && (
+                  <div className="mt-2 pt-2 border-t border-muted">
+                    <div className="text-xs">
+                      <span className="font-semibold">{messageData.productName}</span>
+                      {messageData.description && (
+                        <div className="mt-1 text-muted-foreground">{messageData.description}</div>
+                      )}
+                      {messageData.url && (
+                        <div className="mt-1">
+                          <a 
+                            href={messageData.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            Learn more
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+              
+              {/* Guardian Controls */}
+              {isGuardian && !messageData.isAd && !isOwnMessage && (
+                <div className="message-controls">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onMuteUser(messageData.id)}
+                    className="text-red-400 hover:text-red-500 p-1 h-auto"
+                    title="Mute IP"
+                  >
+                    <Volume className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDeleteMessage(messageData.id)}
+                    className="text-red-400 hover:text-red-500 p-1 h-auto"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         );
       })}
