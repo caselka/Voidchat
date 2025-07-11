@@ -10,7 +10,7 @@ export default function Landing() {
   const { isAuthenticated, user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-y-auto">
       <DynamicHeader showHome={false} />
       
       {/* Hero Section */}

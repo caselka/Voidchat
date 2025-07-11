@@ -263,14 +263,28 @@ export type InsertHelpRequest = z.infer<typeof insertHelpRequestSchema>;
 export type SponsorAnalytics = typeof sponsorAnalytics.$inferSelect;
 export type InsertSponsorAnalytics = z.infer<typeof insertSponsorAnalyticsSchema>;
 
-// Direct Messages for paid accounts only
+// Direct Messages for paid accounts only - End-to-End Encrypted
 export const directMessages = pgTable("direct_messages", {
   id: serial("id").primaryKey(),
   fromUserId: text("from_user_id").notNull().references(() => users.id),
   toUserId: text("to_user_id").notNull().references(() => users.id),
-  content: text("content").notNull(),
+  content: text("content").notNull(), // Encrypted content
+  encryptedContent: text("encrypted_content"), // E2E encrypted content
+  nonce: text("nonce"), // Encryption nonce
+  ephemeralPublicKey: text("ephemeral_public_key"), // For key exchange
+  isEncrypted: boolean("is_encrypted").default(true).notNull(),
   isRead: boolean("is_read").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// User encryption keys table
+export const userEncryptionKeys = pgTable("user_encryption_keys", {
+  id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id).unique(),
+  publicKey: text("public_key").notNull(),
+  keyFingerprint: text("key_fingerprint").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Direct Message conversations for organization
@@ -292,6 +306,10 @@ export const insertDirectMessageSchema = createInsertSchema(directMessages).pick
   content: true,
 });
 
+export const insertUserEncryptionKeysSchema = createInsertSchema(userEncryptionKeys);
+
 export type DirectMessage = typeof directMessages.$inferSelect;
 export type InsertDirectMessage = z.infer<typeof insertDirectMessageSchema>;
 export type DirectMessageConversation = typeof directMessageConversations.$inferSelect;
+export type UserEncryptionKeys = typeof userEncryptionKeys.$inferSelect;
+export type InsertUserEncryptionKeys = z.infer<typeof insertUserEncryptionKeysSchema>;

@@ -885,11 +885,19 @@ html {
   }
 }
 
+/* Desktop specific fixes for input positioning */
+@media (min-width: 768px) {
+  .chat-input-area {
+    bottom: 2rem;
+    padding: 1rem 2rem;
+  }
+}
+
 /* iOS keyboard handling with enhanced safe area support */
 @supports (-webkit-touch-callout: none) {
   .chat-input-area {
     /* iOS-specific keyboard adaptation */
-    bottom: env(keyboard-inset-height, 0px);
+    bottom: env(keyboard-inset-height, 2rem);
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
     backface-visibility: hidden;
