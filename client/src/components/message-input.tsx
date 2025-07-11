@@ -82,7 +82,7 @@ export default function MessageInput({
 
   return (
     <div className="w-full">
-      <form onSubmit={handleSubmit} className="w-full p-4 pl-[9px] pr-[9px]">
+      <form onSubmit={handleSubmit} className="w-full p-4 pl-[9px] pr-[9px] pt-[0px] pb-[0px]">
         <div className="flex-1 overflow-hidden">
               <textarea
                 ref={textareaRef}
