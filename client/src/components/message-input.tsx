@@ -95,12 +95,7 @@ export default function MessageInput({
                   const cleanPaste = paste.replace(/<[^>]*>/g, '').replace(/\{[^}]*\}/g, '');
                   setMessageText(prev => (prev + cleanPaste).substring(0, maxLength));
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e);
-                  }
-                }}
+                
                 onFocus={() => {
                   // Scroll the chat messages area to bottom when input is focused
                   setTimeout(() => {
