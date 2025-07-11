@@ -106,18 +106,14 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    // Auto-scroll when new messages arrive - optimized for new flexbox layout
+    // Auto-scroll when new messages arrive
     if (messages.length > 0) {
       setTimeout(() => {
         const messagesArea = document.querySelector('.chat-messages-area');
         if (messagesArea) {
-          // Scroll the messages area container to bottom
-          messagesArea.scrollTo({ 
-            top: messagesArea.scrollHeight, 
-            behavior: 'smooth' 
-          });
+          messagesArea.scrollTop = messagesArea.scrollHeight;
         }
-      }, 100);
+      }, 50);
     }
   }, [messages]);
 
@@ -155,64 +151,58 @@ export default function Chat() {
       )} */}
       
       {/* Main Chat Messages Area */}
-      <div className="chat-messages-area">
+      <div className="chat-messages-area" id="messages">
         {/* Welcome Section */}
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center py-8">
-            <h1 className="text-2xl font-light tracking-wide mb-3" style={{ color: 'var(--text)' }}>
-              voidchat
-            </h1>
-            <p className="text-sm mb-2" style={{ color: 'var(--text-muted)' }}>
-              Welcome to the void. Messages are permanent.
+        <div className="text-center py-4">
+          <h1 className="text-xl font-light tracking-wide mb-2" style={{ color: 'var(--text)' }}>
+            voidchat
+          </h1>
+          <p className="text-sm mb-2" style={{ color: 'var(--text-muted)' }}>
+            Welcome to the void. Messages are permanent.
+          </p>
+          {currentUser && (
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+              You are <span style={{ color: 'var(--text)', fontWeight: '500' }}>{currentUser}</span>
             </p>
-            {currentUser && (
-              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                You are <span style={{ color: 'var(--text)', fontWeight: '500' }}>{currentUser}</span>
-              </p>
-            )}
-          </div>
+          )}
+        </div>
+        
+        {/* Status indicators */}
+        <div className="flex justify-center items-center mobile-status-buttons">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setProfanityFilter(!profanityFilter)}
+            className="p-2 transition-colors rounded-lg"
+            style={{
+              backgroundColor: profanityFilter ? 'var(--bubble-other)' : 'transparent',
+              color: profanityFilter ? 'var(--text)' : 'var(--text-muted)'
+            }}
+            title="Toggle profanity filter"
+          >
+            <span className="text-sm">{profanityFilter ? '***' : '@#$'}</span>
+          </Button>
           
-          {/* Status indicators */}
-          <div className="flex justify-center items-center mobile-status-buttons">
-            {/* Profanity Filter Toggle */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setProfanityFilter(!profanityFilter)}
-              className="p-3 transition-colors rounded-lg min-h-11 min-w-11"
-              style={{
-                backgroundColor: profanityFilter ? 'var(--bubble-other)' : 'transparent',
-                color: profanityFilter ? 'var(--text)' : 'var(--text-muted)'
-              }}
-              title="Toggle profanity filter"
-            >
-              <span className="text-sm">{profanityFilter ? '***' : '@#$'}</span>
-            </Button>
-            
-            {/* Rate Limit Indicator */}
-            {rateLimitTime > 0 && (
-              <div className="text-sm px-3 py-2 rounded-lg" style={{ 
-                color: 'var(--text-muted)',
-                backgroundColor: 'var(--bubble-other)'
-              }}>
-                Cooldown: {rateLimitTime}s
-              </div>
-            )}
-          </div>
+          {rateLimitTime > 0 && (
+            <div className="text-sm px-3 py-2 rounded-lg" style={{ 
+              color: 'var(--text-muted)',
+              backgroundColor: 'var(--bubble-other)'
+            }}>
+              Cooldown: {rateLimitTime}s
+            </div>
+          )}
         </div>
 
-        {/* Chat Messages Container */}
-        <div className="message-container">
-          <ChatContainer 
-            messages={messages}
-            isGuardian={user?.isGuardian || false}
-            onMuteUser={muteUser}
-            onDeleteMessage={deleteMessage}
-            onReplyToMessage={(message) => setReplyingTo(message)}
-            profanityFilter={profanityFilter}
-            currentUser={currentUser}
-          />
-        </div>
+        {/* Chat Messages */}
+        <ChatContainer 
+          messages={messages}
+          isGuardian={user?.isGuardian || false}
+          onMuteUser={muteUser}
+          onDeleteMessage={deleteMessage}
+          onReplyToMessage={(message) => setReplyingTo(message)}
+          profanityFilter={profanityFilter}
+          currentUser={currentUser}
+        />
       </div>
 
       {/* Message Input - Sticky at bottom */}

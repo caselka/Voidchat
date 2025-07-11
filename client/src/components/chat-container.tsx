@@ -104,7 +104,7 @@ export default function ChatContainer({
   // Use the passed currentUser prop
 
   return (
-    <div className="max-w-4xl mx-auto px-4 pb-4">
+    <div>
       {filteredMessages.map((message, index) => {
         // Handle both direct message format and wrapped format
         const messageData = message.data || message;
@@ -114,15 +114,25 @@ export default function ChatContainer({
         return (
         <div 
           key={messageData.id || `message-${index}-${Date.now()}`} 
-          className={`message-bubble message-fade-in group flex ${
-            isOwnMessage ? 'justify-end' : isSystemMessage ? 'justify-center' : 'justify-start'
-          }`}
+          className="message message-fade-in"
           onTouchStart={() => handleLongPressStart(messageData)}
           onTouchEnd={handleLongPressEnd}
           onMouseDown={() => handleLongPressStart(messageData)}
           onMouseUp={handleLongPressEnd}
           onMouseLeave={handleLongPressEnd}
-          style={{ marginBottom: '1rem' }}
+          style={{
+            background: isSystemMessage ? 'transparent' : 'var(--bubble-other, #1a1a1a)',
+            padding: isSystemMessage ? '0.5rem 1rem' : '0.75rem 1rem',
+            margin: '0.5rem 0',
+            borderRadius: '0.75rem',
+            maxWidth: '85%',
+            fontSize: '0.95rem',
+            lineHeight: '1.4',
+            wordWrap: 'break-word',
+            color: isSystemMessage ? 'var(--text-muted)' : 'var(--text)',
+            fontStyle: isSystemMessage ? 'italic' : 'normal',
+            textAlign: isSystemMessage ? 'center' : 'left'
+          }}
         >
           <div className={`
             max-w-[85%] md:max-w-[75%] 
@@ -179,34 +189,21 @@ export default function ChatContainer({
               </div>
             )}
             
-            {/* Message Content */}
-            <div 
-              className={`
-                break-words selectable
-                ${isSystemMessage 
-                  ? 'italic text-center' 
-                  : 'rounded-lg'
-                }
-                ${messageData.isAd ? 'border-l-4 border-orange-400 pl-3' : ''}
-              `}
-              style={{
-                backgroundColor: isSystemMessage 
-                  ? 'transparent' 
-                  : isOwnMessage 
-                  ? 'var(--bubble-user)' 
-                  : 'var(--bubble-other)',
-                color: isSystemMessage 
-                  ? 'var(--text-muted)' 
-                  : 'var(--text)',
-                padding: isSystemMessage ? '0.5rem 0.75rem' : '0.875rem 1.125rem',
-                fontSize: '1rem',
-                lineHeight: '1.5',
-                borderRadius: isSystemMessage ? '0.25rem' : '0.75rem',
-                marginBottom: '0.5rem'
-              }}
-            >
+          {/* Message content and metadata combined */}
+          <div>
+            {/* Username and timestamp for non-system messages */}
+            {!isSystemMessage && (
+              <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
+                <span>{messageData.username}</span>
+                <span className="ml-2">{formatTime(messageData.createdAt || messageData.timestamp)}</span>
+              </div>
+            )}
+            
+            {/* Message text */}
+            <div className="selectable">
               {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
             </div>
+          </div>
             
             {/* Ad-specific content */}
             {messageData.isAd && messageData.productName && (

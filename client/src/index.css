@@ -26,29 +26,21 @@
   user-select: text;
 }
 
-/* Typography Scale - Mobile-first with 1.25x ratio */
-html {
-  font-size: 16px; /* Base 1rem = 16px - prevents iOS zoom */
-  line-height: 1.5;
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+/* Mobile-First Foundation - Critical iOS Fixes */
+html, body {
   height: 100%;
-}
-
-body {
+  margin: 0;
+  padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 1rem; /* 16px base - prevents iOS zoom */
+  font-size: 16px; /* Prevents iOS zoom */
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   background-color: var(--bg);
   color: var(--text);
-  transition: background-color 0.2s ease, color 0.2s ease;
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow-x: hidden;
-  position: relative;
+  overflow: hidden; /* Critical for mobile layout */
 }
 
 /* Typography Scale Classes */
@@ -746,120 +738,65 @@ html {
   }
 }
 
-/* Mobile-First Layout System */
-/* Root container that uses full viewport height */
+/* Critical Mobile Layout Fix - iOS Keyboard Compatible */
 #root {
-  min-height: 100dvh;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
+  height: 100%;
   overflow: hidden;
-  position: relative;
 }
 
-/* Chat layout container - flexbox for proper mobile layout */
 .chat-layout {
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  min-height: 100dvh;
-  max-height: 100dvh;
-  overflow: hidden;
-  position: relative;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Chat header area */
 .chat-header {
   flex: 0 0 auto;
-  z-index: 100;
-  position: sticky;
-  top: 0;
-  background-color: var(--bg);
+  padding: 1rem;
+  text-align: center;
   border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--bg);
+  font-size: 1.2rem;
+  font-weight: 600;
 }
 
-/* Main chat messages area - grows to fill space */
 .chat-messages-area {
-  flex: 1 1 auto;
+  flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
+  padding: 1rem;
+  scroll-behavior: smooth;
+  scroll-padding-bottom: 6rem; /* Critical for keyboard space */
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding-bottom: env(safe-area-inset-bottom);
-  position: relative;
-  scroll-behavior: smooth;
 }
 
-/* Input area - fixed at bottom */
 .chat-input-area {
   flex: 0 0 auto;
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  background-color: var(--bg);
+  display: flex;
+  padding: 0.75rem 1rem;
+  background-color: var(--input-bg, var(--bg));
   border-top: 1px solid var(--border-subtle);
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* iOS keyboard handling with enhanced safe area support */
+/* iOS-specific input fixes */
 @supports (-webkit-touch-callout: none) {
-  .chat-input-area {
-    /* iOS-specific keyboard adaptation */
-    bottom: env(keyboard-inset-height, 0px);
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    /* Enhanced safe area handling */
-    padding-bottom: max(env(safe-area-inset-bottom), 1rem);
-  }
-  
-  /* Prevent iOS zoom on input focus */
   input, textarea, select {
     font-size: 16px !important;
     -webkit-appearance: none;
-    -webkit-user-select: text;
-  }
-  
-  /* Enhanced keyboard detection for iOS */
-  @media (max-height: 600px) and (orientation: landscape) {
-    .chat-input-area {
-      padding: 0.5rem 1rem;
-      padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
-    }
-    
-    .chat-messages-area {
-      padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
-    }
   }
 }
 
-/* Message bubble improvements */
-.message-container {
+/* Critical Message Styling - Matches Mobile Spec */
+.message {
+  background: var(--bubble-other, #1a1a1a);
   padding: 0.75rem 1rem;
-  max-width: 100%;
-}
-
-.message-bubble {
-  margin-bottom: 1rem;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-  -webkit-hyphens: auto;
-  transform: translateZ(0);
-  will-change: transform;
-}
-
-/* Improved message spacing and rhythm */
-.message-content {
-  font-size: 1rem;
-  line-height: 1.5;
-  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
   border-radius: 0.75rem;
   max-width: 85%;
-  word-break: break-word;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-wrap: break-word;
 }
 
 /* Enhanced message animations for smooth mobile experience */
@@ -909,57 +846,24 @@ html {
 
 /* Mobile-specific optimizations */
 @media (max-width: 768px) {
-  /* Enhanced mobile message spacing */
-  .message-container {
+  .chat-header {
     padding: 0.75rem 1rem;
+    font-size: 1.1rem;
   }
   
-  .message-bubble {
-    margin-bottom: 1rem;
+  .chat-messages-area {
+    padding: 0.75rem;
   }
   
   .message-content {
-    font-size: 1rem; /* Keep 16px to prevent zoom */
-    padding: 0.75rem 1rem;
-    max-width: 88%;
-    line-height: 1.6;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    max-width: 85%;
   }
   
-  /* Better touch targets for message actions */
-  .message-actions button {
-    min-height: 2.75rem;
-    min-width: 2.75rem;
-    font-size: 0.875rem;
-  }
-  
-  /* Optimized scrolling with proper spacing */
-  .chat-messages-area {
-    padding-top: 1rem;
-    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
-  }
-  
-  /* Enhanced input area for mobile */
-  .chat-input-area {
-    padding: 1rem;
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-  }
-  
-  /* Mobile typography adjustments */
-  .text-center h1 {
-    font-size: 1.5rem; /* 24px */
-    margin-bottom: 0.75rem;
-  }
-  
-  .text-center p {
-    font-size: 0.875rem; /* 14px */
-    margin-bottom: 0.5rem;
-  }
-  
-  /* Improved button spacing for mobile */
   .mobile-status-buttons {
     gap: 1rem;
-    margin-top: 1rem;
-    margin-bottom: 1.5rem;
+    margin: 1rem 0 1.5rem 0;
   }
 }
 
