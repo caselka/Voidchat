@@ -142,7 +142,6 @@ export default function Chat() {
           onRoomsClick={() => setShowRoomsSidebar(true)}
         />
       </div>
-      
       {/* Main content with header offset */}
       <div className="main-content">
         {/* Rooms Sidebar */}
@@ -252,7 +251,7 @@ export default function Chat() {
         </div>
 
         {/* Message Input - Sticky at bottom */}
-        <div className="chat-input-area">
+        <div className="chat-input-area bg-[#ffffff00] pt-[0px] pb-[0px] pl-[27px] pr-[27px]">
           <MessageInput 
             onSendMessage={sendMessage}
             rateLimitTime={rateLimitTime}
@@ -260,7 +259,6 @@ export default function Chat() {
           />
         </div>
       </div>
-
       {/* Walkthrough */}
       <Walkthrough
         isVisible={showWalkthrough}
