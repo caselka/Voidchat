@@ -133,7 +133,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="chat-layout font-sans bg-background text-foreground transition-colors duration-300">
+    <div className="chat-layout chat-page-container font-sans bg-background text-foreground transition-colors duration-300">
       {/* Dynamic Header */}
       <div className="chat-header">
         <DynamicHeader 

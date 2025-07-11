@@ -80,32 +80,35 @@ export default function MessageInput({
     textarea.style.height = `${Math.max(44, scrollHeight)}px`;
   };
 
-  // Auto-scroll after message is sent
+  // Smooth scroll to bottom on new messages and after sending
   useEffect(() => {
     if (!messageText) { // Message was just sent (cleared)
-      const messagesArea = document.querySelector('.chat-messages-area');
-      if (messagesArea) {
-        messagesArea.scrollTo({ 
-          top: messagesArea.scrollHeight, 
-          behavior: 'smooth' 
-        });
-      }
+      setTimeout(() => {
+        const messagesArea = document.querySelector('.chat-messages-area');
+        if (messagesArea) {
+          messagesArea.scrollTo({ 
+            top: messagesArea.scrollHeight, 
+            behavior: 'smooth' 
+          });
+        }
+      }, 50);
     }
   }, [messageText]);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 p-safe z-50 bg-background">
-      <form onSubmit={handleSubmit} className="w-full p-4 pl-[9px] pr-[9px]">
+    <div className="fixed bottom-0 inset-x-0 z-50 px-4 pb-[env(safe-area-inset-bottom)] bg-background/80 backdrop-blur">
+      <form onSubmit={handleSubmit} className="w-full py-3">
         <div 
           className="relative flex items-center transition-all duration-200 max-w-4xl mx-auto"
           style={{
             backgroundColor: 'var(--input-bg)',
             border: '1px solid var(--input-border)',
-            borderRadius: '0.75rem',
-            minHeight: '60px', // Increased for better mobile keyboard compatibility
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)'
+            borderRadius: '0.75rem', // 12px soft rounded corners
+            minHeight: '44px',
+            maxHeight: '120px',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)'
           }}
         >
           <textarea
@@ -126,7 +129,7 @@ export default function MessageInput({
               }
             }}
             onFocus={() => {
-              // Scroll the chat messages area to bottom when input is focused
+              // Smooth scroll to bottom when input is focused
               setTimeout(() => {
                 const messagesArea = document.querySelector('.chat-messages-area');
                 if (messagesArea) {
@@ -135,19 +138,25 @@ export default function MessageInput({
                     behavior: 'smooth'
                   });
                 }
-              }, 150);
+              }, 100);
             }}
             placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Message the void"}
             className="discord-input flex-1 resize-none border-none outline-none disabled:opacity-50 disabled:cursor-not-allowed selectable bg-transparent message-fade-in"
             style={{
-              color: 'var(--text)',
-              fontSize: '1rem', // 16px using rem units - no zoom on iOS
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-              fontWeight: 400, // Consistency
-              lineHeight: '1.5',
+              fontSize: '1rem',
+              fontFamily: 'var(--font-base)',
+              fontWeight: 'var(--font-weight-normal)',
+              lineHeight: 'var(--line-height)',
               padding: '0.75rem 1rem',
-              minHeight: '44px', // 44px minimum touch target
-              touchAction: 'manipulation' // Prevent double-tap zoom
+              borderRadius: '0.75rem',
+              minHeight: '44px',
+              maxHeight: '120px',
+              backgroundColor: 'transparent',
+              color: 'var(--text)',
+              resize: 'none',
+              touchAction: 'manipulation',
+              outline: 'none',
+              border: 'none'
             }}
             maxLength={maxLength}
             disabled={isRateLimited}

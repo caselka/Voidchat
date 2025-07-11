@@ -163,10 +163,10 @@ export default function ChatContainer({
                 {/* Message header with timer */}
                 {!isCompact && (
                   <div className="message-header">
-                    <span className="message-username">
+                    <span className="message-username message-metadata">
                       {messageData.username}
                     </span>
-                    <span className="message-timestamp">
+                    <span className="message-timestamp message-metadata">
                       {formatTime(messageData.createdAt || messageData.timestamp)}
                     </span>
                     {/* Message timer */}

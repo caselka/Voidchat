@@ -110,15 +110,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 11, 2025)
 
-### Enhanced Mobile Input with Safe Area and Accessibility (Latest)
-- **Fixed Bottom Positioning**: Input now properly positioned with safe area padding (.p-safe class with env(safe-area-inset-bottom))
-- **Mobile Keyboard Compatibility**: Increased input container minHeight to 60px for better mobile keyboard interaction
-- **Apple 44px Touch Targets**: Updated send button to 44x44px minimum touch target size per Apple guidelines
-- **Enhanced Accessibility**: Added aria-labels, inputMode="text", autoCapitalize="sentences", autoCorrect="on", and data-testid attributes
-- **Auto-scroll Enhancement**: Added auto-scroll after message send to maintain chat position
-- **Typography Consistency**: Added fontWeight: 400 and text-rendering: optimizeLegibility globally
-- **Button Icon Sizing**: Enhanced button icons to 1.25rem (20px) with proper button-icon class
-- **Mobile Input Attributes**: Proper iOS keyboard handling with autocapitalization and correction enabled
+### Replit iOS-Style Mobile Layout Overhaul (Latest)
+- **100dvh Layout System**: Complete mobile-first layout with proper viewport units and no weird scrolling
+- **Replit-Style Input**: Soft rounded corners (12px), proper padding, backdrop blur, smooth transitions on focus/hover/send
+- **Enhanced Typography**: CSS variables for Apple system font stack, 0.75rem light grey metadata, 1rem message text
+- **Message Spacing**: Consistent 1rem spacing between messages, max 85% width, proper typography hierarchy
+- **Smooth Animations**: Focus transforms, hover effects, send button scaling, backdrop blur transitions
+- **iOS Safe Area**: Proper env(safe-area-inset-bottom) support with fixed bottom positioning above keyboard
+- **Mobile Keyboard Handling**: Input stays stuck above keyboard, 44px min height, 120px max height
+- **Auto-scroll Enhancement**: Smooth scroll to bottom on new messages and input focus with proper timing
+- **Clean Identity Tags**: Styled "You are anonXXXX" with rounded pill design and proper typography
 
 ### Landing Page Mobile Layout Optimization
 - **Enhanced mobile responsiveness**: Improved mobile-first design with better spacing, typography, and button sizing
