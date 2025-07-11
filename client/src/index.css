@@ -26,21 +26,29 @@
   user-select: text;
 }
 
-/* Mobile-First Foundation - Critical iOS Fixes */
-html, body {
+/* Typography Scale - Mobile-first with 1.25x ratio */
+html {
+  font-size: 16px; /* Base 1rem = 16px - prevents iOS zoom */
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   height: 100%;
-  margin: 0;
-  padding: 0;
+}
+
+body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 16px; /* Prevents iOS zoom */
+  font-size: 1rem; /* 16px base - prevents iOS zoom */
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
   background-color: var(--bg);
   color: var(--text);
-  overflow: hidden; /* Critical for mobile layout */
+  transition: background-color 0.2s ease, color 0.2s ease;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+  position: relative;
 }
 
 /* Typography Scale Classes */
@@ -51,27 +59,28 @@ html, body {
 .text-xl { font-size: 1.5rem; }       /* 24px */
 .text-2xl { font-size: 1.875rem; }    /* 30px */
 
-/* Replit-Style Design Tokens */
+/* Minimalist Void Theme CSS Variables */
 :root {
-  /* Spacing tokens */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 0.75rem;
-  --spacing-md: 1rem;
-  --radius: 0.5rem;
+  /* Light Mode - Minimalist Void */
+  --bg: #ffffff;
+  --text: #111111;
+  --text-muted: #666666;
+  --text-subtle: #999999;
+  --bubble-user: #f8f9fa;
+  --bubble-other: #f0f0f0;
+  --bubble-system: #e8f4fd;
+  --input-bg: #fafafa;
+  --input-border: #e0e0e0;
+  --border-subtle: #f0f0f0;
   
-  /* Typography tokens */
-  --font-sm: 0.9rem;
-  --font-base: 1rem;
-  --font-lg: 1.1rem;
-  
-  /* Dark theme colors */
-  --bg: #0d0d0d;
-  --text: #eeeeee;
-  --text-muted: #888888;
-  --bubble-bg: #1c1c1c;
-  --border: #2a2a2a;
-  --input-bg: #222222;
-  --button-bg: #333333;
+  /* Legacy compatibility */
+  --username-color: #666666;
+  --timestamp-color: #999999;
+  --expiry-color: #cccccc;
+  --system-color: #4ade80;
+  --counter-color: #9ca3af;
+  --send-button: #111111;
+  --send-button-disabled: #d1d5db;
   --welcome-text: #666666;
 }
 
@@ -737,109 +746,220 @@ html {
   }
 }
 
-/* Replit-Style Layout System */
+/* Mobile-First Layout System */
+/* Root container that uses full viewport height */
 #root {
-  height: 100%;
+  min-height: 100dvh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
+/* Chat layout container - flexbox for proper mobile layout */
 .chat-layout {
   display: flex;
   flex-direction: column;
   height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Chat header area */
+.chat-header {
+  flex: 0 0 auto;
+  z-index: 100;
+  position: sticky;
+  top: 0;
+  background-color: var(--bg);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Main chat messages area - grows to fill space */
+.chat-messages-area {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: env(safe-area-inset-bottom);
+  position: relative;
+  scroll-behavior: smooth;
+}
+
+/* Input area - fixed at bottom */
+.chat-input-area {
+  flex: 0 0 auto;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background-color: var(--bg);
+  border-top: 1px solid var(--border-subtle);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-.chat-header {
-  padding: var(--spacing-md);
-  border-bottom: 1px solid var(--border);
-  text-align: center;
-  background-color: var(--bg);
-}
-
-.chat-header h1 {
-  font-size: var(--font-lg);
-  margin-bottom: var(--spacing-xs);
-  font-weight: 500;
-}
-
-.chat-messages-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--spacing-md);
-  scroll-padding-bottom: 6rem;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-.chat-input-area {
-  display: flex;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background-color: #111;
-  border-top: 1px solid var(--border);
-}
-
-/* iOS-specific input fixes */
+/* iOS keyboard handling with enhanced safe area support */
 @supports (-webkit-touch-callout: none) {
+  .chat-input-area {
+    /* iOS-specific keyboard adaptation */
+    bottom: env(keyboard-inset-height, 0px);
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    /* Enhanced safe area handling */
+    padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+  }
+  
+  /* Prevent iOS zoom on input focus */
   input, textarea, select {
     font-size: 16px !important;
     -webkit-appearance: none;
+    -webkit-user-select: text;
+  }
+  
+  /* Enhanced keyboard detection for iOS */
+  @media (max-height: 600px) and (orientation: landscape) {
+    .chat-input-area {
+      padding: 0.5rem 1rem;
+      padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+    }
+    
+    .chat-messages-area {
+      padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+    }
   }
 }
 
-/* Replit-Style Message Styling */
-.message {
-  background-color: var(--bubble-bg);
-  padding: var(--spacing-sm) var(--spacing-md);
-  margin-bottom: var(--spacing-sm);
-  border-radius: var(--radius);
-  font-size: var(--font-base);
-  line-height: 1.5;
-  max-width: 85%;
+/* Message bubble improvements */
+.message-container {
+  padding: 0.75rem 1rem;
+  max-width: 100%;
+}
+
+.message-bubble {
+  margin-bottom: 1rem;
   word-wrap: break-word;
-  transition: opacity 0.4s ease-out, transform 0.2s ease;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
-.message.fade-out {
-  opacity: 0;
-  transform: translateY(10px);
+/* Improved message spacing and rhythm */
+.message-content {
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  max-width: 85%;
+  word-break: break-word;
 }
 
-/* Replit-style message animations */
+/* Enhanced message animations for smooth mobile experience */
 .message-fade-in {
-  animation: fadeInUp 0.3s ease-out;
+  animation: messageFadeIn 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-@keyframes fadeInUp {
-  0% {
+.message-fade-out {
+  animation: messageFadeOut 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.message-expired {
+  opacity: 0.3;
+  transform: scale(0.98);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+@keyframes messageFadeIn {
+  from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(1rem) scale(0.95);
   }
-  100% {
+  50% {
+    opacity: 0.7;
+    transform: translateY(0.2rem) scale(0.98);
+  }
+  to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes messageFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(-0.125rem) scale(0.99);
+  }
+  to {
+    opacity: 0.15;
+    transform: translateY(-0.5rem) scale(0.96);
   }
 }
 
 /* Mobile-specific optimizations */
 @media (max-width: 768px) {
-  .chat-header {
-    padding: var(--spacing-sm) var(--spacing-md);
+  /* Enhanced mobile message spacing */
+  .message-container {
+    padding: 0.75rem 1rem;
   }
   
-  .chat-header h1 {
-    font-size: var(--font-base);
-    margin-bottom: var(--spacing-xs);
+  .message-bubble {
+    margin-bottom: 1rem;
   }
   
+  .message-content {
+    font-size: 1rem; /* Keep 16px to prevent zoom */
+    padding: 0.75rem 1rem;
+    max-width: 88%;
+    line-height: 1.6;
+  }
+  
+  /* Better touch targets for message actions */
+  .message-actions button {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Optimized scrolling with proper spacing */
   .chat-messages-area {
-    padding: var(--spacing-sm);
+    padding-top: 1rem;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
   }
   
-  .message {
-    font-size: var(--font-sm);
-    max-width: 90%;
+  /* Enhanced input area for mobile */
+  .chat-input-area {
+    padding: 1rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  
+  /* Mobile typography adjustments */
+  .text-center h1 {
+    font-size: 1.5rem; /* 24px */
+    margin-bottom: 0.75rem;
+  }
+  
+  .text-center p {
+    font-size: 0.875rem; /* 14px */
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Improved button spacing for mobile */
+  .mobile-status-buttons {
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
   }
 }
 

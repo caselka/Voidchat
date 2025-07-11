@@ -74,78 +74,109 @@ export default function MessageInput({
   };
 
   return (
-    <>
-      <input
-        ref={textareaRef}
-        type="text"
-        value={messageText}
-        onChange={(e) => {
-          const value = e.target.value;
-          const cleanValue = value.replace(/<[^>]*>/g, '').replace(/\{[^}]*\}/g, '');
-          setMessageText(cleanValue);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSubmit(e);
-          }
-        }}
-        onFocus={() => {
-          setTimeout(() => {
-            const messagesArea = document.querySelector('.chat-messages-area');
-            if (messagesArea) {
-              messagesArea.scrollTop = messagesArea.scrollHeight;
-            }
-          }, 100);
-        }}
-        placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Type a message…"}
-        disabled={isRateLimited}
-        autoComplete="off"
-        maxLength={maxLength}
-        style={{
-          flex: 1,
-          padding: 'var(--spacing-sm) var(--spacing-md)',
-          fontSize: 'var(--font-base)',
-          borderRadius: 'var(--radius)',
-          border: 'none',
-          background: 'var(--input-bg)',
-          color: 'var(--text)',
-          outline: 'none'
-        }}
-      />
-      <button
-        type="button"
-        onClick={handleSubmit}
-        disabled={!canSend}
-        style={{
-          fontSize: 'var(--font-lg)',
-          padding: 'var(--spacing-sm) var(--spacing-md)',
-          background: 'var(--button-bg)',
-          color: 'white',
-          borderRadius: 'var(--radius)',
-          border: 'none',
-          cursor: canSend ? 'pointer' : 'not-allowed'
-        }}
-      >
-        {isRateLimited ? '⏱' : '➤'}
-      </button>
-      
-      {/* Error Messages */}
-      {(error || isRateLimited) && (
-        <div style={{
-          position: 'absolute',
-          bottom: '100%',
-          left: 0,
-          right: 0,
-          padding: '0.5rem 1rem',
-          backgroundColor: 'rgba(255, 0, 0, 0.1)',
-          color: '#ff6b6b',
-          fontSize: '0.875rem',
-          borderRadius: '0.5rem 0.5rem 0 0'
-        }}>
-          {error || `Wait ${rateLimitTime} seconds before sending another message`}
-        </div>
-      )}
-    </>
+    <div className="w-full">
+      <div className="max-w-4xl mx-auto p-4">
+
+        <form onSubmit={handleSubmit} className="w-full">
+          <div 
+            className="relative flex items-center transition-all duration-200"
+            style={{
+              backgroundColor: 'var(--input-bg)',
+              border: '1px solid var(--input-border)',
+              borderRadius: '0.5rem',
+              minHeight: '44px',
+              boxShadow: 'none'
+            }}
+          >
+            <div className="flex-1 overflow-hidden">
+              <textarea
+                ref={textareaRef}
+                value={messageText}
+                onChange={handleInputChange}
+                onPaste={(e) => {
+                  // Prevent pasting of potentially dangerous content
+                  e.preventDefault();
+                  const paste = e.clipboardData.getData('text/plain');
+                  const cleanPaste = paste.replace(/<[^>]*>/g, '').replace(/\{[^}]*\}/g, '');
+                  setMessageText(prev => (prev + cleanPaste).substring(0, maxLength));
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+                onFocus={() => {
+                  // Scroll the chat messages area to bottom when input is focused
+                  setTimeout(() => {
+                    const messagesArea = document.querySelector('.chat-messages-area');
+                    if (messagesArea) {
+                      messagesArea.scrollTo({
+                        top: messagesArea.scrollHeight,
+                        behavior: 'smooth'
+                      });
+                    }
+                  }, 150);
+                }}
+                placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Type a message..."}
+                className="message-input w-full resize-none border-none outline-none bg-transparent disabled:opacity-50 disabled:cursor-not-allowed selectable"
+                style={{
+                  color: 'var(--text)',
+                  fontSize: '1rem', // 16px using rem units
+                  lineHeight: '1.5',
+                  padding: '0.75rem 1rem',
+                  minHeight: '2.75rem', // 44px touch target in rem
+                  borderRadius: '0.75rem',
+                  touchAction: 'manipulation' // Prevent double-tap zoom
+                }}
+                maxLength={maxLength}
+                disabled={isRateLimited}
+                autoComplete="off"
+                spellCheck="false"
+                rows={1}
+              />
+            </div>
+            
+            <div className="flex items-center gap-2 px-3">
+              <span 
+                style={{
+                  color: 'var(--text-subtle)',
+                  fontSize: '0.75rem'
+                }}
+              >
+                {messageText.length}/{maxLength}
+              </span>
+              <Button
+                type="submit"
+                disabled={!canSend}
+                size="sm"
+                className="p-0 shrink-0 transition-colors duration-200 border-0 focus:outline-none"
+                style={{
+                  backgroundColor: canSend ? 'var(--send-button)' : 'var(--send-button-disabled)',
+                  color: canSend ? 'var(--bg)' : 'var(--text-subtle)',
+                  height: '32px',
+                  width: '32px',
+                  borderRadius: '0.25rem'
+                }}
+              >
+                {isRateLimited ? (
+                  <Clock className="w-4 h-4" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+          
+          {/* Error Messages */}
+          {(error || isRateLimited) && (
+            <div className="mt-2 px-4 text-xs text-destructive flex items-center">
+              <Clock className="w-3 h-3 mr-1" />
+              {error || `Wait ${rateLimitTime} seconds before sending another message`}
+            </div>
+          )}
+        </form>
+      </div>
+    </div>
   );
 }

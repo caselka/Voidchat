@@ -104,7 +104,7 @@ export default function ChatContainer({
   // Use the passed currentUser prop
 
   return (
-    <div>
+    <div className="max-w-4xl mx-auto px-4 pb-4">
       {filteredMessages.map((message, index) => {
         // Handle both direct message format and wrapped format
         const messageData = message.data || message;
@@ -114,26 +114,15 @@ export default function ChatContainer({
         return (
         <div 
           key={messageData.id || `message-${index}-${Date.now()}`} 
-          className="message message-fade-in"
+          className={`message-bubble message-fade-in group flex ${
+            isOwnMessage ? 'justify-end' : isSystemMessage ? 'justify-center' : 'justify-start'
+          }`}
           onTouchStart={() => handleLongPressStart(messageData)}
           onTouchEnd={handleLongPressEnd}
           onMouseDown={() => handleLongPressStart(messageData)}
           onMouseUp={handleLongPressEnd}
           onMouseLeave={handleLongPressEnd}
-          style={{
-            backgroundColor: isSystemMessage ? 'transparent' : 'var(--bubble-bg)',
-            padding: isSystemMessage ? 'var(--spacing-xs) var(--spacing-sm)' : 'var(--spacing-sm) var(--spacing-md)',
-            marginBottom: 'var(--spacing-sm)',
-            borderRadius: 'var(--radius)',
-            fontSize: 'var(--font-base)',
-            lineHeight: '1.5',
-            maxWidth: '85%',
-            wordWrap: 'break-word',
-            color: isSystemMessage ? 'var(--text-muted)' : 'var(--text)',
-            fontStyle: isSystemMessage ? 'italic' : 'normal',
-            textAlign: isSystemMessage ? 'center' : 'left',
-            transition: 'opacity 0.4s ease-out, transform 0.2s ease'
-          }}
+          style={{ marginBottom: '1rem' }}
         >
           <div className={`
             max-w-[85%] md:max-w-[75%] 
@@ -190,21 +179,34 @@ export default function ChatContainer({
               </div>
             )}
             
-          {/* Message content and metadata combined */}
-          <div>
-            {/* Username and timestamp for non-system messages */}
-            {!isSystemMessage && (
-              <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>
-                <span>{messageData.username}</span>
-                <span className="ml-2">{formatTime(messageData.createdAt || messageData.timestamp)}</span>
-              </div>
-            )}
-            
-            {/* Message text */}
-            <div className="selectable">
+            {/* Message Content */}
+            <div 
+              className={`
+                break-words selectable
+                ${isSystemMessage 
+                  ? 'italic text-center' 
+                  : 'rounded-lg'
+                }
+                ${messageData.isAd ? 'border-l-4 border-orange-400 pl-3' : ''}
+              `}
+              style={{
+                backgroundColor: isSystemMessage 
+                  ? 'transparent' 
+                  : isOwnMessage 
+                  ? 'var(--bubble-user)' 
+                  : 'var(--bubble-other)',
+                color: isSystemMessage 
+                  ? 'var(--text-muted)' 
+                  : 'var(--text)',
+                padding: isSystemMessage ? '0.5rem 0.75rem' : '0.875rem 1.125rem',
+                fontSize: '1rem',
+                lineHeight: '1.5',
+                borderRadius: isSystemMessage ? '0.25rem' : '0.75rem',
+                marginBottom: '0.5rem'
+              }}
+            >
               {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
             </div>
-          </div>
             
             {/* Ad-specific content */}
             {messageData.isAd && messageData.productName && (

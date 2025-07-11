@@ -2379,19 +2379,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Cleanup error:', error);
     }
   }, 60 * 1000);
-
-  // Serve clean static files for production-like experience  
-  app.get('/clean', (req, res) => {
-    res.sendFile('index.html', { root: './client' });
-  });
-  
-  app.get('/clean/style.css', (req, res) => {
-    res.sendFile('style.css', { root: './client' });
-  });
-  
-  app.get('/clean/script.js', (req, res) => {
-    res.sendFile('script.js', { root: './client' });
-  });
   
   return httpServer;
 }
