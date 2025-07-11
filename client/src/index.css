@@ -28,21 +28,27 @@
 
 /* Typography Scale - Mobile-first with 1.25x ratio */
 html {
-  font-size: 16px; /* Base 1rem = 16px */
+  font-size: 16px; /* Base 1rem = 16px - prevents iOS zoom */
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  height: 100%;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 1rem; /* 16px base */
+  font-size: 1rem; /* 16px base - prevents iOS zoom */
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg);
   color: var(--text);
   transition: background-color 0.2s ease, color 0.2s ease;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+  position: relative;
 }
 
 /* Typography Scale Classes */
@@ -737,6 +743,169 @@ html {
   100% {
     transform: translateY(100vh);
     opacity: 0;
+  }
+}
+
+/* Mobile-First Layout System */
+/* Root container that uses full viewport height */
+#root {
+  min-height: 100dvh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Chat layout container - flexbox for proper mobile layout */
+.chat-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Chat header area */
+.chat-header {
+  flex: 0 0 auto;
+  z-index: 100;
+  position: sticky;
+  top: 0;
+  background-color: var(--bg);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Main chat messages area - grows to fill space */
+.chat-messages-area {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: env(safe-area-inset-bottom);
+  position: relative;
+  scroll-behavior: smooth;
+}
+
+/* Input area - fixed at bottom */
+.chat-input-area {
+  flex: 0 0 auto;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background-color: var(--bg);
+  border-top: 1px solid var(--border-subtle);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* iOS keyboard handling */
+@supports (-webkit-touch-callout: none) {
+  .chat-input-area {
+    /* iOS-specific keyboard adaptation */
+    bottom: env(keyboard-inset-height, 0px);
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  
+  /* Prevent iOS zoom on input focus */
+  input, textarea, select {
+    font-size: 16px !important;
+    -webkit-appearance: none;
+  }
+}
+
+/* Message bubble improvements */
+.message-container {
+  padding: 0.75rem 1rem;
+  max-width: 100%;
+}
+
+.message-bubble {
+  margin-bottom: 1rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Improved message spacing and rhythm */
+.message-content {
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  max-width: 85%;
+  word-break: break-word;
+}
+
+/* Message fade animations */
+.message-fade-in {
+  animation: messageFadeIn 0.3s ease-out;
+}
+
+.message-fade-out {
+  animation: messageFadeOut 0.5s ease-out forwards;
+}
+
+@keyframes messageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes messageFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0.2;
+    transform: translateY(-0.25rem) scale(0.98);
+  }
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  /* Enhanced mobile message spacing */
+  .message-container {
+    padding: 0.5rem 1rem;
+  }
+  
+  .message-bubble {
+    margin-bottom: 0.75rem;
+  }
+  
+  .message-content {
+    font-size: 1rem; /* Keep 16px to prevent zoom */
+    padding: 0.625rem 0.875rem;
+    max-width: 90%;
+  }
+  
+  /* Better touch targets for message actions */
+  .message-actions button {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Optimized scrolling */
+  .chat-messages-area {
+    padding-top: 0.5rem;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   }
 }
 

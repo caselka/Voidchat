@@ -147,13 +147,15 @@ export default function Chat() {
   }
 
   return (
-    <div className="font-sans bg-background text-foreground transition-colors duration-300 min-h-screen chat-main-container">
+    <div className="chat-layout font-sans bg-background text-foreground transition-colors duration-300">
       {/* Dynamic Header */}
-      <DynamicHeader 
-        title={`voidchat · ${onlineCount} online`}
-        showRooms={true}
-        onRoomsClick={() => setShowRoomsSidebar(true)}
-      />
+      <div className="chat-header">
+        <DynamicHeader 
+          title={`voidchat · ${onlineCount} online`}
+          showRooms={true}
+          onRoomsClick={() => setShowRoomsSidebar(true)}
+        />
+      </div>
       
       {/* Rooms Sidebar */}
       <RoomsSidebar 
@@ -166,8 +168,9 @@ export default function Chat() {
         <HumanVerification onVerified={() => setIsHumanVerified(true)} />
       )} */}
       
-      {/* Chat Content */}
-      <div className="pt-16 pb-24">
+      {/* Main Chat Messages Area */}
+      <div className="chat-messages-area">
+        {/* Welcome Section */}
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center py-8">
             <h1 className="text-2xl font-light tracking-wide mb-3" style={{ color: 'var(--text)' }}>
@@ -208,27 +211,29 @@ export default function Chat() {
             )}
           </div>
         </div>
+
+        {/* Chat Messages Container */}
+        <div className="message-container">
+          <ChatContainer 
+            messages={messages}
+            isGuardian={user?.isGuardian || false}
+            onMuteUser={muteUser}
+            onDeleteMessage={deleteMessage}
+            onReplyToMessage={(message) => setReplyingTo(message)}
+            profanityFilter={profanityFilter}
+            currentUser={currentUser}
+          />
+        </div>
       </div>
 
-      {/* Chat Container */}
-      <div className="pb-24">
-        <ChatContainer 
-          messages={messages}
-          isGuardian={user?.isGuardian || false}
-          onMuteUser={muteUser}
-          onDeleteMessage={deleteMessage}
-          onReplyToMessage={(message) => setReplyingTo(message)}
-          profanityFilter={profanityFilter}
-          currentUser={currentUser}
+      {/* Message Input - Sticky at bottom */}
+      <div className="chat-input-area">
+        <MessageInput 
+          onSendMessage={sendMessage}
+          rateLimitTime={rateLimitTime}
+          error={error}
         />
       </div>
-
-      {/* Message Input - Fixed at bottom with proper keyboard handling */}
-      <MessageInput 
-        onSendMessage={sendMessage}
-        rateLimitTime={rateLimitTime}
-        error={error}
-      />
 
       {/* Walkthrough */}
       <Walkthrough

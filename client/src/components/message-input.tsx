@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Clock, Hourglass } from "lucide-react";
-import { useIOSKeyboard } from "@/hooks/use-ios-keyboard";
 
 interface MessageInputProps {
   onSendMessage: (content: string) => void;
@@ -17,7 +16,6 @@ export default function MessageInput({
 }: MessageInputProps) {
   const [messageText, setMessageText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { keyboardHeight, isKeyboardOpen, inputRef } = useIOSKeyboard();
   const maxLength = 500;
   const isRateLimited = rateLimitTime > 0;
   const canSend = messageText.trim().length > 0 && !isRateLimited;
@@ -76,33 +74,8 @@ export default function MessageInput({
   };
 
   return (
-    <div 
-      ref={inputRef}
-      className="message-input-container"
-      style={{
-        position: 'fixed',
-        bottom: isKeyboardOpen ? `${keyboardHeight}px` : '0px',
-        left: 0,
-        right: 0,
-        width: '100%',
-        backgroundColor: 'var(--bg)',
-        borderTop: '1px solid var(--input-border)',
-        zIndex: 1000,
-        transition: 'bottom 0.2s ease-out',
-        paddingBottom: 'env(safe-area-inset-bottom)',
-        transform: 'translate3d(0,0,0)', // Hardware acceleration to prevent scroll movement
-        willChange: 'transform', // Optimize for transform changes
-        touchAction: 'none' // Prevent touch scroll on input container
-      }}
-    >
-      <div 
-        className="max-w-4xl mx-auto" 
-        style={{ 
-          padding: '12px',
-          transform: 'translate3d(0,0,0)', // Ensure input area stays fixed
-          position: 'relative'
-        }}
-      >
+    <div className="w-full">
+      <div className="max-w-4xl mx-auto p-4">
 
         <form onSubmit={handleSubmit} className="w-full">
           <div 
@@ -133,34 +106,24 @@ export default function MessageInput({
                     handleSubmit(e);
                   }
                 }}
-                onFocus={(e) => {
-                  // Prevent scroll movement on focus - keep input fixed
-                  e.target.scrollIntoView = () => {}; // Disable scrollIntoView
-                  
-                  // Scroll content area to bottom instead of moving input
+                onFocus={() => {
+                  // Scroll the chat messages area to bottom when input is focused
                   setTimeout(() => {
-                    const chatContainer = document.querySelector('.chat-container');
-                    if (chatContainer) {
-                      chatContainer.scrollTop = chatContainer.scrollHeight;
-                    } else {
-                      // Fallback to window scroll
-                      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    const messagesArea = document.querySelector('.chat-messages-area');
+                    if (messagesArea) {
+                      messagesArea.scrollTop = messagesArea.scrollHeight;
                     }
                   }, 100);
-                }}
-                onBlur={() => {
-                  // Blur handling is now managed by useIOSKeyboard hook
                 }}
                 placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Type a message..."}
                 className="message-input w-full resize-none border-none outline-none bg-transparent disabled:opacity-50 disabled:cursor-not-allowed selectable"
                 style={{
                   color: 'var(--text)',
-                  fontSize: '16px', // Prevent iOS zoom
+                  fontSize: '1rem', // 16px using rem units
                   lineHeight: '1.5',
                   padding: '0.75rem 1rem',
-                  minHeight: '32px',
-                  transform: 'translate3d(0,0,0)', // Hardware acceleration
-                  willChange: 'height', // Optimize for height changes only
+                  minHeight: '2.75rem', // 44px touch target in rem
+                  borderRadius: '0.75rem',
                   touchAction: 'manipulation' // Prevent double-tap zoom
                 }}
                 maxLength={maxLength}

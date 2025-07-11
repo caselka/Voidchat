@@ -104,7 +104,7 @@ export default function ChatContainer({
   // Use the passed currentUser prop
 
   return (
-    <div className="space-y-2 pb-4 max-w-4xl mx-auto px-4">
+    <div className="max-w-4xl mx-auto px-4 pb-4">
       {filteredMessages.map((message, index) => {
         // Handle both direct message format and wrapped format
         const messageData = message.data || message;
@@ -122,7 +122,7 @@ export default function ChatContainer({
           onMouseDown={() => handleLongPressStart(messageData)}
           onMouseUp={handleLongPressEnd}
           onMouseLeave={handleLongPressEnd}
-          style={{ marginBottom: '0.5rem' }}
+          style={{ marginBottom: '1rem' }}
         >
           <div className={`
             max-w-[85%] md:max-w-[75%] 
@@ -198,10 +198,11 @@ export default function ChatContainer({
                 color: isSystemMessage 
                   ? 'var(--text-muted)' 
                   : 'var(--text)',
-                padding: isSystemMessage ? '0.25rem 0.5rem' : '0.75rem 1rem',
+                padding: isSystemMessage ? '0.5rem 0.75rem' : '0.875rem 1.125rem',
                 fontSize: '1rem',
                 lineHeight: '1.5',
-                borderRadius: isSystemMessage ? '0' : '0.5rem'
+                borderRadius: isSystemMessage ? '0.25rem' : '0.75rem',
+                marginBottom: '0.5rem'
               }}
             >
               {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
