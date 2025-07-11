@@ -111,9 +111,12 @@ export default function MessageInput({
                   setTimeout(() => {
                     const messagesArea = document.querySelector('.chat-messages-area');
                     if (messagesArea) {
-                      messagesArea.scrollTop = messagesArea.scrollHeight;
+                      messagesArea.scrollTo({
+                        top: messagesArea.scrollHeight,
+                        behavior: 'smooth'
+                      });
                     }
-                  }, 100);
+                  }, 150);
                 }}
                 placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Type a message..."}
                 className="message-input w-full resize-none border-none outline-none bg-transparent disabled:opacity-50 disabled:cursor-not-allowed selectable"

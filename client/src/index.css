@@ -803,7 +803,7 @@ html {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* iOS keyboard handling */
+/* iOS keyboard handling with enhanced safe area support */
 @supports (-webkit-touch-callout: none) {
   .chat-input-area {
     /* iOS-specific keyboard adaptation */
@@ -812,12 +812,27 @@ html {
     -webkit-transform: translateZ(0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    /* Enhanced safe area handling */
+    padding-bottom: max(env(safe-area-inset-bottom), 1rem);
   }
   
   /* Prevent iOS zoom on input focus */
   input, textarea, select {
     font-size: 16px !important;
     -webkit-appearance: none;
+    -webkit-user-select: text;
+  }
+  
+  /* Enhanced keyboard detection for iOS */
+  @media (max-height: 600px) and (orientation: landscape) {
+    .chat-input-area {
+      padding: 0.5rem 1rem;
+      padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+    }
+    
+    .chat-messages-area {
+      padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+    }
   }
 }
 
@@ -847,19 +862,29 @@ html {
   word-break: break-word;
 }
 
-/* Message fade animations */
+/* Enhanced message animations for smooth mobile experience */
 .message-fade-in {
-  animation: messageFadeIn 0.3s ease-out;
+  animation: messageFadeIn 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .message-fade-out {
-  animation: messageFadeOut 0.5s ease-out forwards;
+  animation: messageFadeOut 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.message-expired {
+  opacity: 0.3;
+  transform: scale(0.98);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
 
 @keyframes messageFadeIn {
   from {
     opacity: 0;
-    transform: translateY(0.5rem) scale(0.98);
+    transform: translateY(1rem) scale(0.95);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateY(0.2rem) scale(0.98);
   }
   to {
     opacity: 1;
@@ -872,9 +897,13 @@ html {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+  50% {
+    opacity: 0.5;
+    transform: translateY(-0.125rem) scale(0.99);
+  }
   to {
-    opacity: 0.2;
-    transform: translateY(-0.25rem) scale(0.98);
+    opacity: 0.15;
+    transform: translateY(-0.5rem) scale(0.96);
   }
 }
 
@@ -882,17 +911,18 @@ html {
 @media (max-width: 768px) {
   /* Enhanced mobile message spacing */
   .message-container {
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1rem;
   }
   
   .message-bubble {
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
   }
   
   .message-content {
     font-size: 1rem; /* Keep 16px to prevent zoom */
-    padding: 0.625rem 0.875rem;
-    max-width: 90%;
+    padding: 0.75rem 1rem;
+    max-width: 88%;
+    line-height: 1.6;
   }
   
   /* Better touch targets for message actions */
@@ -902,10 +932,34 @@ html {
     font-size: 0.875rem;
   }
   
-  /* Optimized scrolling */
+  /* Optimized scrolling with proper spacing */
   .chat-messages-area {
-    padding-top: 0.5rem;
+    padding-top: 1rem;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  }
+  
+  /* Enhanced input area for mobile */
+  .chat-input-area {
+    padding: 1rem;
     padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+  
+  /* Mobile typography adjustments */
+  .text-center h1 {
+    font-size: 1.5rem; /* 24px */
+    margin-bottom: 0.75rem;
+  }
+  
+  .text-center p {
+    font-size: 0.875rem; /* 14px */
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Improved button spacing for mobile */
+  .mobile-status-buttons {
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
   }
 }
 

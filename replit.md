@@ -108,7 +108,20 @@ Voidchat is a minimalist, anonymous real-time chat room designed with the aesthe
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Updates (July 9, 2025)
+## Recent Updates (July 11, 2025)
+
+### Mobile-First CSS Layout Overhaul (Latest)
+- **Complete flexbox layout system**: Implemented 100dvh mobile-first layout with proper header, messages area, and sticky input sections
+- **iOS keyboard compatibility**: Enhanced env(safe-area-inset-bottom) support and keyboard-inset-height handling for iOS devices
+- **Rem-based typography**: Standardized 16px base font size using rem units throughout the app for consistent scaling
+- **Improved message spacing**: Better visual rhythm with 1rem message bubble spacing and enhanced padding for readability
+- **Smooth message animations**: Enhanced fade-in/fade-out animations using cubic-bezier curves for professional mobile experience
+- **Touch-friendly interfaces**: 44px minimum touch targets and optimized button sizing for mobile accessibility
+- **Auto-scroll optimization**: Fixed auto-scroll behavior to work with new flexbox layout and messages container
+- **Enhanced responsive design**: Better mobile typography, status button spacing, and landscape orientation support
+- **Hardware acceleration**: Added transform3d and will-change properties for smooth scrolling and animations on mobile devices
+
+## Previous Updates (July 9, 2025)
 
 ### Comprehensive Mobile Optimization for All Pages (Latest)
 - **Complete mobile-first redesign**: All dashboard pages, messaging interfaces, and moderation tools now fully optimized for mobile devices

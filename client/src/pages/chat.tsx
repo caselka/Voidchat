@@ -87,53 +87,39 @@ export default function Chat() {
   const needsVerification = false; // !isAuthenticated && !isHumanVerified;
 
   useEffect(() => {
-    // Check if user is at bottom - improved for mobile
+    // Track scroll position in the messages area for auto-scroll behavior
     const handleScroll = () => {
-      const threshold = 150; // Increased threshold for mobile
-      const container = document.getElementById('root') || window;
-      const scrollElement = container === window ? document.documentElement : container;
-      const position = (container === window ? window.innerHeight : container.clientHeight) + 
-                      (container === window ? window.scrollY : container.scrollTop);
-      const height = scrollElement.scrollHeight;
-      setIsAtBottom(position >= height - threshold);
-    };
-
-    // Use both window and root container for better mobile support
-    window.addEventListener('scroll', handleScroll);
-    const rootElement = document.getElementById('root');
-    if (rootElement) {
-      rootElement.addEventListener('scroll', handleScroll);
-    }
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (rootElement) {
-        rootElement.removeEventListener('scroll', handleScroll);
+      const messagesArea = document.querySelector('.chat-messages-area');
+      if (messagesArea) {
+        const threshold = 100;
+        const position = messagesArea.scrollTop + messagesArea.clientHeight;
+        const height = messagesArea.scrollHeight;
+        setIsAtBottom(position >= height - threshold);
       }
     };
+
+    const messagesArea = document.querySelector('.chat-messages-area');
+    if (messagesArea) {
+      messagesArea.addEventListener('scroll', handleScroll);
+      return () => messagesArea.removeEventListener('scroll', handleScroll);
+    }
   }, []);
 
   useEffect(() => {
-    // Auto-scroll when new messages arrive and user is at bottom - improved for mobile
-    if (isAtBottom && messages.length > 0) {
+    // Auto-scroll when new messages arrive - optimized for new flexbox layout
+    if (messages.length > 0) {
       setTimeout(() => {
-        const rootElement = document.getElementById('root');
-        if (rootElement && rootElement.scrollHeight > rootElement.clientHeight) {
-          // Mobile: scroll the root container
-          rootElement.scrollTo({ 
-            top: rootElement.scrollHeight, 
-            behavior: 'smooth' 
-          });
-        } else {
-          // Desktop: scroll the window
-          window.scrollTo({ 
-            top: document.documentElement.scrollHeight, 
+        const messagesArea = document.querySelector('.chat-messages-area');
+        if (messagesArea) {
+          // Scroll the messages area container to bottom
+          messagesArea.scrollTo({ 
+            top: messagesArea.scrollHeight, 
             behavior: 'smooth' 
           });
         }
       }, 100);
     }
-  }, [messages, isAtBottom]);
+  }, [messages]);
 
   // Show connection status
   if (!isConnected) {
@@ -187,13 +173,13 @@ export default function Chat() {
           </div>
           
           {/* Status indicators */}
-          <div className="flex justify-center items-center gap-6 mt-4">
+          <div className="flex justify-center items-center mobile-status-buttons">
             {/* Profanity Filter Toggle */}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setProfanityFilter(!profanityFilter)}
-              className="p-2 transition-colors rounded-lg"
+              className="p-3 transition-colors rounded-lg min-h-11 min-w-11"
               style={{
                 backgroundColor: profanityFilter ? 'var(--bubble-other)' : 'transparent',
                 color: profanityFilter ? 'var(--text)' : 'var(--text-muted)'
@@ -205,7 +191,10 @@ export default function Chat() {
             
             {/* Rate Limit Indicator */}
             {rateLimitTime > 0 && (
-              <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
+              <div className="text-sm px-3 py-2 rounded-lg" style={{ 
+                color: 'var(--text-muted)',
+                backgroundColor: 'var(--bubble-other)'
+              }}>
                 Cooldown: {rateLimitTime}s
               </div>
             )}
