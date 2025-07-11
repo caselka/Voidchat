@@ -49,6 +49,13 @@ export default function MessageInput({
     e.preventDefault();
     
     if (canSend && isSecureMessage(messageText)) {
+      // Add send animation
+      const button = e.currentTarget.querySelector('.discord-send-button');
+      if (button) {
+        button.classList.add('sending-animation');
+        setTimeout(() => button.classList.remove('sending-animation'), 200);
+      }
+      
       onSendMessage(messageText.trim());
       setMessageText('');
       

@@ -158,16 +158,9 @@ export default function ChatContainer({
           ) : (
             /* Regular message layout */
             <div className="message-wrapper">
-              {/* Avatar (hidden in compact mode) */}
-              {!isCompact && (
-                <div className="message-avatar">
-                  {getAvatarInitials(messageData.username)}
-                </div>
-              )}
-              
-              {/* Message content wrapper */}
+              {/* Message content wrapper - no avatars */}
               <div className="message-content-wrapper">
-                {/* Message header (hidden in compact mode) */}
+                {/* Message header with timer */}
                 {!isCompact && (
                   <div className="message-header">
                     <span className="message-username">
@@ -175,6 +168,10 @@ export default function ChatContainer({
                     </span>
                     <span className="message-timestamp">
                       {formatTime(messageData.createdAt || messageData.timestamp)}
+                    </span>
+                    {/* Message timer */}
+                    <span className="message-timer text-xs opacity-60">
+                      {getTimeUntilDelete(messageData.expiresAt)}
                     </span>
                   </div>
                 )}
