@@ -110,7 +110,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 11, 2025)
 
-### Mobile-First CSS Layout Overhaul (Latest)
+### Enhanced Message Layout with Left/Right Alignment (Latest)
+- **Removed message containers**: Eliminated background containers around messages for cleaner, more modern appearance
+- **Left/right message alignment**: User messages appear on right side (blue), other users' messages on left side (gray/themed)
+- **Proper theme color integration**: Messages now correctly match light/dark theme without overlapping elements
+- **Mobile-optimized message bubbles**: Enhanced padding, border-radius, and spacing for better mobile touch interaction
+- **Improved color consistency**: Fixed color variables for proper contrast in both light and dark modes
+- **Enhanced room page integration**: Room messages now also use the improved left/right alignment system
+- **Better visual hierarchy**: Username and timestamp positioning optimized for left/right alignment patterns
+- **Hardware-accelerated animations**: Smooth message transitions with proper CSS transforms for mobile performance
+
+### Mobile-First CSS Layout Overhaul
 - **Complete flexbox layout system**: Implemented 100dvh mobile-first layout with proper header, messages area, and sticky input sections
 - **iOS keyboard compatibility**: Enhanced env(safe-area-inset-bottom) support and keyboard-inset-height handling for iOS devices
 - **Rem-based typography**: Standardized 16px base font size using rem units throughout the app for consistent scaling

@@ -307,6 +307,7 @@ export default function Room() {
             onDeleteMessage={handleDeleteMessage}
             onReplyToMessage={() => {}} // Rooms don't support replies yet
             profanityFilter={false}
+            currentUser={user?.username}
           />
         </div>
         </div>

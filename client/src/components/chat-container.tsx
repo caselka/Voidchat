@@ -104,7 +104,7 @@ export default function ChatContainer({
   // Use the passed currentUser prop
 
   return (
-    <div className="max-w-4xl mx-auto px-4 pb-4">
+    <div className="w-full pb-4">
       {filteredMessages.map((message, index) => {
         // Handle both direct message format and wrapped format
         const messageData = message.data || message;
@@ -114,21 +114,16 @@ export default function ChatContainer({
         return (
         <div 
           key={messageData.id || `message-${index}-${Date.now()}`} 
-          className={`message-bubble message-fade-in group flex ${
-            isOwnMessage ? 'justify-end' : isSystemMessage ? 'justify-center' : 'justify-start'
+          className={`message-bubble message-fade-in group ${
+            isOwnMessage ? 'own-message' : isSystemMessage ? 'system-message' : 'other-message'
           }`}
           onTouchStart={() => handleLongPressStart(messageData)}
           onTouchEnd={handleLongPressEnd}
           onMouseDown={() => handleLongPressStart(messageData)}
           onMouseUp={handleLongPressEnd}
           onMouseLeave={handleLongPressEnd}
-          style={{ marginBottom: '1rem' }}
         >
-          <div className={`
-            max-w-[85%] md:max-w-[75%] 
-            ${isSystemMessage ? 'max-w-full text-center' : ''}
-            ${isOwnMessage ? 'ml-auto' : isSystemMessage ? 'mx-auto' : 'mr-auto'}
-          `}>
+          <div className="message-wrapper">
             {/* Message Header - Only for non-system messages */}
             {!isSystemMessage && (
               <div className={`flex items-center gap-2 mb-1 text-xs ${
@@ -136,21 +131,20 @@ export default function ChatContainer({
               }`}>
                 <div className={`flex items-center gap-2 ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'}`}>
                   {/* Username */}
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                  <span style={{ 
+                    color: isOwnMessage ? 'rgba(255,255,255,0.7)' : 'var(--text-muted)', 
+                    fontSize: '0.75rem' 
+                  }}>
                     {messageData.username}
                   </span>
                   
                   {/* Timestamp */}
-                  <span style={{ color: 'var(--text-subtle)', fontSize: '0.75rem' }}>
+                  <span style={{ 
+                    color: isOwnMessage ? 'rgba(255,255,255,0.6)' : 'var(--text-subtle)', 
+                    fontSize: '0.75rem' 
+                  }}>
                     {formatTime(messageData.createdAt || messageData.timestamp)}
                   </span>
-                  
-                  {/* Expiry time */}
-                  {messageData.expiresAt && (
-                    <span style={{ color: 'var(--text-subtle)', fontSize: '0.75rem' }}>
-                      • {getTimeUntilDelete(messageData.expiresAt)}
-                    </span>
-                  )}
                   
                   {/* Guardian Controls */}
                   {isGuardian && !messageData.isAd && !isOwnMessage && (
@@ -181,28 +175,18 @@ export default function ChatContainer({
             
             {/* Message Content */}
             <div 
-              className={`
-                break-words selectable
-                ${isSystemMessage 
-                  ? 'italic text-center' 
-                  : 'rounded-lg'
-                }
-                ${messageData.isAd ? 'border-l-4 border-orange-400 pl-3' : ''}
-              `}
+              className="message-content"
               style={{
                 backgroundColor: isSystemMessage 
                   ? 'transparent' 
                   : isOwnMessage 
-                  ? 'var(--bubble-user)' 
+                  ? 'var(--primary, #007AFF)' 
                   : 'var(--bubble-other)',
                 color: isSystemMessage 
                   ? 'var(--text-muted)' 
+                  : isOwnMessage 
+                  ? 'white' 
                   : 'var(--text)',
-                padding: isSystemMessage ? '0.5rem 0.75rem' : '0.875rem 1.125rem',
-                fontSize: '1rem',
-                lineHeight: '1.5',
-                borderRadius: isSystemMessage ? '0.25rem' : '0.75rem',
-                marginBottom: '0.5rem'
               }}
             >
               {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
