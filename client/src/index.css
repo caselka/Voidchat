@@ -823,7 +823,7 @@ html {
     -webkit-user-select: text;
   }
   
-  /* Enhanced keyboard detection for iOS */
+    /* Enhanced keyboard detection for iOS */
   @media (max-height: 600px) and (orientation: landscape) {
     .chat-input-area {
       padding: 0.5rem 1rem;
@@ -833,6 +833,30 @@ html {
     .chat-messages-area {
       padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
     }
+    
+    /* Compact welcome section in landscape */
+    .welcome-section {
+      padding: 1rem;
+    }
+    
+    .welcome-title {
+      font-size: 1.25rem;
+    }
+    
+    .stats-container {
+      gap: 1.5rem;
+    }
+  }
+  
+  /* Enhanced visual feedback for touch interactions */
+  .touch-feedback {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+  
+  .touch-feedback:active {
+    transform: scale(0.98);
+    opacity: 0.8;
   }
 }
 
@@ -960,6 +984,53 @@ html {
     gap: 1rem;
     margin-top: 1rem;
     margin-bottom: 1.5rem;
+  }
+  
+  /* Enhanced room sidebar for mobile */
+  .rooms-sidebar {
+    width: 100vw !important;
+    max-width: 24rem;
+  }
+  
+  /* Mobile room cards */
+  .room-card {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  
+  .room-card:active {
+    transform: scale(0.98);
+  }
+  
+  /* Enhanced status indicators for mobile */
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  /* Welcome section mobile adjustments */
+  .welcome-section {
+    padding: 1.5rem 1rem;
+  }
+  
+  .welcome-title {
+    font-size: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+  
+  .stats-container {
+    gap: 2rem;
+  }
+  
+  .stat-item {
+    min-width: 3rem;
   }
 }
 

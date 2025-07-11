@@ -158,17 +158,48 @@ export default function Chat() {
       <div className="chat-messages-area">
         {/* Welcome Section */}
         <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center py-8">
-            <h1 className="text-2xl font-light tracking-wide mb-3" style={{ color: 'var(--text)' }}>
-              voidchat
-            </h1>
-            <p className="text-sm mb-2" style={{ color: 'var(--text-muted)' }}>
-              Welcome to the void. Messages are permanent.
-            </p>
-            {currentUser && (
+          <div className="text-center py-6 md:py-8 space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                <h1 className="text-xl md:text-2xl font-light tracking-wide" style={{ color: 'var(--text)' }}>
+                  voidchat
+                </h1>
+              </div>
               <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                You are <span style={{ color: 'var(--text)', fontWeight: '500' }}>{currentUser}</span>
+                Anonymous real-time chat • Messages persist permanently
               </p>
+            </div>
+            
+            {/* Enhanced status indicators */}
+            <div className="flex justify-center items-center space-x-6 md:space-x-8">
+              <div className="text-center">
+                <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>
+                  {onlineCount}
+                </div>
+                <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  online
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold" style={{ color: 'var(--text)' }}>
+                  {messages.length}
+                </div>
+                <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  messages
+                </div>
+              </div>
+            </div>
+            
+            {currentUser && (
+              <div className="px-3 py-2 rounded-lg inline-block" style={{ 
+                backgroundColor: 'var(--bubble-other)',
+                border: '1px solid var(--border-subtle)'
+              }}>
+                <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  You are <span style={{ color: 'var(--text)', fontWeight: '500' }}>{currentUser}</span>
+                </span>
+              </div>
             )}
           </div>
           
@@ -191,11 +222,14 @@ export default function Chat() {
             
             {/* Rate Limit Indicator */}
             {rateLimitTime > 0 && (
-              <div className="text-sm px-3 py-2 rounded-lg" style={{ 
-                color: 'var(--text-muted)',
-                backgroundColor: 'var(--bubble-other)'
+              <div className="flex items-center space-x-2 px-4 py-2 rounded-xl" style={{ 
+                backgroundColor: 'var(--bubble-other)',
+                border: '1px solid var(--border-subtle)'
               }}>
-                Cooldown: {rateLimitTime}s
+                <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div>
+                <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  Cooldown: {rateLimitTime}s
+                </span>
               </div>
             )}
           </div>

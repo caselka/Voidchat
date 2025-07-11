@@ -191,15 +191,18 @@ export default function Room() {
   const canModerate = isOwner || isSuperUser;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <DynamicHeader 
-        title={`/${room.name}`}
-        showBack={true}
-        backUrl="/chat"
-        showHome={true}
-        showRooms={true}
-        onRoomsClick={() => setShowRoomsSidebar(true)}
-      />
+    <div className="chat-layout bg-background text-foreground">
+      {/* Dynamic Header */}
+      <div className="chat-header">
+        <DynamicHeader 
+          title={`/${room.name}`}
+          showBack={true}
+          backUrl="/chat"
+          showHome={true}
+          showRooms={true}
+          onRoomsClick={() => setShowRoomsSidebar(true)}
+        />
+      </div>
       
       {/* Rooms Sidebar */}
       <RoomsSidebar 
@@ -207,29 +210,54 @@ export default function Room() {
         onClose={() => setShowRoomsSidebar(false)}
       />
       
-      <div className="max-w-6xl mx-auto pt-16 pb-20 px-2">
+      {/* Main Chat Messages Area */}
+      <div className="chat-messages-area">
+        <div className="max-w-6xl mx-auto px-2">
         {/* Room Header */}
-        <div className="flex items-center justify-between mb-4 px-2">
-          <div className="flex items-center space-x-2">
-            <MessageSquare className="w-5 h-5 text-purple-500" />
-            <h1 className="text-lg font-medium">/{room.name}</h1>
-            {isOwner && <Crown className="w-4 h-4 text-yellow-500" title="You own this room" />}
-            {isSuperUser && !isOwner && <Shield className="w-4 h-4 text-blue-500" title="Super User - Universal Moderation" />}
-            <span className="text-xs text-muted-foreground">
-              {isConnected ? '• Connected' : '• Connecting...'}
-            </span>
+        <div className="border-b p-4 mb-4" style={{ 
+          backgroundColor: 'var(--bubble-other)', 
+          borderColor: 'var(--border-subtle)' 
+        }}>
+          <div className="flex flex-col md:flex-row md:items-center justify-between space-y-3 md:space-y-0">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                <MessageSquare className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h1 className="text-lg md:text-xl font-semibold" style={{ color: 'var(--text)' }}>
+                    /{room.name}
+                  </h1>
+                  {isOwner && (
+                    <div className="p-1 rounded-full bg-yellow-100 dark:bg-yellow-900/30">
+                      <Crown className="w-4 h-4 text-yellow-600 dark:text-yellow-400" title="You own this room" />
+                    </div>
+                  )}
+                  {isSuperUser && !isOwner && (
+                    <div className="p-1 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                      <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" title="Super User - Universal Moderation" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center space-x-3 text-xs" style={{ color: 'var(--text-muted)' }}>
+                  <span>{isConnected ? '🟢 Connected' : '🟡 Connecting...'}</span>
+                  <span>• Created {new Date(room.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            </div>
+            
+            {canModerate && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowSettings(!showSettings)}
+                className="h-9 w-9 rounded-lg"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                <Settings className="w-4 h-4" />
+              </Button>
+            )}
           </div>
-          
-          {canModerate && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowSettings(!showSettings)}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <Settings className="w-4 h-4" />
-            </Button>
-          )}
         </div>
 
         {/* Room Settings Panel */}
@@ -281,10 +309,11 @@ export default function Room() {
             profanityFilter={false}
           />
         </div>
+        </div>
       </div>
 
-      {/* Message Input */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4">
+      {/* Message Input - Enhanced for mobile */}
+      <div className="chat-input-area">
         <div className="max-w-6xl mx-auto">
           <MessageInput
             onSendMessage={sendMessage}
