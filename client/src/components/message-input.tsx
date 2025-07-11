@@ -82,79 +82,94 @@ export default function MessageInput({
 
   return (
     <div className="w-full">
-      <form onSubmit={handleSubmit} className="w-full p-4 pl-[9px] pr-[9px] pt-[0px] pb-[0px]">
-        <div className="flex-1 overflow-hidden">
-              <textarea
-                ref={textareaRef}
-                value={messageText}
-                onChange={handleInputChange}
-                onPaste={(e) => {
-                  // Prevent pasting of potentially dangerous content
-                  e.preventDefault();
-                  const paste = e.clipboardData.getData('text/plain');
-                  const cleanPaste = paste.replace(/<[^>]*>/g, '').replace(/\{[^}]*\}/g, '');
-                  setMessageText(prev => (prev + cleanPaste).substring(0, maxLength));
-                }}
-                
-                onFocus={() => {
-                  // Scroll the chat messages area to bottom when input is focused
-                  setTimeout(() => {
-                    const messagesArea = document.querySelector('.chat-messages-area');
-                    if (messagesArea) {
-                      messagesArea.scrollTo({
-                        top: messagesArea.scrollHeight,
-                        behavior: 'smooth'
-                      });
-                    }
-                  }, 150);
-                }}
-                placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Message #voidchat"}
-                className="discord-input w-full resize-none border-none outline-none disabled:opacity-50 disabled:cursor-not-allowed selectable pt-[10px] pb-[10px] pl-[15px] pr-[15px] ml-[0px] mr-[0px] bg-[#e4e5e6cf]"
-                style={{
-                  color: 'var(--text)',
-                  fontSize: '1rem', // 16px using rem units
-                  lineHeight: '1.5',
-                  padding: '0.75rem 1rem',
-                  minHeight: '2.75rem', // 44px touch target in rem
-                  borderRadius: '0.75rem',
-                  touchAction: 'manipulation' // Prevent double-tap zoom
-                }}
-                maxLength={maxLength}
-                disabled={isRateLimited}
-                autoComplete="off"
-                spellCheck="false"
-                rows={1}
-              />
-            </div>
-            
-            <div className="flex items-center gap-2 px-3">
-              <span 
-                style={{
-                  color: 'var(--text-subtle)',
-                  fontSize: '0.75rem'
-                }}
-              >
-                {messageText.length}/{maxLength}
-              </span>
-              <Button
-                type="submit"
-                disabled={!canSend}
-                size="sm"
-                className="discord-send-button p-0 shrink-0 transition-colors duration-200 border-0 focus:outline-none"
-                style={{
-                  height: '32px',
-                  width: '32px',
-                  borderRadius: '0.25rem'
-                }}
-              >
-                {isRateLimited ? (
-                  <Clock className="w-4 h-4" />
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
-              </Button>
-            </div>
+      <form onSubmit={handleSubmit} className="w-full p-4 pl-[9px] pr-[9px]">
+        <div 
+          className="relative flex items-center transition-all duration-200 max-w-4xl mx-auto"
+          style={{
+            backgroundColor: 'var(--input-bg)',
+            border: '1px solid var(--input-border)',
+            borderRadius: '0.75rem',
+            minHeight: '44px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)'
+          }}
+        >
+          <textarea
+            ref={textareaRef}
+            value={messageText}
+            onChange={handleInputChange}
+            onPaste={(e) => {
+              // Prevent pasting of potentially dangerous content
+              e.preventDefault();
+              const paste = e.clipboardData.getData('text/plain');
+              const cleanPaste = paste.replace(/<[^>]*>/g, '').replace(/\{[^}]*\}/g, '');
+              setMessageText(prev => (prev + cleanPaste).substring(0, maxLength));
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
+            onFocus={() => {
+              // Scroll the chat messages area to bottom when input is focused
+              setTimeout(() => {
+                const messagesArea = document.querySelector('.chat-messages-area');
+                if (messagesArea) {
+                  messagesArea.scrollTo({
+                    top: messagesArea.scrollHeight,
+                    behavior: 'smooth'
+                  });
+                }
+              }, 150);
+            }}
+            placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Message #voidchat"}
+            className="discord-input flex-1 resize-none border-none outline-none disabled:opacity-50 disabled:cursor-not-allowed selectable bg-transparent"
+            style={{
+              color: 'var(--text)',
+              fontSize: '1rem', // 16px using rem units
+              lineHeight: '1.5',
+              padding: '0.75rem 1rem',
+              minHeight: '2.75rem', // 44px touch target in rem
+              touchAction: 'manipulation' // Prevent double-tap zoom
+            }}
+            maxLength={maxLength}
+            disabled={isRateLimited}
+            autoComplete="off"
+            spellCheck="false"
+            rows={1}
+          />
           
+          <div className="flex items-center gap-2 px-3">
+            <span 
+              style={{
+                color: 'var(--text-subtle)',
+                fontSize: '0.75rem'
+              }}
+            >
+              {messageText.length}/{maxLength}
+            </span>
+            <Button
+              type="submit"
+              disabled={!canSend}
+              size="sm"
+              className="discord-send-button p-0 shrink-0 transition-colors duration-200 border-0 focus:outline-none"
+              style={{
+                height: '32px',
+                width: '32px',
+                borderRadius: '0.25rem'
+              }}
+            >
+              {isRateLimited ? (
+                <Clock className="w-4 h-4" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
+        </div>
+        
         {/* Error Messages */}
         {(error || isRateLimited) && (
           <div className="mt-2 px-4 text-xs text-destructive flex items-center justify-center max-w-4xl mx-auto">
