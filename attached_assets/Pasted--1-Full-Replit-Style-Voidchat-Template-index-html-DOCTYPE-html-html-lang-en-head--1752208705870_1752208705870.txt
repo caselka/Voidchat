@@ -1,0 +1,210 @@
+
+✅ 1. Full Replit-Style Voidchat Template
+
+📄 index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Voidchat</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="chat-wrapper">
+    <header class="chat-header">
+      <h1>Voidchat</h1>
+      <p>Welcome to the void. Messages are temporary.<br>You are <span id="user">anon2185</span></p>
+    </header>
+
+    <div class="chat-messages" id="messages"></div>
+
+    <form class="chat-input-bar" onsubmit="sendMessage(); return false;">
+      <input type="text" id="messageInput" placeholder="Type a message…" maxlength="500" />
+      <button type="submit">➤</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+⸻
+
+🎨 style.css
+
+:root {
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --radius: 0.5rem;
+  --font-sm: 0.9rem;
+  --font-base: 1rem;
+  --font-lg: 1.1rem;
+  --bg: #0d0d0d;
+  --text: #eeeeee;
+  --bubble-bg: #1c1c1c;
+  --border: #2a2a2a;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  overflow: hidden;
+}
+
+.chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.chat-header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.chat-header h1 {
+  font-size: var(--font-lg);
+  margin-bottom: var(--spacing-xs);
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  scroll-padding-bottom: 6rem;
+}
+
+.message {
+  background-color: var(--bubble-bg);
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  border-radius: var(--radius);
+  font-size: var(--font-base);
+  line-height: 1.5;
+  max-width: 85%;
+  word-wrap: break-word;
+  transition: opacity 0.4s ease-out, transform 0.2s ease;
+}
+
+.fade-out {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.chat-input-bar {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: #111;
+  border-top: 1px solid var(--border);
+}
+
+.chat-input-bar input {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-base);
+  border-radius: var(--radius);
+  border: none;
+  background: #222;
+  color: var(--text);
+}
+
+.chat-input-bar input:focus {
+  outline: none;
+}
+
+.chat-input-bar button {
+  font-size: var(--font-lg);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: #333;
+  color: white;
+  border-radius: var(--radius);
+  border: none;
+}
+
+
+⸻
+
+⚙️ script.js
+
+function sendMessage() {
+  const input = document.getElementById("messageInput");
+  const messages = document.getElementById("messages");
+
+  const msgText = input.value.trim();
+  if (!msgText) return;
+
+  const msg = document.createElement("div");
+  msg.className = "message";
+  msg.innerText = msgText;
+
+  messages.appendChild(msg);
+  scrollToBottom();
+
+  setTimeout(() => {
+    msg.classList.add("fade-out");
+    setTimeout(() => {
+      msg.remove();
+    }, 400);
+  }, 10000); // 10s fade-out timer
+
+  input.value = "";
+  input.focus();
+}
+
+function scrollToBottom() {
+  const messages = document.getElementById("messages");
+  messages.scrollTop = messages.scrollHeight;
+}
+
+
+⸻
+
+✅ 2. Replit AI Prompt (To Rebuild This Anytime)
+
+You are a frontend UI/UX developer. Rebuild this minimalist anonymous chat app called “Voidchat” with a mobile-first, Replit-style interface.
+
+Target Design:
+- Feel like Replit’s own mobile AI UI: soft padding, strong readability, and proper keyboard behavior
+- Full-screen flex layout with a sticky input bar that never gets covered by the keyboard
+- Use rem-based typographic scaling and spacing tokens
+- Use a fade-out animation for messages (after 10s)
+- Chat input should auto-focus, clear after submission, and never be blocked
+
+Requirements:
+1. HTML:
+   - A wrapper div that uses flex layout
+   - Header with title and user ID
+   - A scrollable `chat-messages` div
+   - An input bar (form) at the bottom with text input and button
+
+2. CSS:
+   - Root-level spacing and font variables (`--spacing-sm`, `--font-base`, etc.)
+   - Dark theme: black background, white text, soft borders
+   - Messages have padding, max-width 85%, rounded edges
+   - Clean, consistent vertical spacing
+   - Layout respects `env(safe-area-inset-bottom)` on iOS
+
+3. JS:
+   - On submit, add message to feed and scroll to bottom
+   - After 10s, fade it out then remove from DOM
+   - Input auto-clears and re-focuses
+
+Deliver the project using `index.html`, `style.css`, and `script.js`. The result should feel like a polished production UI on iOS Safari.
+
+

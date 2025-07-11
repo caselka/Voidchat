@@ -104,12 +104,12 @@ export default function MessageInput({
         maxLength={maxLength}
         style={{
           flex: 1,
-          padding: '0.75rem 1rem',
-          fontSize: '1rem',
-          backgroundColor: 'var(--input-bg, #222)',
-          color: 'var(--text, #eee)',
+          padding: 'var(--spacing-sm) var(--spacing-md)',
+          fontSize: 'var(--font-base)',
+          borderRadius: 'var(--radius)',
           border: 'none',
-          borderRadius: '0.5rem',
+          background: 'var(--input-bg)',
+          color: 'var(--text)',
           outline: 'none'
         }}
       />
@@ -118,13 +118,12 @@ export default function MessageInput({
         onClick={handleSubmit}
         disabled={!canSend}
         style={{
-          background: canSend ? 'var(--send-button, #333)' : '#555',
-          color: '#fff',
+          fontSize: 'var(--font-lg)',
+          padding: 'var(--spacing-sm) var(--spacing-md)',
+          background: 'var(--button-bg)',
+          color: 'white',
+          borderRadius: 'var(--radius)',
           border: 'none',
-          padding: '0.75rem 1rem',
-          marginLeft: '0.5rem',
-          borderRadius: '0.5rem',
-          fontSize: '1rem',
           cursor: canSend ? 'pointer' : 'not-allowed'
         }}
       >

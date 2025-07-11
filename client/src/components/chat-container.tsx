@@ -121,17 +121,18 @@ export default function ChatContainer({
           onMouseUp={handleLongPressEnd}
           onMouseLeave={handleLongPressEnd}
           style={{
-            background: isSystemMessage ? 'transparent' : 'var(--bubble-other, #1a1a1a)',
-            padding: isSystemMessage ? '0.5rem 1rem' : '0.75rem 1rem',
-            margin: '0.5rem 0',
-            borderRadius: '0.75rem',
+            backgroundColor: isSystemMessage ? 'transparent' : 'var(--bubble-bg)',
+            padding: isSystemMessage ? 'var(--spacing-xs) var(--spacing-sm)' : 'var(--spacing-sm) var(--spacing-md)',
+            marginBottom: 'var(--spacing-sm)',
+            borderRadius: 'var(--radius)',
+            fontSize: 'var(--font-base)',
+            lineHeight: '1.5',
             maxWidth: '85%',
-            fontSize: '0.95rem',
-            lineHeight: '1.4',
             wordWrap: 'break-word',
             color: isSystemMessage ? 'var(--text-muted)' : 'var(--text)',
             fontStyle: isSystemMessage ? 'italic' : 'normal',
-            textAlign: isSystemMessage ? 'center' : 'left'
+            textAlign: isSystemMessage ? 'center' : 'left',
+            transition: 'opacity 0.4s ease-out, transform 0.2s ease'
           }}
         >
           <div className={`

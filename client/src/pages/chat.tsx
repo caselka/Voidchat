@@ -150,32 +150,27 @@ export default function Chat() {
         <HumanVerification onVerified={() => setIsHumanVerified(true)} />
       )} */}
       
-      {/* Main Chat Messages Area */}
-      <div className="chat-messages-area" id="messages">
-        {/* Welcome Section */}
-        <div className="text-center py-4">
-          <h1 className="text-xl font-light tracking-wide mb-2" style={{ color: 'var(--text)' }}>
-            voidchat
-          </h1>
-          <p className="text-sm mb-2" style={{ color: 'var(--text-muted)' }}>
-            Welcome to the void. Messages are permanent.
-          </p>
+      {/* Replit-Style Header */}
+      <header className="chat-header">
+        <h1 style={{ color: 'var(--text)' }}>Voidchat</h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: 'var(--font-sm)', margin: 0 }}>
+          Welcome to the void. Messages are permanent.
           {currentUser && (
-            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-              You are <span style={{ color: 'var(--text)', fontWeight: '500' }}>{currentUser}</span>
-            </p>
+            <>
+              <br />You are <span style={{ color: 'var(--text)' }}>{currentUser}</span>
+            </>
           )}
-        </div>
+        </p>
         
         {/* Status indicators */}
-        <div className="flex justify-center items-center mobile-status-buttons">
+        <div className="flex justify-center items-center" style={{ gap: 'var(--spacing-md)', marginTop: 'var(--spacing-sm)' }}>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setProfanityFilter(!profanityFilter)}
             className="p-2 transition-colors rounded-lg"
             style={{
-              backgroundColor: profanityFilter ? 'var(--bubble-other)' : 'transparent',
+              backgroundColor: profanityFilter ? 'var(--bubble-bg)' : 'transparent',
               color: profanityFilter ? 'var(--text)' : 'var(--text-muted)'
             }}
             title="Toggle profanity filter"
@@ -184,16 +179,21 @@ export default function Chat() {
           </Button>
           
           {rateLimitTime > 0 && (
-            <div className="text-sm px-3 py-2 rounded-lg" style={{ 
+            <div style={{ 
               color: 'var(--text-muted)',
-              backgroundColor: 'var(--bubble-other)'
+              backgroundColor: 'var(--bubble-bg)',
+              padding: 'var(--spacing-xs) var(--spacing-sm)',
+              borderRadius: 'var(--radius)',
+              fontSize: 'var(--font-sm)'
             }}>
               Cooldown: {rateLimitTime}s
             </div>
           )}
         </div>
+      </header>
 
-        {/* Chat Messages */}
+      {/* Chat Messages Area */}
+      <div className="chat-messages-area" id="messages">
         <ChatContainer 
           messages={messages}
           isGuardian={user?.isGuardian || false}
