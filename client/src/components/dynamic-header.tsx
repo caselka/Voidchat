@@ -27,7 +27,7 @@ export default function DynamicHeader({
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-b border-border" style={{ height: '56px' }}>
-      <div className="flex items-center justify-between px-3 py-2 max-w-full h-full">
+      <div className="relative flex items-center px-3 py-2 max-w-full h-full">
         {/* Left side - Back/Home buttons */}
         <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
           {showBack && (
@@ -64,14 +64,17 @@ export default function DynamicHeader({
           )}
         </div>
 
-        {/* Center - Title with proper spacing */}
-        <div className="flex-1 text-center min-w-0 mx-2">
+        {/* Center - Title absolutely centered */}
+        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
           {title && (
-            <h1 className="text-sm font-medium truncate">
+            <h1 className="text-sm font-medium whitespace-nowrap">
               {title}
             </h1>
           )}
         </div>
+
+        {/* Spacer to maintain layout balance */}
+        <div className="flex-1"></div>
 
         {/* Right side - Theme toggle and auth */}
         <div className="flex items-center gap-2">
