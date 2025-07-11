@@ -241,7 +241,8 @@ export default function Room() {
                 </div>
                 <div className="flex items-center space-x-3 text-xs" style={{ color: 'var(--text-muted)' }}>
                   <span>{isConnected ? '🟢 Connected' : '🟡 Connecting...'}</span>
-                  <span>• Created {new Date(room.createdAt).toLocaleDateString()}</span>
+                  <span>• Created by @{room.creatorId}</span>
+                  <span>• {new Date(room.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>
