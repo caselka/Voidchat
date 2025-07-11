@@ -810,9 +810,7 @@ html {
   left: 0;
   right: 0;
   z-index: 200;
-  background-color: var(--bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background-color: transparent;
 }
 
 /* Discord-style input styling */
