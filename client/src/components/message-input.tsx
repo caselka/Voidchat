@@ -119,7 +119,7 @@ export default function MessageInput({
                   }, 150);
                 }}
                 placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Message #voidchat"}
-                className="discord-input w-full resize-none border-none outline-none bg-transparent disabled:opacity-50 disabled:cursor-not-allowed selectable pt-[10px] pb-[10px] pl-[15px] pr-[15px]"
+                className="discord-input w-full resize-none border-none outline-none disabled:opacity-50 disabled:cursor-not-allowed selectable pt-[10px] pb-[10px] pl-[15px] pr-[15px] ml-[0px] mr-[0px] bg-[#e4e5e6cf]"
                 style={{
                   color: 'var(--text)',
                   fontSize: '1rem', // 16px using rem units
