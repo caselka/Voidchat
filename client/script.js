@@ -76,7 +76,7 @@ function displayMessage(username, content) {
           if (msg && msg.parentNode && msg.parentNode.contains(msg)) {
             msg.remove();
           }
-        }, 500);
+        }, 400);
       }
     }, 10000);
   } catch (error) {
