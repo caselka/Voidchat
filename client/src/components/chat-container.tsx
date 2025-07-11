@@ -151,7 +151,7 @@ export default function ChatContainer({
           {isSystemMessage ? (
             /* System message layout */
             <div className="message-wrapper">
-              <div className="message-content">
+              <div className="message-content message-text">
                 {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function ChatContainer({
                 )}
                 
                 {/* Message content */}
-                <div className="message-content">
+                <div className="message-content message-text">
                   {profanityFilter ? filterProfanity(messageData.content) : messageData.content}
                 </div>
                 

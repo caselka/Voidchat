@@ -244,7 +244,7 @@ export default function DirectMessagesPage() {
                   <div className="p-4">
                     {conversationsLoading ? (
                       <div className="flex items-center justify-center py-8">
-                        <Loader2 className="h-6 w-6 animate-spin" />
+                        <Loader2 className="h-5 w-5 animate-spin button-icon" />
                       </div>
                     ) : conversations.length === 0 ? (
                       <div className="text-center py-8">
@@ -565,7 +565,7 @@ export default function DirectMessagesPage() {
                   {sendMessageMutation.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <Send className="h-4 w-4 mr-2" />
+                    <Send className="h-5 w-5 mr-2 button-icon" />
                   )}
                   Send Message
                 </Button>

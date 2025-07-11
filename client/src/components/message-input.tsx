@@ -128,7 +128,8 @@ export default function MessageInput({
             className="discord-input flex-1 resize-none border-none outline-none disabled:opacity-50 disabled:cursor-not-allowed selectable bg-transparent"
             style={{
               color: 'var(--text)',
-              fontSize: '1rem', // 16px using rem units
+              fontSize: '1rem', // 16px using rem units - no zoom on iOS
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
               lineHeight: '1.5',
               padding: '0.75rem 1rem',
               minHeight: '2.75rem', // 44px touch target in rem
@@ -162,9 +163,9 @@ export default function MessageInput({
               }}
             >
               {isRateLimited ? (
-                <Clock className="w-4 h-4" />
+                <Clock className="w-5 h-5 button-icon" />
               ) : (
-                <Send className="w-4 h-4" />
+                <Send className="w-5 h-5 button-icon" />
               )}
             </Button>
           </div>

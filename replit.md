@@ -110,15 +110,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 11, 2025)
 
-### Input Layout Optimization and Bottom Positioning (Latest)
-- **Fixed Bottom Positioning**: Message input now properly positioned at screen bottom (bottom: 0) on all devices
-- **Streamlined Input Layout**: Removed wrapper divs and positioned character count/send button directly next to textarea input
-- **Enhanced Input Container**: Single flexbox container with textarea (flex-1) and controls on the right side
-- **Background Transparency**: Made textarea background transparent to work within styled container
-- **Improved Spacing**: Added proper bottom padding to messages area (120px) to prevent input overlap
-- **Desktop Enhancements**: Added bottom padding for desktop without moving input position up
-- **Maintained Encryption**: Kept all end-to-end encryption features and security improvements
-- **Cross-Platform Compatibility**: iOS keyboard handling works with new bottom positioning
+### Site-wide Typography Overhaul and Clean Input Design (Latest)
+- **Apple System Font Stack**: Updated entire site to use -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
+- **Optimized Font Sizes**: Body text 1rem (16px), header titles 1.25-1.5rem, message text 1rem, input fields 1rem (no iOS zoom), button icons 1.25rem
+- **Message Typography**: Applied message-text class to all chat messages for consistent, legible styling
+- **Button Icon Enhancement**: Increased button icon sizes to 1.25rem (20px) for better touch targets and visibility
+- **Input Field Consistency**: All inputs use 1rem font size to prevent iOS zoom and maintain readability
+- **Header Styling**: Subtle header sizes (1.25-1.5rem) for clean, not loud appearance
+- **Transparent Input Area**: Made chat input area completely transparent with no padding height
+- **Clean Layout**: Single flexbox container with textarea and controls positioned directly next to each other
 
 ### Landing Page Mobile Layout Optimization
 - **Enhanced mobile responsiveness**: Improved mobile-first design with better spacing, typography, and button sizing

@@ -36,7 +36,7 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 1rem; /* 16px base - prevents iOS zoom */
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -51,13 +51,39 @@ body {
   position: relative;
 }
 
-/* Typography Scale Classes */
+/* Typography Scale Classes - Updated for better readability */
 .text-xs { font-size: 0.75rem; }      /* 12px */
 .text-sm { font-size: 0.875rem; }     /* 14px */
-.text-base { font-size: 1rem; }       /* 16px - base */
-.text-lg { font-size: 1.25rem; }      /* 20px */
-.text-xl { font-size: 1.5rem; }       /* 24px */
+.text-base { font-size: 1rem; }       /* 16px - base body text */
+.text-lg { font-size: 1.25rem; }      /* 20px - button icons */
+.text-xl { font-size: 1.5rem; }       /* 24px - header titles */
 .text-2xl { font-size: 1.875rem; }    /* 30px */
+
+/* Site-wide typography settings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.25rem; /* Header titles - subtle, not loud */
+}
+
+h1 { font-size: 1.5rem; } /* 24px for main headers */
+h2 { font-size: 1.25rem; } /* 20px for section headers */
+
+/* Message text */
+.message-text {
+  font-size: 1rem; /* 16px - legible but clean */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Input fields */
+input, textarea {
+  font-size: 1rem !important; /* 16px - no zoom on iOS */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Button icons */
+.button-icon {
+  font-size: 1.25rem; /* 20px - slightly larger for tap target */
+}
 
 /* Minimalist Void Theme CSS Variables */
 :root {
@@ -819,7 +845,8 @@ html {
   border: 1px solid var(--input-border) !important;
   border-radius: 0.5rem !important;
   color: var(--text) !important;
-  font-size: 1rem !important;
+  font-size: 1rem !important; /* 16px - no zoom on iOS */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
   padding: 0.75rem 1rem !important;
   min-height: 2.75rem !important;
   resize: none !important;
