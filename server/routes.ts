@@ -1855,8 +1855,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           reason = 'This username contains protected terms';
         } else if (/^anon\d+$/i.test(handle)) {
           reason = 'This format is reserved for anonymous users';
-        } else if (handle.length < 2 || handle.length > 20) {
-          reason = 'Username must be 2-20 characters long';
+        } else if (handle.length < 3 || handle.length > 20) {
+          reason = 'Username must be 3-20 characters long';
         } else if (!/^[a-zA-Z0-9_-]+$/.test(handle)) {
           reason = 'Username can only contain letters, numbers, dashes, and underscores';
         } else if (/^[-_]|[-_]$/.test(handle)) {

@@ -101,8 +101,8 @@ export function validateUsernameFormat(username: string): { isValid: boolean; re
   const trimmed = username.trim();
   
   // Length check
-  if (trimmed.length < 2) {
-    return { isValid: false, reason: 'Username too short (minimum 2 characters)' };
+  if (trimmed.length < 3) {
+    return { isValid: false, reason: 'Username too short (minimum 3 characters)' };
   }
   
   if (trimmed.length > 20) {

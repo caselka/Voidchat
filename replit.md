@@ -110,6 +110,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 11, 2025)
 
+### Username Character Limit Standardization (Latest)
+- **Consistent character limits**: Standardized username validation to 3-20 characters across frontend and backend
+- **Backend validation updated**: Updated minimum from 2 to 3 characters to match frontend requirements
+- **Route validation fixed**: API routes now enforce the same 3-20 character limit consistently
+- **Comprehensive validation**: Maintains existing rules (alphanumeric, underscore, dash only; no consecutive special chars)
+- **User feedback improved**: Clear error messages specify exact character requirements for usernames
+
 ### Complete Mobile Typography and Layout Overhaul (Latest)
 - **Professional Typography**: Inter font family with proper font stack, 16px base, optimal line-height for readability
 - **Fixed Line-Breaking**: Proper word-break, overflow-wrap, and hyphens to prevent mid-word breaks on small screens
