@@ -165,7 +165,7 @@ export default function Chat() {
         />
       </div>
       {/* Main content with header offset */}
-      <div className="main-content">
+      <div className="main-content pt-[0px] pb-[0px]">
         {/* Rooms Sidebar */}
         <RoomsSidebar 
           isOpen={showRoomsSidebar}
