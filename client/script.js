@@ -26,7 +26,6 @@ function connectWebSocket() {
   
   ws.onclose = function() {
     console.log('WebSocket disconnected');
-    // Attempt to reconnect every 3 seconds
     reconnectInterval = setInterval(connectWebSocket, 3000);
   };
   
@@ -65,7 +64,7 @@ function displayMessage(username, content) {
   msg.innerHTML = `<strong>${username}:</strong> ${content}`;
 
   messages.appendChild(msg);
-  scrollToBottom();
+  messages.scrollTop = messages.scrollHeight;
 
   // Fade out after 10 seconds
   setTimeout(() => {
@@ -74,13 +73,8 @@ function displayMessage(username, content) {
       if (msg.parentNode) {
         msg.remove();
       }
-    }, 400);
+    }, 500);
   }, 10000);
-}
-
-function scrollToBottom() {
-  const messages = document.getElementById("messages");
-  messages.scrollTop = messages.scrollHeight;
 }
 
 // Auto-focus input on page load

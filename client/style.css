@@ -1,13 +1,11 @@
 :root {
-  --spacing-xs: 0.5rem;
   --spacing-sm: 0.75rem;
   --spacing-md: 1rem;
   --radius: 0.5rem;
-  --font-sm: 0.9rem;
   --font-base: 1rem;
   --font-lg: 1.1rem;
   --bg: #0d0d0d;
-  --text: #eeeeee;
+  --text: #eee;
   --bubble-bg: #1c1c1c;
   --border: #2a2a2a;
 }
@@ -20,9 +18,9 @@
 
 html, body {
   height: 100%;
-  background-color: var(--bg);
-  color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
   font-size: 16px;
   overflow: hidden;
 }
@@ -36,10 +34,20 @@ html, body {
 
 .chat-header {
   padding: var(--spacing-md);
-  border-bottom: 1px solid var(--border);
   text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.chat-header h1 {
   font-size: var(--font-lg);
+  margin-bottom: 0.25rem;
   font-weight: 500;
+}
+
+.chat-header p {
+  font-size: 0.9rem;
+  color: #999;
+  margin: 0;
 }
 
 .chat-messages {
@@ -51,16 +59,15 @@ html, body {
 }
 
 .message {
-  background-color: var(--bubble-bg);
+  background: var(--bubble-bg);
   padding: var(--spacing-sm) var(--spacing-md);
   margin-bottom: var(--spacing-sm);
   border-radius: var(--radius);
-  font-size: var(--font-base);
-  line-height: 1.5;
   max-width: 85%;
+  font-size: var(--font-base);
+  line-height: 1.4;
   word-wrap: break-word;
-  animation: fadeInUp 0.3s ease-out;
-  transition: opacity 0.4s ease-out, transform 0.2s ease;
+  transition: opacity 0.4s ease-out, transform 0.3s ease-out;
 }
 
 .fade-out {
@@ -68,22 +75,10 @@ html, body {
   transform: translateY(10px);
 }
 
-@keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .chat-input-bar {
   display: flex;
-  gap: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
-  background-color: #111;
+  background: #111;
   border-top: 1px solid var(--border);
 }
 
@@ -91,10 +86,10 @@ html, body {
   flex: 1;
   padding: var(--spacing-sm) var(--spacing-md);
   font-size: var(--font-base);
-  border-radius: var(--radius);
-  border: none;
   background: #222;
   color: var(--text);
+  border-radius: var(--radius);
+  border: none;
   outline: none;
 }
 
@@ -103,12 +98,13 @@ html, body {
 }
 
 .chat-input-bar button {
-  font-size: var(--font-lg);
-  padding: var(--spacing-sm) var(--spacing-md);
   background: #333;
   color: white;
-  border-radius: var(--radius);
+  font-size: var(--font-lg);
+  padding: var(--spacing-sm) var(--spacing-md);
   border: none;
+  border-radius: var(--radius);
+  margin-left: var(--spacing-sm);
   cursor: pointer;
   min-width: 3rem;
 }
@@ -125,6 +121,9 @@ html, body {
 @media (max-width: 768px) {
   .chat-header {
     padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  .chat-header h1 {
     font-size: var(--font-base);
   }
   
@@ -133,7 +132,6 @@ html, body {
   }
   
   .message {
-    font-size: var(--font-sm);
     max-width: 90%;
   }
 }

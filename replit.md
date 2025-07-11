@@ -110,16 +110,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 11, 2025)
 
-### Mobile-First CSS Layout Overhaul (Latest)
-- **Complete flexbox layout system**: Implemented 100dvh mobile-first layout with proper header, messages area, and sticky input sections
-- **iOS keyboard compatibility**: Enhanced env(safe-area-inset-bottom) support and keyboard-inset-height handling for iOS devices
-- **Rem-based typography**: Standardized 16px base font size using rem units throughout the app for consistent scaling
-- **Improved message spacing**: Better visual rhythm with 1rem message bubble spacing and enhanced padding for readability
-- **Smooth message animations**: Enhanced fade-in/fade-out animations using cubic-bezier curves for professional mobile experience
-- **Touch-friendly interfaces**: 44px minimum touch targets and optimized button sizing for mobile accessibility
-- **Auto-scroll optimization**: Fixed auto-scroll behavior to work with new flexbox layout and messages container
-- **Enhanced responsive design**: Better mobile typography, status button spacing, and landscape orientation support
-- **Hardware acceleration**: Added transform3d and will-change properties for smooth scrolling and animations on mobile devices
+### Clean Replit-Style Mobile Interface (Latest)
+- **Production-ready clean structure**: Eliminated all dev tool clutter and implemented pure HTML/CSS/JS files at `/clean` endpoint
+- **True flexbox mobile layout**: Perfect header + flex:1 messages + sticky input structure that works flawlessly with iOS keyboard
+- **Simplified design tokens**: Clean --spacing-sm, --spacing-md, --radius variables for consistent Replit-style spacing
+- **iOS keyboard compatibility**: Proper 100dvh height with env(safe-area-inset-bottom) and scroll-padding-bottom: 6rem
+- **Message fade system**: 10-second message fade-out with smooth 0.4s transitions and DOM cleanup
+- **Mobile-first typography**: 16px base font prevents iOS zoom, optimized line heights and spacing
+- **Touch-optimized interface**: Proper button sizing, responsive design, and webkit scrolling optimization
+- **WebSocket integration**: Real-time messaging with automatic reconnection and fallback handling
+- **Clean file structure**: Separate index.html, style.css, script.js files served at dedicated `/clean` route
 
 ## Previous Updates (July 9, 2025)
 
