@@ -58,49 +58,62 @@ function sendMessage() {
 
 function displayMessage(username, content) {
   const messages = document.getElementById("messages");
+  if (!messages) return;
   
   const msg = document.createElement("div");
   msg.className = "message";
   msg.innerHTML = `<strong>${username}:</strong> ${content}`;
 
-  messages.appendChild(msg);
-  messages.scrollTop = messages.scrollHeight;
+  try {
+    messages.appendChild(msg);
+    messages.scrollTop = messages.scrollHeight;
 
-  // Fade out after 10 seconds
-  setTimeout(() => {
-    msg.classList.add("fade-out");
+    // Fade out after 10 seconds
     setTimeout(() => {
-      if (msg.parentNode) {
-        msg.remove();
+      if (msg && msg.parentNode) {
+        msg.classList.add("fade-out");
+        setTimeout(() => {
+          if (msg && msg.parentNode && msg.parentNode.contains(msg)) {
+            msg.remove();
+          }
+        }, 500);
       }
-    }, 500);
-  }, 10000);
+    }, 10000);
+  } catch (error) {
+    console.error('Error displaying message:', error);
+  }
 }
 
 // Auto-focus input on page load
 document.addEventListener('DOMContentLoaded', function() {
   const input = document.getElementById("messageInput");
-  input.focus();
+  if (input) {
+    input.focus();
+    
+    // Handle enter key
+    input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+  }
   
   // Connect WebSocket
   connectWebSocket();
-  
-  // Handle enter key
-  input.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
 });
 
 // Load recent messages when page loads
 fetch('/api/recent-messages')
   .then(response => response.json())
   .then(messages => {
-    messages.forEach(msg => {
-      displayMessage(msg.username, msg.content);
-    });
+    if (Array.isArray(messages)) {
+      messages.forEach(msg => {
+        if (msg && msg.username && msg.content) {
+          displayMessage(msg.username, msg.content);
+        }
+      });
+    }
   })
   .catch(error => {
     console.log('Could not load recent messages:', error);
