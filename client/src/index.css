@@ -797,7 +797,7 @@ html {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(120px + env(safe-area-inset-bottom));
   position: relative;
   scroll-behavior: smooth;
 }
@@ -805,8 +805,8 @@ html {
 /* Discord-style input area - fixed at bottom with blur effect */
 .chat-input-area {
   flex: 0 0 auto;
-  position: sticky;
-  bottom: 2rem;
+  position: fixed;
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 200;
@@ -888,8 +888,9 @@ html {
 /* Desktop specific fixes for input positioning */
 @media (min-width: 768px) {
   .chat-input-area {
-    bottom: 2rem;
+    bottom: 0;
     padding: 1rem 2rem;
+    padding-bottom: 2rem;
   }
 }
 
@@ -897,7 +898,7 @@ html {
 @supports (-webkit-touch-callout: none) {
   .chat-input-area {
     /* iOS-specific keyboard adaptation */
-    bottom: env(keyboard-inset-height, 2rem);
+    bottom: env(keyboard-inset-height, 0);
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
     backface-visibility: hidden;
