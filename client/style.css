@@ -54,7 +54,7 @@ html, body {
   flex: 1;
   overflow-y: auto;
   padding: var(--spacing-md);
-  scroll-padding-bottom: 6rem;
+  scroll-padding-bottom: 5rem;
   -webkit-overflow-scrolling: touch;
 }
 

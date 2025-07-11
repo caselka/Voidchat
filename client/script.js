@@ -36,7 +36,7 @@ function connectWebSocket() {
 
 function sendMessage() {
   const input = document.getElementById("messageInput");
-  const messages = document.getElementById("messages");
+  if (!input) return;
 
   const msgText = input.value.trim();
   if (!msgText) return;
@@ -53,7 +53,11 @@ function sendMessage() {
   }
 
   input.value = "";
-  input.focus();
+  try {
+    input.focus();
+  } catch (e) {
+    // Ignore focus errors on some mobile browsers
+  }
 }
 
 function displayMessage(username, content) {
@@ -73,10 +77,14 @@ function displayMessage(username, content) {
       if (msg && msg.parentNode) {
         msg.classList.add("fade-out");
         setTimeout(() => {
-          if (msg && msg.parentNode && msg.parentNode.contains(msg)) {
-            msg.remove();
+          try {
+            if (msg && msg.parentNode && msg.parentNode.contains(msg)) {
+              msg.remove();
+            }
+          } catch (e) {
+            // Ignore removal errors if element already removed
           }
-        }, 400);
+        }, 500);
       }
     }, 10000);
   } catch (error) {
@@ -103,18 +111,22 @@ document.addEventListener('DOMContentLoaded', function() {
   connectWebSocket();
 });
 
-// Load recent messages when page loads
-fetch('/api/recent-messages')
-  .then(response => response.json())
-  .then(messages => {
-    if (Array.isArray(messages)) {
-      messages.forEach(msg => {
-        if (msg && msg.username && msg.content) {
-          displayMessage(msg.username, msg.content);
+// Load recent messages when page loads (with DOM ready check)
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(() => {
+    fetch('/api/recent-messages')
+      .then(response => response.json())
+      .then(messages => {
+        if (Array.isArray(messages)) {
+          messages.forEach(msg => {
+            if (msg && msg.username && msg.content) {
+              displayMessage(msg.username, msg.content);
+            }
+          });
         }
+      })
+      .catch(error => {
+        console.log('Could not load recent messages:', error);
       });
-    }
-  })
-  .catch(error => {
-    console.log('Could not load recent messages:', error);
-  });
+  }, 100);
+});
