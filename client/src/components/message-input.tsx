@@ -80,8 +80,21 @@ export default function MessageInput({
     textarea.style.height = `${Math.max(44, scrollHeight)}px`;
   };
 
+  // Auto-scroll after message is sent
+  useEffect(() => {
+    if (!messageText) { // Message was just sent (cleared)
+      const messagesArea = document.querySelector('.chat-messages-area');
+      if (messagesArea) {
+        messagesArea.scrollTo({ 
+          top: messagesArea.scrollHeight, 
+          behavior: 'smooth' 
+        });
+      }
+    }
+  }, [messageText]);
+
   return (
-    <div className="w-full">
+    <div className="fixed bottom-0 left-0 right-0 p-safe z-50 bg-background">
       <form onSubmit={handleSubmit} className="w-full p-4 pl-[9px] pr-[9px]">
         <div 
           className="relative flex items-center transition-all duration-200 max-w-4xl mx-auto"
@@ -89,7 +102,7 @@ export default function MessageInput({
             backgroundColor: 'var(--input-bg)',
             border: '1px solid var(--input-border)',
             borderRadius: '0.75rem',
-            minHeight: '44px',
+            minHeight: '60px', // Increased for better mobile keyboard compatibility
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)'
@@ -124,22 +137,28 @@ export default function MessageInput({
                 }
               }, 150);
             }}
-            placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Message #voidchat"}
-            className="discord-input flex-1 resize-none border-none outline-none disabled:opacity-50 disabled:cursor-not-allowed selectable bg-transparent"
+            placeholder={isRateLimited ? `Wait ${rateLimitTime}s...` : "Message the void"}
+            className="discord-input flex-1 resize-none border-none outline-none disabled:opacity-50 disabled:cursor-not-allowed selectable bg-transparent message-fade-in"
             style={{
               color: 'var(--text)',
               fontSize: '1rem', // 16px using rem units - no zoom on iOS
               fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+              fontWeight: 400, // Consistency
               lineHeight: '1.5',
               padding: '0.75rem 1rem',
-              minHeight: '2.75rem', // 44px touch target in rem
+              minHeight: '44px', // 44px minimum touch target
               touchAction: 'manipulation' // Prevent double-tap zoom
             }}
             maxLength={maxLength}
             disabled={isRateLimited}
             autoComplete="off"
             spellCheck="false"
+            inputMode="text"
+            autoCapitalize="sentences"
+            autoCorrect="on"
             rows={1}
+            aria-label="Type your message"
+            data-testid="message-input"
           />
           
           <div className="flex items-center gap-2 px-3">
@@ -157,10 +176,12 @@ export default function MessageInput({
               size="sm"
               className="discord-send-button p-0 shrink-0 transition-colors duration-200 border-0 focus:outline-none"
               style={{
-                height: '32px',
-                width: '32px',
-                borderRadius: '0.25rem'
+                height: '44px', // Apple's 44px minimum touch target
+                width: '44px',
+                borderRadius: '0.5rem'
               }}
+              aria-label="Send message"
+              data-testid="send-button"
             >
               {isRateLimited ? (
                 <Clock className="w-5 h-5 button-icon" />

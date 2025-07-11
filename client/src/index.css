@@ -85,6 +85,21 @@ input, textarea {
   font-size: 1.25rem; /* 20px - slightly larger for tap target */
 }
 
+/* Safe area padding for mobile keyboards */
+.p-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Global text rendering optimization */
+* {
+  text-rendering: optimizeLegibility;
+}
+
+/* Fixed input bottom spacing - ensure messages don't get hidden */
+.chat-messages-area {
+  padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
+}
+
 /* Minimalist Void Theme CSS Variables */
 :root {
   /* Light Mode - Discord-style */

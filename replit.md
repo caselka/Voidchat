@@ -110,15 +110,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Updates (July 11, 2025)
 
-### Site-wide Typography Overhaul and Clean Input Design (Latest)
-- **Apple System Font Stack**: Updated entire site to use -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif
-- **Optimized Font Sizes**: Body text 1rem (16px), header titles 1.25-1.5rem, message text 1rem, input fields 1rem (no iOS zoom), button icons 1.25rem
-- **Message Typography**: Applied message-text class to all chat messages for consistent, legible styling
-- **Button Icon Enhancement**: Increased button icon sizes to 1.25rem (20px) for better touch targets and visibility
-- **Input Field Consistency**: All inputs use 1rem font size to prevent iOS zoom and maintain readability
-- **Header Styling**: Subtle header sizes (1.25-1.5rem) for clean, not loud appearance
-- **Transparent Input Area**: Made chat input area completely transparent with no padding height
-- **Clean Layout**: Single flexbox container with textarea and controls positioned directly next to each other
+### Enhanced Mobile Input with Safe Area and Accessibility (Latest)
+- **Fixed Bottom Positioning**: Input now properly positioned with safe area padding (.p-safe class with env(safe-area-inset-bottom))
+- **Mobile Keyboard Compatibility**: Increased input container minHeight to 60px for better mobile keyboard interaction
+- **Apple 44px Touch Targets**: Updated send button to 44x44px minimum touch target size per Apple guidelines
+- **Enhanced Accessibility**: Added aria-labels, inputMode="text", autoCapitalize="sentences", autoCorrect="on", and data-testid attributes
+- **Auto-scroll Enhancement**: Added auto-scroll after message send to maintain chat position
+- **Typography Consistency**: Added fontWeight: 400 and text-rendering: optimizeLegibility globally
+- **Button Icon Sizing**: Enhanced button icons to 1.25rem (20px) with proper button-icon class
+- **Mobile Input Attributes**: Proper iOS keyboard handling with autocapitalization and correction enabled
 
 ### Landing Page Mobile Layout Optimization
 - **Enhanced mobile responsiveness**: Improved mobile-first design with better spacing, typography, and button sizing

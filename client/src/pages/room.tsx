@@ -313,16 +313,12 @@ export default function Room() {
         </div>
       </div>
 
-      {/* Message Input - Enhanced for mobile */}
-      <div className="chat-input-area">
-        <div className="max-w-6xl mx-auto">
-          <MessageInput
-            onSendMessage={sendMessage}
-            rateLimitTime={rateLimitTime}
-            error={error}
-          />
-        </div>
-      </div>
+      {/* Message Input - Now handled by fixed positioning in MessageInput component */}
+      <MessageInput
+        onSendMessage={sendMessage}
+        rateLimitTime={rateLimitTime}
+        error={error}
+      />
     </div>
   );
 }

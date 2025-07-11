@@ -250,14 +250,12 @@ export default function Chat() {
         </div>
         </div>
 
-        {/* Message Input - Sticky at bottom */}
-        <div className="chat-input-area pl-[27px] pr-[27px] bg-transparent p-0">
-          <MessageInput 
-            onSendMessage={sendMessage}
-            rateLimitTime={rateLimitTime}
-            error={error}
-          />
-        </div>
+        {/* Message Input - Now handled by fixed positioning in MessageInput component */}
+        <MessageInput 
+          onSendMessage={sendMessage}
+          rateLimitTime={rateLimitTime}
+          error={error}
+        />
       </div>
       {/* Walkthrough */}
       <Walkthrough
