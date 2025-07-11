@@ -26,7 +26,7 @@
   user-select: text;
 }
 
-/* CSS Variables for Replit-style typography */
+/* CSS Variables for normalized typography */
 :root {
   --font-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-size-base: 16px;
@@ -34,6 +34,7 @@
   --line-height: 1.5;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
+  --font-weight-semibold: 600;
 }
 
 /* Typography Scale - Mobile-first with 1.25x ratio */
@@ -116,20 +117,21 @@ input, textarea {
   padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
 }
 
-/* Minimalist Void Theme CSS Variables */
+/* Enhanced theme variables for high contrast */
 :root {
-  /* Light Mode - Discord-style */
+  /* Light Mode - High contrast */
   --bg: #ffffff;
-  --text: #2e3338;
-  --text-muted: #6b7280; /* Light grey for metadata */
-  --text-subtle: #99aab5;
-  --bubble-user: #f8f9fa;
-  --bubble-other: #f0f0f0;
-  --bubble-system: #e8f4fd;
-  --input-bg: #f7f7f8;
-  --input-border: #e3e5e8;
-  --border-subtle: #e3e5e8;
-  --border: #e3e5e8;
+  --text: #1a1a1a;
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
+  --text-subtle: #9ca3af;
+  --bubble-user: #f3f4f6;
+  --bubble-other: #f9fafb;
+  --bubble-system: #eff6ff;
+  --input-bg: #f9fafb;
+  --input-border: #d1d5db;
+  --border-subtle: #e5e7eb;
+  --border: #d1d5db;
   --message-hover: rgba(0, 0, 0, 0.04);
   --system-bg: rgba(88, 101, 242, 0.1);
   
@@ -145,18 +147,19 @@ input, textarea {
 }
 
 [data-theme="dark"], .dark {
-  /* Dark Mode - Discord-style */
-  --bg: #36393f;
-  --text: #dcddde;
-  --text-muted: #8e9297;
-  --text-subtle: #72767d;
-  --bubble-user: #1a1a1a;
-  --bubble-other: #151515;
-  --bubble-system: #0f1419;
-  --input-bg: #40444b;
-  --input-border: #202225;
-  --border-subtle: #202225;
-  --border: #202225;
+  /* Dark Mode - High contrast */
+  --bg: #111827;
+  --text: #f9fafb;
+  --text-secondary: #e5e7eb;
+  --text-muted: #9ca3af;
+  --text-subtle: #6b7280;
+  --bubble-user: #1f2937;
+  --bubble-other: #374151;
+  --bubble-system: #1e3a8a;
+  --input-bg: #1f2937;
+  --input-border: #374151;
+  --border-subtle: #374151;
+  --border: #4b5563;
   --message-hover: rgba(255, 255, 255, 0.04);
   --system-bg: rgba(88, 101, 242, 0.2);
   
@@ -848,7 +851,7 @@ html {
   padding-top: 56px;
 }
 
-/* Main chat messages area - grows to fill space with proper spacing */
+/* Enhanced mobile-first messages area with comprehensive keyboard handling */
 .chat-messages-area {
   flex: 1 1 auto;
   overflow-y: auto;
@@ -856,26 +859,64 @@ html {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   padding: 1rem;
-  padding-bottom: calc(140px + env(safe-area-inset-bottom));
+  padding-bottom: calc(180px + env(safe-area-inset-bottom, 0px) + env(keyboard-inset-height, 0px));
   position: relative;
   scroll-behavior: smooth;
+  background-color: var(--bg);
+  /* Prevent scroll clipping on mobile */
+  min-height: 0;
+  /* Enable scrolling upwards on mobile */
+  touch-action: pan-y;
+  /* Ensure consistent scrolling */
+  scroll-padding-bottom: calc(180px + env(safe-area-inset-bottom, 0px));
 }
 
-/* Message spacing - consistent 1rem between messages */
+/* Enhanced message bubble styling with proper spacing and padding */
 .message-bubble {
   margin-bottom: 1rem !important;
-  max-width: 85% !important;
+  max-width: 90% !important;
+  padding: 0.75rem !important;
+  border-radius: 0.75rem !important;
   font-size: 1rem !important;
   line-height: var(--line-height) !important;
   font-family: var(--font-base) !important;
+  font-weight: var(--font-weight-medium) !important;
+  background-color: var(--bubble-other) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
 }
 
-/* Message metadata styling - light grey, 0.75rem */
+/* Own message styling */
+.message-bubble.own-message {
+  background-color: var(--bubble-user) !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+/* Message header with aligned username and timestamp */
+.message-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0.5rem !important;
+  margin-bottom: 0.25rem !important;
+  font-family: var(--font-base) !important;
+}
+
+/* Message metadata styling - normalized typography */
 .message-timestamp, .message-username, .message-metadata {
   font-size: 0.75rem !important;
   color: var(--text-muted) !important;
   font-weight: var(--font-weight-normal) !important;
   font-family: var(--font-base) !important;
+  line-height: 1.2 !important;
+}
+
+/* Username styling with semibold weight */
+.message-username {
+  font-weight: var(--font-weight-semibold) !important;
+  color: var(--text-secondary) !important;
 }
 
 /* Identity tag styling - You are anonXXXX */
@@ -893,8 +934,25 @@ html {
 }
 
 .you-are-tag .username {
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   padding-left: 0.25rem;
+  color: var(--text);
+}
+
+/* Mobile scrolling optimizations */
+@supports (height: 100dvh) {
+  .chat-layout, .chat-page-container {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+}
+
+/* Ensure smooth scrolling on iOS */
+@supports (-webkit-touch-callout: none) {
+  .chat-messages-area {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: none;
+  }
 }
 
 /* Discord-style input area - fixed at bottom with blur effect */
@@ -908,12 +966,12 @@ html {
   background-color: transparent;
 }
 
-/* Replit-style input styling - soft rounded, smooth transitions */
+/* Enhanced input styling with proper mobile keyboard handling */
 .discord-input {
-  background: rgba(255, 255, 255, 0.04) !important;
-  backdrop-filter: blur(8px) !important;
+  background: var(--input-bg) !important;
+  backdrop-filter: blur(12px) !important;
   border: 1px solid var(--input-border) !important;
-  border-radius: 0.75rem !important; /* 12px soft rounded corners */
+  border-radius: 0.75rem !important;
   color: var(--text) !important;
   font-size: 1rem !important;
   font-family: var(--font-base) !important;
@@ -925,29 +983,46 @@ html {
   resize: none !important;
   outline: none !important;
   touch-action: manipulation !important;
-  transition: all 0.2s ease !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
 }
 
 .discord-input:focus {
-  border-color: rgba(59, 130, 246, 0.5) !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(0, 0, 0, 0.1) !important;
   transform: translateY(-1px) !important;
+  background-color: var(--bg) !important;
 }
 
-/* Send button animations */
+/* Enhanced send button with 44px touch target */
 .discord-send-button {
-  transition: all 0.2s ease !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   border-radius: 0.5rem !important;
+  background-color: var(--text) !important;
+  color: var(--bg) !important;
 }
 
 .discord-send-button:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: var(--text-secondary) !important;
   transform: scale(1.02) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
 .discord-send-button:active, .sending-animation {
   transform: scale(1.05) !important;
-  transition: transform 0.2s ease-in-out !important;
+  transition: transform 0.1s ease-in-out !important;
+}
+
+.discord-send-button:disabled {
+  background-color: var(--text-muted) !important;
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
 }
 
 .discord-input:focus {

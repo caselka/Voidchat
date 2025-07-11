@@ -193,13 +193,8 @@ export default function Chat() {
             </div>
             
             {currentUser && (
-              <div className="px-3 py-2 rounded-lg inline-block" style={{ 
-                backgroundColor: 'var(--bubble-other)',
-                border: '1px solid var(--border-subtle)'
-              }}>
-                <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                  You are <span style={{ color: 'var(--text)', fontWeight: '500' }}>{currentUser}</span>
-                </span>
+              <div className="you-are-tag">
+                You are <span className="username">{currentUser}</span>
               </div>
             )}
           </div>

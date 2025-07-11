@@ -96,19 +96,25 @@ export default function MessageInput({
   }, [messageText]);
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-50 px-4 pb-[env(safe-area-inset-bottom)] bg-background/80 backdrop-blur">
+    <div 
+      className="fixed bottom-0 inset-x-0 z-50 px-4 bg-background/90 backdrop-blur-md border-t border-subtle"
+      style={{
+        paddingBottom: `calc(0.75rem + env(safe-area-inset-bottom, 0px) + env(keyboard-inset-height, 0px))`
+      }}
+    >
       <form onSubmit={handleSubmit} className="w-full py-3">
         <div 
-          className="relative flex items-center transition-all duration-200 max-w-4xl mx-auto"
+          className="relative flex items-center max-w-4xl mx-auto"
           style={{
             backgroundColor: 'var(--input-bg)',
-            border: '1px solid var(--input-border)',
-            borderRadius: '0.75rem', // 12px soft rounded corners
+            border: '2px solid var(--input-border)',
+            borderRadius: '0.75rem',
             minHeight: '44px',
             maxHeight: '120px',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)'
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
           }}
         >
           <textarea
@@ -147,8 +153,8 @@ export default function MessageInput({
               fontFamily: 'var(--font-base)',
               fontWeight: 'var(--font-weight-normal)',
               lineHeight: 'var(--line-height)',
-              padding: '0.75rem 1rem',
-              borderRadius: '0.75rem',
+              padding: '0.875rem 1rem',
+              borderRadius: '0.625rem',
               minHeight: '44px',
               maxHeight: '120px',
               backgroundColor: 'transparent',
@@ -156,7 +162,9 @@ export default function MessageInput({
               resize: 'none',
               touchAction: 'manipulation',
               outline: 'none',
-              border: 'none'
+              border: 'none',
+              caretColor: 'var(--text)',
+              textRendering: 'optimizeLegibility'
             }}
             maxLength={maxLength}
             disabled={isRateLimited}
