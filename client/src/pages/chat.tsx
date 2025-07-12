@@ -228,7 +228,7 @@ export default function Chat() {
               variant="ghost"
               size="sm"
               onClick={() => setProfanityFilter(!profanityFilter)}
-              className="p-3 transition-colors rounded-lg min-h-11 min-w-11"
+              className="p-3 transition-colors rounded-lg min-h-11 min-w-11 pt-[0px] pb-[0px] pl-[0px] pr-[0px]"
               style={{
                 backgroundColor: profanityFilter ? 'var(--bubble-other)' : 'transparent',
                 color: profanityFilter ? 'var(--text)' : 'var(--text-muted)'
