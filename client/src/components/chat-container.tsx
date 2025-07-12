@@ -62,10 +62,19 @@ export default function ChatContainer({
     if (isNaN(expires.getTime())) return '';
     if (expires <= now) return 'expired';
     
-    return formatDistanceToNow(expires, { addSuffix: false }) + ' left';
+    // Calculate minutes and seconds remaining
+    const msRemaining = expires.getTime() - now.getTime();
+    const minutesRemaining = Math.floor(msRemaining / (1000 * 60));
+    const secondsRemaining = Math.floor((msRemaining % (1000 * 60)) / 1000);
+    
+    if (minutesRemaining <= 0 && secondsRemaining <= 0) return 'expired';
+    if (minutesRemaining <= 0) return `${secondsRemaining}s`;
+    
+    return `${minutesRemaining}m ${secondsRemaining}s`;
   };
 
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<{[key: string]: string}>({});
 
   const handleLongPressStart = (message: any) => {
     const timer = setTimeout(() => {
@@ -89,6 +98,22 @@ export default function ChatContainer({
   // Smart scroll-to-bottom: only if user is already at bottom
   const chatRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  
+  // Update timers every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newTimeRemaining: {[key: string]: string} = {};
+      filteredMessages.forEach(message => {
+        const messageData = message.data || message;
+        if (messageData.expiresAt) {
+          newTimeRemaining[messageData.id] = getTimeUntilDelete(messageData.expiresAt);
+        }
+      });
+      setTimeRemaining(newTimeRemaining);
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [filteredMessages]);
   
   useEffect(() => {
     const el = chatRef.current;
@@ -165,7 +190,10 @@ export default function ChatContainer({
           key={messageData.id || `message-${index}-${Date.now()}`} 
           className={`message-bubble message-fade-in group max-w-lg mx-auto ${
             isOwnMessage ? 'own-message' : isSystemMessage ? 'system-message' : 'other-message'
-          } ${isCompact ? 'compact' : ''}`}
+          } ${isCompact ? 'compact' : ''} ${
+            timeRemaining[messageData.id] === 'expired' ? 'opacity-30 animate-pulse' :
+            timeRemaining[messageData.id]?.includes('0m') ? 'animate-shimmer' : ''
+          }`}
           onTouchStart={() => handleLongPressStart(messageData)}
           onTouchEnd={handleLongPressEnd}
           onMouseDown={() => handleLongPressStart(messageData)}
@@ -196,8 +224,11 @@ export default function ChatContainer({
                       {formatTime(messageData.createdAt || messageData.timestamp)}
                     </span>
                     {/* Message timer */}
-                    <span className="message-timer text-xs opacity-60 ml-2">
-                      {getTimeUntilDelete(messageData.expiresAt)}
+                    <span className={`message-timer text-xs opacity-60 ml-2 ${
+                      timeRemaining[messageData.id] === 'expired' ? 'animate-pulse text-red-400' : 
+                      timeRemaining[messageData.id]?.includes('0m') ? 'text-orange-400 animate-pulse' : ''
+                    }`}>
+                      {timeRemaining[messageData.id] || getTimeUntilDelete(messageData.expiresAt)}
                     </span>
                   </div>
                 )}

@@ -33,9 +33,7 @@ export default function Chat() {
   const [replyingTo, setReplyingTo] = useState<{ id: number; content: string; username: string } | null>(null);
   const [globalCooldown, setGlobalCooldown] = useState<{ active: boolean; timeLeft: number; reason: string } | null>(null);
   const [showRoomsSidebar, setShowRoomsSidebar] = useState(false);
-  const [hasUserSentMessage, setHasUserSentMessage] = useState(() => {
-    return sessionStorage.getItem('voidchat-user-sent-message') === 'true';
-  });
+  const [hasUserSentMessage, setHasUserSentMessage] = useState(false);
 
   // Fetch rooms for dropdown
   const { data: rooms = [], isLoading: roomsLoading } = useQuery({
@@ -149,7 +147,6 @@ export default function Chat() {
       const userHasSentMessage = messages.some(message => message.username === currentUser);
       if (userHasSentMessage) {
         setHasUserSentMessage(true);
-        sessionStorage.setItem('voidchat-user-sent-message', 'true');
       }
     }
   }, [messages, currentUser, hasUserSentMessage]);
