@@ -174,10 +174,20 @@ export default function ChatContainer({
     return false;
   };
 
+  // Helper function to calculate dynamic spacing based on message content
+  const getDynamicSpacing = (messageData: any, isCompact: boolean) => {
+    const contentLength = messageData.content?.length || 0;
+    
+    if (isCompact) return 'mb-1'; // Minimal spacing for compact messages
+    if (contentLength < 20) return 'mb-2'; // Short messages get less space
+    if (contentLength < 100) return 'mb-3'; // Medium messages
+    return 'mb-4'; // Longer messages get more space
+  };
+
   return (
     <div 
       ref={chatRef}
-      className="w-full pb-0 space-y-4 px-2 sm:px-4"
+      className="w-full pb-0 space-y-0 px-2 sm:px-4"
       style={{ 
         paddingBottom: '0px'
       }}
@@ -193,7 +203,7 @@ export default function ChatContainer({
         return (
         <div 
           key={messageData.id || `message-${index}-${Date.now()}`} 
-          className={`message-bubble message-fade-in group max-w-lg mx-auto ${
+          className={`message-bubble message-fade-in group max-w-lg mx-auto ${getDynamicSpacing(messageData, isCompact)} ${
             isOwnMessage ? 'own-message' : isSystemMessage ? 'system-message' : 'other-message'
           } ${isCompact ? 'compact' : ''} ${
             timeRemaining[messageData.id] === 'expired' ? 'opacity-30 animate-pulse' :
@@ -221,20 +231,22 @@ export default function ChatContainer({
               <div className="message-content-wrapper">
                 {/* Message header with timer */}
                 {!isCompact && (
-                  <div className="message-header mb-2">
-                    <span className="message-username">
+                  <div className="message-header mb-1">
+                    <span className="message-username text-xs">
                       {messageData.username}
                     </span>
-                    <span className="message-timestamp">
+                    <span className="message-timestamp text-xs">
                       {formatTime(messageData.createdAt || messageData.timestamp)}
                     </span>
                     {/* Message timer */}
-                    <span className={`message-timer text-xs opacity-60 ml-2 ${
-                      timeRemaining[messageData.id] === 'expired' ? 'animate-pulse text-red-400' : 
-                      timeRemaining[messageData.id]?.includes('0m') ? 'text-orange-400 animate-pulse' : ''
-                    }`}>
-                      {timeRemaining[messageData.id] || getTimeUntilDelete(messageData.expiresAt)}
-                    </span>
+                    {getTimeUntilDelete(messageData.expiresAt) && (
+                      <span className={`message-timer text-xs opacity-60 ml-2 ${
+                        timeRemaining[messageData.id] === 'expired' ? 'animate-pulse text-red-400' : 
+                        timeRemaining[messageData.id]?.includes('0m') ? 'text-orange-400 animate-pulse' : ''
+                      }`}>
+                        {timeRemaining[messageData.id] || getTimeUntilDelete(messageData.expiresAt)}
+                      </span>
+                    )}
                   </div>
                 )}
                 

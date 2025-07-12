@@ -669,17 +669,23 @@ textarea,
   -moz-hyphens: auto;
 }
 
-/* Enhanced message styling with better contrast and spacing */
+/* Enhanced message styling with dynamic spacing */
 .message-bubble {
   max-width: 600px;
   margin: 0 auto;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s ease;
+}
+
+/* Compact message styling for consecutive messages */
+.message-bubble.compact {
+  padding: 0.25rem 0.75rem;
+  margin-top: 0.125rem;
+  border-radius: 6px;
 }
 
 .dark .message-bubble {
@@ -1583,11 +1589,17 @@ textarea,
 @media (max-width: 768px) {
   /* Enhanced mobile message spacing */
   .message-container {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem;
   }
   
   .message-bubble {
-    margin-bottom: 1rem;
+    padding: 0.375rem 0.625rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .message-bubble.compact {
+    padding: 0.25rem 0.625rem;
+    margin-bottom: 0.25rem;
   }
   
   .message-content {
