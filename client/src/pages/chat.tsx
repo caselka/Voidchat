@@ -190,13 +190,14 @@ export default function Chat() {
         
         {/* Main Chat Messages Area */}
         <div className="chat-messages-area overflow-y-auto touch-pan-y" style={{
-          height: 'calc(100vh - 8.75rem)',
+          height: hasUserSentMessage ? 'calc(100vh - 6rem)' : 'calc(100vh - 8.75rem)',
           WebkitOverflowScrolling: 'touch',
-          overscrollBehavior: 'contain'
+          overscrollBehavior: 'contain',
+          transition: 'height 1s ease-in-out'
         }}>
         {/* Welcome Section */}
-        <div className={`max-w-4xl mx-auto px-4 transition-opacity duration-1000 ${hasUserSentMessage ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-          <div className="text-center py-6 md:py-8 space-y-4 pt-[3px] pb-[3px]">
+        <div className={`max-w-4xl mx-auto px-4 transition-all duration-1000 ${hasUserSentMessage ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100'}`}>
+          <div className="text-center py-2 md:py-3 space-y-4 pt-[3px] pb-[0px]">
             <div className="space-y-3">
               <div className="flex items-center justify-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
