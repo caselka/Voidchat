@@ -175,7 +175,7 @@ export default function Chat() {
         
         {/* Main Chat Messages Area */}
         <div className="chat-messages-area overflow-y-auto touch-pan-y" style={{
-          height: 'calc(100vh - 140px)',
+          height: 'calc(100vh - 8.75rem)',
           WebkitOverflowScrolling: 'touch',
           overscrollBehavior: 'contain'
         }}>
