@@ -99,6 +99,15 @@ export default function ChatContainer({
   const chatRef = useRef<HTMLDivElement>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
   
+  // Filter messages first
+  const filteredMessages = messages.filter(message => {
+    // Handle both direct message format and wrapped format
+    const content = message.content || message.data?.content;
+    return content && 
+           typeof content === 'string' && 
+           content.trim().length > 0;
+  });
+
   // Update timers every second
   useEffect(() => {
     const interval = setInterval(() => {
@@ -135,14 +144,6 @@ export default function ChatContainer({
     el.addEventListener('scroll', checkIfAtBottom);
     return () => el.removeEventListener('scroll', checkIfAtBottom);
   }, [messages, isAtBottom]);
-
-  const filteredMessages = messages.filter(message => {
-    // Handle both direct message format and wrapped format
-    const content = message.content || message.data?.content;
-    return content && 
-           typeof content === 'string' && 
-           content.trim().length > 0;
-  });
 
   // Use the passed currentUser prop
 

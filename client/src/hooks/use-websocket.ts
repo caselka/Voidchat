@@ -159,6 +159,8 @@ export function useWebSocket(): WebSocketHook {
         }
       } catch (error) {
         console.error('Error loading initial messages:', error);
+        // Set loaded to true even on error to prevent infinite loading
+        setMessagesLoaded(true);
       }
     };
 
