@@ -181,7 +181,7 @@ export default function Chat() {
         }}>
         {/* Welcome Section */}
         <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center py-6 md:py-8 space-y-4 pt-[0px] pb-[0px]">
+          <div className="text-center py-6 md:py-8 space-y-4 pt-[3px] pb-[3px]">
             <div className="space-y-3">
               <div className="flex items-center justify-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
@@ -228,7 +228,7 @@ export default function Chat() {
               variant="ghost"
               size="sm"
               onClick={() => setProfanityFilter(!profanityFilter)}
-              className="p-3 transition-colors rounded-lg min-h-11 min-w-11 pt-[0px] pb-[0px] pl-[0px] pr-[0px]"
+              className="p-3 transition-colors rounded-lg min-h-11 min-w-11 pt-[15px] pb-[15px] pl-[0px] pr-[0px]"
               style={{
                 backgroundColor: profanityFilter ? 'var(--bubble-other)' : 'transparent',
                 color: profanityFilter ? 'var(--text)' : 'var(--text-muted)'
