@@ -190,7 +190,7 @@ export default function Chat() {
                 </h1>
               </div>
               <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                Anonymous real-time chat • Messages persist permanently
+                Anonymous real-time chat • Messages are impermanent
               </p>
             </div>
             
