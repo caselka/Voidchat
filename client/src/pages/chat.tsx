@@ -181,7 +181,7 @@ export default function Chat() {
         }}>
         {/* Welcome Section */}
         <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center py-6 md:py-8 space-y-4">
+          <div className="text-center py-6 md:py-8 space-y-4 pt-[0px] pb-[0px]">
             <div className="space-y-3">
               <div className="flex items-center justify-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
