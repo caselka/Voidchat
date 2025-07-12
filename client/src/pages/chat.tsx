@@ -26,10 +26,7 @@ export default function Chat() {
   const { theme, toggleTheme } = useTheme();
   const { user, isAuthenticated, isLoading } = useAuth();
   const { messages, isConnected, currentUser, onlineCount, sendMessage, muteUser, deleteMessage, enableSlowMode, error, rateLimitTime } = useWebSocket();
-  const [profanityFilter, setProfanityFilter] = useState(() => {
-    const saved = localStorage.getItem('voidchat-profanity-filter');
-    return saved ? JSON.parse(saved) : false;
-  });
+  const [profanityFilter, setProfanityFilter] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isHumanVerified, setIsHumanVerified] = useState(false);
   const [showWalkthrough, setShowWalkthrough] = useState(false);
@@ -230,16 +227,11 @@ export default function Chat() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => {
-                const newValue = !profanityFilter;
-                setProfanityFilter(newValue);
-                localStorage.setItem('voidchat-profanity-filter', JSON.stringify(newValue));
-              }}
-              className="p-3 transition-colors rounded-lg min-h-11 whitespace-nowrap"
+              onClick={() => setProfanityFilter(!profanityFilter)}
+              className="p-3 transition-colors rounded-lg min-h-11 min-w-11"
               style={{
                 backgroundColor: profanityFilter ? 'var(--bubble-other)' : 'transparent',
-                color: profanityFilter ? 'var(--text)' : 'var(--text-muted)',
-                minWidth: 'auto'
+                color: profanityFilter ? 'var(--text)' : 'var(--text-muted)'
               }}
               title="Toggle profanity filter"
             >
