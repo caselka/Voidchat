@@ -68,13 +68,13 @@ export default function ChatContainer({
     const secondsRemaining = Math.floor((msRemaining % (1000 * 60)) / 1000);
     
     if (minutesRemaining <= 0 && secondsRemaining <= 0) return 'expired';
-    if (minutesRemaining <= 0) return `${secondsRemaining}s`;
-    if (minutesRemaining < 60) return `${minutesRemaining}m ${secondsRemaining}s`;
     
-    // For longer periods, show hours and minutes
-    const hoursRemaining = Math.floor(minutesRemaining / 60);
-    const remainingMins = minutesRemaining % 60;
-    return `${hoursRemaining}h ${remainingMins}m`;
+    // Hide countdown for messages with unreasonably long expiration times (over 1 hour)
+    // This handles old messages that were set to expire in 1 year
+    if (minutesRemaining > 60) return '';
+    
+    if (minutesRemaining <= 0) return `${secondsRemaining}s`;
+    return `${minutesRemaining}m ${secondsRemaining}s`;
   };
 
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
