@@ -129,21 +129,33 @@ export default function ChatContainer({
   }, [filteredMessages]);
   
   useEffect(() => {
+    const container = document.querySelector('.chat-messages-area') as HTMLElement;
+    if (!container) return;
+    
     const checkIfAtBottom = () => {
       const threshold = 100;
-      const isNearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - threshold;
+      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
       setIsAtBottom(isNearBottom);
     };
     
-    // Auto-scroll only if user was already at bottom
-    if (isAtBottom) {
-      setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight);
-      }, 50);
-    }
+    checkIfAtBottom(); // Check immediately
     
-    window.addEventListener('scroll', checkIfAtBottom);
-    return () => window.removeEventListener('scroll', checkIfAtBottom);
+    container.addEventListener('scroll', checkIfAtBottom);
+    return () => container.removeEventListener('scroll', checkIfAtBottom);
+  }, []);
+
+  // Separate effect for auto-scrolling when new messages arrive
+  useEffect(() => {
+    const container = document.querySelector('.chat-messages-area') as HTMLElement;
+    if (!container || !isAtBottom || messages.length === 0) return;
+    
+    // Use requestAnimationFrame for smooth scrolling
+    requestAnimationFrame(() => {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth'
+      });
+    });
   }, [messages, isAtBottom]);
 
   // Use the passed currentUser prop
