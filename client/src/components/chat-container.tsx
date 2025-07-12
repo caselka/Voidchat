@@ -129,24 +129,21 @@ export default function ChatContainer({
   }, [filteredMessages]);
   
   useEffect(() => {
-    const el = chatRef.current;
-    if (!el) return;
-    
     const checkIfAtBottom = () => {
       const threshold = 100;
-      const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+      const isNearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - threshold;
       setIsAtBottom(isNearBottom);
     };
     
     // Auto-scroll only if user was already at bottom
     if (isAtBottom) {
       setTimeout(() => {
-        el.scrollTop = el.scrollHeight;
+        window.scrollTo(0, document.body.scrollHeight);
       }, 50);
     }
     
-    el.addEventListener('scroll', checkIfAtBottom);
-    return () => el.removeEventListener('scroll', checkIfAtBottom);
+    window.addEventListener('scroll', checkIfAtBottom);
+    return () => window.removeEventListener('scroll', checkIfAtBottom);
   }, [messages, isAtBottom]);
 
   // Use the passed currentUser prop
@@ -174,7 +171,7 @@ export default function ChatContainer({
     return false;
   };
 
-  // Helper function to calculate dynamic spacing based on message content
+  // Helper function to calculate dynamic spacing and padding based on message content
   const getDynamicSpacing = (messageData: any, isCompact: boolean) => {
     const contentLength = messageData.content?.length || 0;
     
@@ -182,6 +179,17 @@ export default function ChatContainer({
     if (contentLength < 20) return 'mb-2'; // Short messages get less space
     if (contentLength < 100) return 'mb-3'; // Medium messages
     return 'mb-4'; // Longer messages get more space
+  };
+
+  // Helper function to get dynamic padding based on content length
+  const getDynamicPadding = (messageData: any, isCompact: boolean) => {
+    const contentLength = messageData.content?.length || 0;
+    
+    if (isCompact) return { padding: '0.25rem 0.5rem' };
+    if (contentLength < 10) return { padding: '0.375rem 0.625rem' }; // Very short
+    if (contentLength < 50) return { padding: '0.5rem 0.75rem' }; // Short-medium
+    if (contentLength < 150) return { padding: '0.625rem 0.875rem' }; // Medium
+    return { padding: '0.75rem 1rem' }; // Long messages get more padding
   };
 
   return (
@@ -209,6 +217,7 @@ export default function ChatContainer({
             timeRemaining[messageData.id] === 'expired' ? 'opacity-30 animate-pulse' :
             timeRemaining[messageData.id]?.includes('0m') ? 'animate-shimmer' : ''
           }`}
+          style={getDynamicPadding(messageData, isCompact)}
           onTouchStart={() => handleLongPressStart(messageData)}
           onTouchEnd={handleLongPressEnd}
           onMouseDown={() => handleLongPressStart(messageData)}
