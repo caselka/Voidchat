@@ -33,6 +33,9 @@ export default function Chat() {
   const [replyingTo, setReplyingTo] = useState<{ id: number; content: string; username: string } | null>(null);
   const [globalCooldown, setGlobalCooldown] = useState<{ active: boolean; timeLeft: number; reason: string } | null>(null);
   const [showRoomsSidebar, setShowRoomsSidebar] = useState(false);
+  const [hasUserSentMessage, setHasUserSentMessage] = useState(() => {
+    return sessionStorage.getItem('voidchat-user-sent-message') === 'true';
+  });
 
   // Fetch rooms for dropdown
   const { data: rooms = [], isLoading: roomsLoading } = useQuery({
@@ -139,6 +142,18 @@ export default function Chat() {
     }
   }, [messages]);
 
+  // Track when user sends their first message
+  useEffect(() => {
+    if (messages.length > 0 && currentUser && !hasUserSentMessage) {
+      // Check if any message is from the current user
+      const userHasSentMessage = messages.some(message => message.username === currentUser);
+      if (userHasSentMessage) {
+        setHasUserSentMessage(true);
+        sessionStorage.setItem('voidchat-user-sent-message', 'true');
+      }
+    }
+  }, [messages, currentUser, hasUserSentMessage]);
+
   // Show connection status
   if (!isConnected) {
     return (
@@ -180,7 +195,7 @@ export default function Chat() {
           overscrollBehavior: 'contain'
         }}>
         {/* Welcome Section */}
-        <div className="max-w-4xl mx-auto px-4">
+        <div className={`max-w-4xl mx-auto px-4 transition-opacity duration-1000 ${hasUserSentMessage ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
           <div className="text-center py-6 md:py-8 space-y-4 pt-[3px] pb-[3px]">
             <div className="space-y-3">
               <div className="flex items-center justify-center space-x-2">
@@ -222,13 +237,13 @@ export default function Chat() {
           </div>
           
           {/* Status indicators */}
-          <div className="flex justify-center items-center mobile-status-buttons">
+          <div className={`flex justify-center items-center mobile-status-buttons transition-opacity duration-1000 ${hasUserSentMessage ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             {/* Profanity Filter Toggle */}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setProfanityFilter(!profanityFilter)}
-              className="p-3 transition-colors rounded-lg min-h-11 min-w-11 pt-[15px] pb-[15px] pl-[0px] pr-[0px]"
+              className="p-3 transition-colors rounded-lg min-h-11 min-w-11 pt-[5px] pb-[5px] pl-[0px] pr-[0px]"
               style={{
                 backgroundColor: profanityFilter ? 'var(--bubble-other)' : 'transparent',
                 color: profanityFilter ? 'var(--text)' : 'var(--text-muted)'
