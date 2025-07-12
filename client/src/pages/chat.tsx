@@ -237,7 +237,7 @@ export default function Chat() {
           </div>
           
           {/* Status indicators */}
-          <div className={`flex justify-center items-center mobile-status-buttons transition-opacity duration-1000 ${hasUserSentMessage ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <div className={`flex justify-center items-center mobile-status-buttons pt-[2px] pb-[2px] transition-opacity duration-1000 ${hasUserSentMessage ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             {/* Profanity Filter Toggle */}
             <Button
               variant="ghost"
