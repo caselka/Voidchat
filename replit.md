@@ -201,12 +201,12 @@ Preferred communication style: Simple, everyday language.
 - **Room settings management**: Configure slow mode, set mute durations, and access detailed room analytics
 - **Database schema updates**: Added room features including privacy, user limits, rules, and moderation tracking
 
-### Permanent Message Storage Implementation
-- **Removed message expiration system**: Messages are now stored permanently in the backend instead of the previous 15-minute TTL
-- **Updated database schema**: Removed `expires_at` column from messages table to reflect permanent storage
-- **Fixed cleanup processes**: Removed expired message deletion from scheduled cleanup jobs
-- **Enhanced data persistence**: All chat messages now persist permanently for better user experience and data accuracy
-- **Updated storage interface**: Modified message retrieval to work with permanent storage, maintaining backward compatibility
+### Message Expiration System Restored (July 12, 2025)
+- **Restored 15-minute message expiration**: Fixed message expiration system to work properly with 15-minute TTL as originally intended
+- **Fixed countdown timer display**: Improved countdown timer to show accurate time remaining and handle different time periods properly
+- **Active cleanup processes**: Periodic cleanup jobs remove expired messages every 5 minutes
+- **Enhanced timer visualization**: Messages show real-time countdown with proper formatting (minutes/seconds for short periods, hours/minutes for longer ones)
+- **Backward compatibility maintained**: Database schema supports expiration times while providing real-time updates
 
 ### Enhanced Backend Dashboard with User Preferences and Sponsor Management (Latest)
 - **Date format customization**: Users can choose between relative (2h ago), short (Jan 9, 2:30 PM), or full format display

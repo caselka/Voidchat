@@ -62,15 +62,19 @@ export default function ChatContainer({
     if (isNaN(expires.getTime())) return '';
     if (expires <= now) return 'expired';
     
-    // Calculate minutes and seconds remaining
+    // Calculate time remaining
     const msRemaining = expires.getTime() - now.getTime();
     const minutesRemaining = Math.floor(msRemaining / (1000 * 60));
     const secondsRemaining = Math.floor((msRemaining % (1000 * 60)) / 1000);
     
     if (minutesRemaining <= 0 && secondsRemaining <= 0) return 'expired';
     if (minutesRemaining <= 0) return `${secondsRemaining}s`;
+    if (minutesRemaining < 60) return `${minutesRemaining}m ${secondsRemaining}s`;
     
-    return `${minutesRemaining}m ${secondsRemaining}s`;
+    // For longer periods, show hours and minutes
+    const hoursRemaining = Math.floor(minutesRemaining / 60);
+    const remainingMins = minutesRemaining % 60;
+    return `${hoursRemaining}h ${remainingMins}m`;
   };
 
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
@@ -173,9 +177,9 @@ export default function ChatContainer({
   return (
     <div 
       ref={chatRef}
-      className="w-full pb-4 space-y-4 px-2 sm:px-4"
+      className="w-full pb-0 space-y-4 px-2 sm:px-4"
       style={{ 
-        paddingBottom: 'calc(2rem + env(safe-area-inset-bottom, 0px))'
+        paddingBottom: '0px'
       }}
     >
       {filteredMessages.map((message, index) => {

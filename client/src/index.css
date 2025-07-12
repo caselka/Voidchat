@@ -115,7 +115,7 @@ input, textarea {
 
 /* Fixed input bottom spacing - ensure messages don't get hidden */
 .chat-messages-area {
-  padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
+  padding-bottom: calc(0px + env(safe-area-inset-bottom)) !important;
 }
 
 /* Enhanced theme variables for high contrast */
@@ -814,7 +814,7 @@ textarea,
 @media (max-width: 768px) {
   .chat-messages-area {
     height: calc(100vh - 120px);
-    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0px);
   }
 }
 

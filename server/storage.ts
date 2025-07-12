@@ -225,8 +225,8 @@ export class DatabaseStorage implements IStorage {
     // Additional security check: Ensure content and username are clean
     const { sanitizeMessageContent, sanitizeUsername } = await import('./security');
     
-    // Messages are now stored permanently (set long expiration for compatibility)
-    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+    // Messages expire after 15 minutes as originally intended
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
     
     const [message] = await db
       .insert(messages)
